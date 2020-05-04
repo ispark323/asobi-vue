@@ -11,11 +11,6 @@ import Navigation from '@/components/Navigation.vue';
 
 export default {
   name: 'App',
-  data: function() {
-    return {
-      user: null,
-    };
-  },
   components: {
     Navigation,
   },
