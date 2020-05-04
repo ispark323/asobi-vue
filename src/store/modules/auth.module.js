@@ -56,7 +56,6 @@ const actions = {
         photoURL: res.user.photoURL,
       };
       commit('LOGIN', userInfo);
-      console.log(userInfo);
     } catch (error) {
       console.log(error);
       alert(error.message);

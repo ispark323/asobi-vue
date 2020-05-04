@@ -8,10 +8,10 @@
         type="password"
         placeholder="Password"
         id="password1"
-        @keypress.enter="handleSubmit"
+        @keypress.enter="handleLogin"
       />
 
-      <button @click="handleSubmit" class="btn btn-primary">
+      <button @click="handleLogin" class="btn btn-primary">
         Login
       </button>
     </form>
@@ -29,12 +29,13 @@ export default {
   },
   methods: {
     ...mapActions(['login']),
-    handleSubmit() {
+    handleLogin() {
       const loginData = {
         email: this.email,
         password: this.password,
       };
       this.login(loginData);
+      this.$router.push('/feed');
     },
   },
 };

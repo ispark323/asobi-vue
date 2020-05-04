@@ -1,10 +1,15 @@
 <template>
   <div>
-    <nav class="site-nav navbar navbar-expand bg-primary navbar-dark">
+    <nav class="site-nav navbar navbar-expand">
       <div class="container-fluid">
         <router-link class="navbar-brand" to="/">Home</router-link>
         <div class="right menu">
-          <a href="#" class="ui item" @click="login"> Login </a>
+          <div v-if="isLoggedIn" class="horizontal">
+            <router-link to="/feed" class="item"> Feed </router-link>
+            <button class="nav-item nav-link btn btn-link" @click="handleLogout">logout</button>
+          </div>
+
+          <router-link v-else class="nav-item nav-link" to="/login">Login</router-link>
         </div>
         <!-- <div class="navbar-nav ml-auto">
           <router-link class="nav-item nav-link" to="/home" v-if="user">home</router-link>
@@ -18,12 +23,22 @@
 </template>
 
 <script>
-import { mapActions } from 'vuex';
+import { mapGetters, mapActions } from 'vuex';
 
 export default {
   name: 'Navigation',
+  computed: {
+    ...mapGetters(['userData']),
+    isLoggedIn() {
+      return this.userData.isLoggedIn;
+    },
+  },
   methods: {
-    ...mapActions(['login']),
+    ...mapActions(['login', 'logout']),
+    handleLogout() {
+      this.logout();
+      this.$router.push('/');
+    },
   },
 };
 </script>
