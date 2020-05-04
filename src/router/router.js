@@ -2,6 +2,7 @@ import Vue from 'vue';
 import VueRouter from 'vue-router';
 import Home from '@/components/Home.vue';
 import Login from '@/components/Login.vue';
+import Register from '@/components/Register';
 import Feed from '@/components/Feed.vue';
 import Account from '@/components/Account';
 
@@ -10,7 +11,7 @@ Vue.use(VueRouter);
 const routes = [
   {
     path: '*',
-    redirect: '/',
+    redirect: '/feed',
   },
   {
     path: '/',
@@ -21,6 +22,11 @@ const routes = [
     path: '/login',
     name: 'Login',
     component: Login,
+  },
+  {
+    path: '/register',
+    name: 'Register',
+    component: Register,
   },
   {
     path: '/feed',

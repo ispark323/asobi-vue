@@ -5,8 +5,8 @@
         <router-link class="navbar-brand" to="/">Home</router-link>
         <div class="right menu">
           <div v-if="isLoggedIn" class="horizontal">
-            <router-link to="/feed" class="item"> Feed </router-link>
-            <button class="nav-item nav-link btn btn-link" @click="handleLogout">logout</button>
+            <router-link to="/feed" class="item">Feed</router-link>
+            <a class="item" @click="handleLogout">Logout</a>
           </div>
 
           <router-link v-else class="nav-item nav-link" to="/login">Login</router-link>
@@ -34,7 +34,7 @@ export default {
     },
   },
   methods: {
-    ...mapActions(['login', 'logout']),
+    ...mapActions(['logout']),
     handleLogout() {
       this.logout();
       this.$router.push('/');
@@ -42,3 +42,10 @@ export default {
   },
 };
 </script>
+
+<style lang="scss" scoped>
+.horizontal {
+  display: flex;
+  flex-direction: row;
+}
+</style>
