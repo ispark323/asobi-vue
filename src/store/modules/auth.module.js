@@ -12,6 +12,7 @@ const state = {
 
 const getters = {
   userData: state => state.userData,
+  isLoggedIn: state => !!state.userData.isLoggedIn,
 };
 
 const mutations = {

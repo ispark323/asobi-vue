@@ -5,7 +5,7 @@ import Login from '@/components/Login.vue';
 import Register from '@/components/Register';
 import Feed from '@/components/Feed.vue';
 import Account from '@/components/Account';
-// import firebase from 'firebase';
+import store from '../store/store';
 
 Vue.use(VueRouter);
 
@@ -28,17 +28,13 @@ const routes = [
     path: '/feed',
     name: 'Feed',
     component: Feed,
-    meta: {
-      requiresAuth: true,
-    },
+    meta: { requiresAuth: true },
   },
   {
     path: '/account',
     name: 'Account',
     component: Account,
-    meta: {
-      requiresAuth: true,
-    },
+    meta: { requiresAuth: true },
   },
 ];
 
@@ -48,8 +44,20 @@ const router = new VueRouter({
   routes,
 });
 
+router.beforeEach((to, from, next) => {
+  if (to.matched.some(record => record.meta.requiresAuth)) {
+    if (!store.getters.isLoggedIn) {
+      next('/login');
+    } else {
+      next();
+    }
+  } else {
+    next();
+  }
+});
+
 // router.beforeEach((to, from, next) => {
-//   const requiresAuth = to.matched.some(x => x.meta.requiresAuth);
+//   const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
 //   const currentUser = firebase.auth().currentUser;
 
 //   if (requiresAuth && !currentUser) {
