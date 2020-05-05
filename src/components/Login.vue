@@ -15,6 +15,7 @@
         Login
       </button>
     </form>
+    <router-link class="nav-item nav-link" to="/register">Register</router-link>
   </div>
 </template>
 

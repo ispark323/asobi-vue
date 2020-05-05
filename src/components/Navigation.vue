@@ -2,7 +2,7 @@
   <div>
     <nav class="site-nav navbar navbar-expand">
       <div class="container-fluid">
-        <router-link class="navbar-brand" to="/">Home</router-link>
+        <router-link class="navbar-brand" to="/feed">Home</router-link>
         <div class="right menu">
           <div v-if="isLoggedIn" class="horizontal">
             <router-link to="/feed" class="item">Feed</router-link>
