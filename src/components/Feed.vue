@@ -152,3 +152,30 @@ function stopVideo() {
   player.stopVideo();
 }
 </script>
+
+<script>
+import { mapActions, mapGetters } from 'vuex';
+
+export default {
+  name: 'Feed',
+  data() {
+    return {
+      post: {
+        title: '',
+        content: '',
+      },
+    };
+  },
+  methods: {
+    ...mapActions(['createPost']),
+    handleSubmit: function() {
+      if (this.content.length === 0) {
+        return alert('There is no content.');
+      }
+      this.createPost(this.post);
+      this.post.title = '';
+      this.post.content = '';
+    },
+  },
+};
+</script>

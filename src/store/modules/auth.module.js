@@ -1,6 +1,6 @@
 // const fb = require('@/firebase.js');
-import { firebaseAuth } from '../../firebase';
-import router from '../../router/router';
+import { firebaseAuth } from '@/firebase';
+import router from '@/router/router';
 
 const state = {
   userData: {
@@ -13,7 +13,7 @@ const state = {
 
 const getters = {
   userData: state => state.userData,
-  isLoggedIn: state => !!state.userData.isLoggedIn,
+  isLoggedIn: state => state.userData.isLoggedIn,
 };
 
 const mutations = {
@@ -53,6 +53,7 @@ const actions = {
         loginData.password
       );
       const userInfo = {
+        displayName: res.user.displayName,
         email: res.user.email,
         emailVerified: res.user.emailVerified,
         photoURL: res.user.photoURL,
@@ -85,29 +86,20 @@ const actions = {
         registerData.password
       );
       // let user = fb.firebaseAuth().currentUser;
-      await res.user
-        .updateProfile({
-          displayName: registerData.username,
-        })
-        .then(function() {
-          // Update successful.
-          router.push('/feed');
-        })
-        .catch(function(error) {
-          console.log(error);
-          alert(error.message);
-          commit('FAIL', error.message);
-        });
+      await res.user.updateProfile({
+        displayName: registerData.displayName,
+      });
       // fb.usersCollection.doc(res.user.uid).set({
       //   username: registerData.username,
       // });
       const userInfo = {
-        username: res.user.displayName,
+        displayName: res.user.displayName,
         email: res.user.email,
         emailVerified: res.user.emailVerified,
         photoURL: res.user.photoURL,
       };
       commit('REGISTER', userInfo);
+      router.push('/feed');
     } catch (error) {
       console.log(error);
       alert(error.message);

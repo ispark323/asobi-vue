@@ -1,5 +1,10 @@
 <template>
   <div>
+    <div class="container text-center">
+      <div class="row justify-content-center">
+        <p>Unknown girls' playground</p>
+      </div>
+    </div>
     <form @submit.prevent>
       <input v-model="email" type="text" placeholder="Email" id="email1" />
 

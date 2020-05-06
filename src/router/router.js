@@ -1,11 +1,12 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
-// import Home from '@/components/Home.vue';
 import Login from '@/components/Login.vue';
 import Register from '@/components/Register';
 import Feed from '@/components/Feed.vue';
+import CreatePost from '@/components/CreatePost.vue';
 import Account from '@/components/Account';
-import store from '../store/store';
+
+import firebase from 'firebase';
 
 Vue.use(VueRouter);
 
@@ -31,6 +32,12 @@ const routes = [
     meta: { requiresAuth: true },
   },
   {
+    path: '/createpost',
+    name: 'CreatePost',
+    component: CreatePost,
+    meta: { requiresAuth: true },
+  },
+  {
     path: '/account',
     name: 'Account',
     component: Account,
@@ -44,29 +51,29 @@ const router = new VueRouter({
   routes,
 });
 
-router.beforeEach((to, from, next) => {
-  if (to.matched.some(record => record.meta.requiresAuth)) {
-    if (!store.getters.isLoggedIn) {
-      next('/login');
-    } else {
-      next();
-    }
-  } else {
-    next();
-  }
-});
-
 // router.beforeEach((to, from, next) => {
-//   const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
-//   const currentUser = firebase.auth().currentUser;
-
-//   if (requiresAuth && !currentUser) {
-//     next('/login');
-//   } else if (requiresAuth && currentUser) {
-//     next();
+//   if (to.matched.some(record => record.meta.requiresAuth)) {
+//     if (!store.getters.isLoggedIn) {
+//       next('/login');
+//     } else {
+//       next();
+//     }
 //   } else {
 //     next();
 //   }
 // });
+
+router.beforeEach((to, from, next) => {
+  const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
+  const currentUser = firebase.auth().currentUser;
+
+  if (requiresAuth && !currentUser) {
+    next('/login');
+  } else if (requiresAuth && currentUser) {
+    next();
+  } else {
+    next();
+  }
+});
 
 export default router;

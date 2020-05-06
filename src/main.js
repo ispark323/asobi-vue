@@ -3,18 +3,22 @@ import App from './App.vue';
 import router from './router/router';
 import store from './store/store';
 import './plugins/bootstrap-vue';
-// const fb = require('./firebase.js');
+const fb = require('@/firebase.js');
 
 Vue.config.productionTip = false;
 
-// fb.firebaseAuth.onAuthStateChanged(user => {
-//   if (user) {
-//     store.dispatch('fetchUser', user);
-//   }
-// });
-
-new Vue({
-  router,
-  store,
-  render: h => h(App),
-}).$mount('#app');
+// handle page reloads
+let app;
+fb.firebaseAuth.onAuthStateChanged(user => {
+  if (user) {
+    console.log('=== user logged in : ' + user.email + ' ===');
+    // store.commit("setCurrentUser", user);
+  }
+  if (!app) {
+    app = new Vue({
+      router,
+      store,
+      render: h => h(App),
+    }).$mount('#app');
+  }
+});
