@@ -44,7 +44,6 @@ export default {
         password: this.password,
       };
       this.register(registerData);
-      this.$router.push('/feed');
     },
   },
 };

@@ -1,5 +1,6 @@
 // const fb = require('@/firebase.js');
 import { firebaseAuth } from '../../firebase';
+import router from '../../router/router';
 
 const state = {
   userData: {
@@ -57,6 +58,7 @@ const actions = {
         photoURL: res.user.photoURL,
       };
       commit('LOGIN', userInfo);
+      router.push('/feed');
     } catch (error) {
       console.log(error);
       alert(error.message);
@@ -68,6 +70,7 @@ const actions = {
     try {
       await firebaseAuth.signOut();
       commit('LOGOUT');
+      router.push('/login');
     } catch (error) {
       console.log(error);
       alert(error.message);
@@ -82,12 +85,13 @@ const actions = {
         registerData.password
       );
       // let user = fb.firebaseAuth().currentUser;
-      res.user
+      await res.user
         .updateProfile({
           displayName: registerData.username,
         })
         .then(function() {
           // Update successful.
+          router.push('/feed');
         })
         .catch(function(error) {
           console.log(error);
