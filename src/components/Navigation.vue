@@ -8,6 +8,9 @@
             <router-link to="/createpost" class="nav-item nav-link">
               Create
             </router-link>
+            <router-link to="/account" class="nav-item nav-link">
+              Account
+            </router-link>
             <button
               class="nav-item nav-link btn btn-link btn-outline-primary"
               @click="handleLogout"

@@ -12,7 +12,9 @@ const state = {
 
 const getters = {
   userData: state => state.userData,
-  // isLoggedIn: state => state.userData.isLoggedIn,
+  // isAuthenticated(state) {
+  //   return state.userData !== null && state.userData != undefined;
+  // },
 };
 
 const mutations = {
@@ -98,6 +100,16 @@ const actions = {
       console.log(error);
       alert(error.message);
       commit('FAIL', error.message);
+    }
+  },
+  updateProfile: async (context, data) => {
+    try {
+      await firebaseAuth.currentUser.updateProfile({
+        displayName: data.displayName,
+      });
+    } catch (error) {
+      console.log(error);
+      alert(error.message);
     }
   },
 };

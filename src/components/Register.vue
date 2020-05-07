@@ -1,8 +1,8 @@
 <template>
   <div>
     <form @submit.prevent>
-      <label for="displayName">Display name</label>
-      <input v-model="displayName" type="text" placeholder="Display name" id="displayName" />
+      <label for="displayName">Nickname</label>
+      <input v-model="displayName" type="text" placeholder="Nickname" id="displayName" />
       <br />
 
       <label for="email1">Email</label>
