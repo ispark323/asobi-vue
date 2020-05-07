@@ -13,7 +13,7 @@ Vue.use(VueRouter);
 const routes = [
   {
     path: '*',
-    redirect: '/feed',
+    redirect: '/',
   },
   {
     path: '/login',

@@ -1,4 +1,3 @@
-// const fb = require('@/firebase.js');
 import { firebaseAuth } from '@/firebase';
 import router from '@/router/router';
 
@@ -13,25 +12,20 @@ const state = {
 
 const getters = {
   userData: state => state.userData,
-  isLoggedIn: state => state.userData.isLoggedIn,
+  // isLoggedIn: state => state.userData.isLoggedIn,
 };
 
 const mutations = {
+  setCurrentUser: (state, userInfo) => {
+    if (userInfo) {
+      state.userData = { ...state.userData, loading: true, isLoggedIn: true, userInfo };
+    }
+  },
   PENDING: state => {
     state.userData = { ...state.userData, loading: true };
   },
-  LOGIN: (state, userInfo) => {
-    if (userInfo) {
-      state.userData = { ...state.userData, loading: true, isLoggedIn: true, userInfo };
-    }
-  },
   LOGOUT: state => {
     state.userData = { ...state.userData, loading: true, isLoggedIn: false, userInfo: null };
-  },
-  REGISTER: (state, userInfo) => {
-    if (userInfo) {
-      state.userData = { ...state.userData, loading: true, isLoggedIn: true, userInfo };
-    }
   },
   FAIL: (state, errorMessage) => {
     state.userData = {
@@ -58,7 +52,7 @@ const actions = {
         emailVerified: res.user.emailVerified,
         photoURL: res.user.photoURL,
       };
-      commit('LOGIN', userInfo);
+      commit('setCurrentUser', userInfo);
       router.push('/feed');
     } catch (error) {
       console.log(error);
@@ -98,7 +92,7 @@ const actions = {
         emailVerified: res.user.emailVerified,
         photoURL: res.user.photoURL,
       };
-      commit('REGISTER', userInfo);
+      commit('setCurrentUser', userInfo);
       router.push('/feed');
     } catch (error) {
       console.log(error);
