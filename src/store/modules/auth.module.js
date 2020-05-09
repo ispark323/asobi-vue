@@ -112,6 +112,18 @@ const actions = {
       alert(error.message);
     }
   },
+  resetPassword: async ({ commit }, email) => {
+    commit('PENDING');
+    try {
+      await firebaseAuth.sendPasswordResetEmail(email);
+      commit('LOGOUT');
+      //router.push('login');
+    } catch (error) {
+      console.log(error);
+      alert(error.message);
+      commit('FAIL', error.message);
+    }
+  },
 };
 
 export default {
