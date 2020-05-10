@@ -6,7 +6,7 @@
     <input
       type="text"
       placeholder="Paste link here..."
-      v-model="post.content"
+      v-model="post.link"
       @keypress.enter="handleSubmit"
     />
     <br />
@@ -24,19 +24,19 @@ export default {
     return {
       post: {
         title: '',
-        content: '',
+        link: '',
       },
     };
   },
   methods: {
     ...mapActions(['createPost']),
     handleSubmit: function() {
-      if (this.post.content.length === 0) {
+      if (this.post.title.length === 0 || this.post.link.length) {
         return alert('There is no content.');
       }
       this.createPost(this.post);
       this.post.title = '';
-      this.post.content = '';
+      this.post.link = '';
     },
   },
 };

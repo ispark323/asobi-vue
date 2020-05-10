@@ -8,8 +8,8 @@
             <router-link to="/createpost" class="nav-item nav-link">
               Create
             </router-link>
-            <router-link to="/account" class="nav-item nav-link">
-              Account
+            <router-link to="/mypage" class="nav-item nav-link">
+              My Page
             </router-link>
             <button
               class="nav-item nav-link btn btn-link btn-outline-primary"

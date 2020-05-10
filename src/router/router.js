@@ -4,6 +4,7 @@ import Login from '@/components/Login.vue';
 import Register from '@/components/Register';
 import Feed from '@/components/Feed.vue';
 import CreatePost from '@/components/CreatePost.vue';
+import MyPage from '@/components/MyPage.vue';
 import Account from '@/components/Account';
 
 import firebase from 'firebase';
@@ -38,6 +39,12 @@ const routes = [
     meta: { requiresAuth: true },
   },
   {
+    path: '/mypage',
+    name: 'MyPage',
+    component: MyPage,
+    meta: { requiresAuth: true },
+  },
+  {
     path: '/account',
     name: 'Account',
     component: Account,
@@ -47,7 +54,7 @@ const routes = [
 
 const router = new VueRouter({
   mode: 'history',
-  base: process.env.BASE_URL,
+  // base: process.env.BASE_URL,
   routes,
 });
 
