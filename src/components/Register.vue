@@ -1,8 +1,8 @@
 <template>
   <div>
     <form @submit.prevent>
-      <label for="username">Username</label>
-      <input v-model="username" type="text" placeholder="Username" id="username" />
+      <label for="displayName">Nickname</label>
+      <input v-model="displayName" type="text" placeholder="Nickname" id="displayName" />
       <br />
 
       <label for="email1">Email</label>
@@ -30,7 +30,7 @@ import { mapActions } from 'vuex';
 export default {
   data() {
     return {
-      username: '',
+      displayName: '',
       email: '',
       password: '',
     };
@@ -39,12 +39,11 @@ export default {
     ...mapActions(['register']),
     handleRegister() {
       const registerData = {
-        username: this.username,
+        displayName: this.displayName,
         email: this.email,
         password: this.password,
       };
       this.register(registerData);
-      this.$router.push('/feed');
     },
   },
 };

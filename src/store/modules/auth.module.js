@@ -1,5 +1,5 @@
-// const fb = require('@/firebase.js');
-import { firebaseAuth } from '../../firebase';
+import { firebaseAuth } from '@/firebase';
+import router from '@/router/router';
 
 const state = {
   userData: {
@@ -12,24 +12,22 @@ const state = {
 
 const getters = {
   userData: state => state.userData,
+  // isAuthenticated(state) {
+  //   return state.userData !== null && state.userData != undefined;
+  // },
 };
 
 const mutations = {
+  setCurrentUser: (state, userInfo) => {
+    if (userInfo) {
+      state.userData = { ...state.userData, loading: true, isLoggedIn: true, userInfo };
+    }
+  },
   PENDING: state => {
     state.userData = { ...state.userData, loading: true };
   },
-  LOGIN: (state, userInfo) => {
-    if (userInfo) {
-      state.userData = { ...state.userData, loading: true, isLoggedIn: true, userInfo };
-    }
-  },
   LOGOUT: state => {
     state.userData = { ...state.userData, loading: true, isLoggedIn: false, userInfo: null };
-  },
-  REGISTER: (state, userInfo) => {
-    if (userInfo) {
-      state.userData = { ...state.userData, loading: true, isLoggedIn: true, userInfo };
-    }
   },
   FAIL: (state, errorMessage) => {
     state.userData = {
@@ -51,11 +49,13 @@ const actions = {
         loginData.password
       );
       const userInfo = {
+        displayName: res.user.displayName,
         email: res.user.email,
         emailVerified: res.user.emailVerified,
         photoURL: res.user.photoURL,
       };
-      commit('LOGIN', userInfo);
+      commit('setCurrentUser', userInfo);
+      router.push('/feed');
     } catch (error) {
       console.log(error);
       alert(error.message);
@@ -67,6 +67,7 @@ const actions = {
     try {
       await firebaseAuth.signOut();
       commit('LOGOUT');
+      router.push('/login');
     } catch (error) {
       console.log(error);
       alert(error.message);
@@ -81,28 +82,42 @@ const actions = {
         registerData.password
       );
       // let user = fb.firebaseAuth().currentUser;
-      res.user
-        .updateProfile({
-          displayName: registerData.username,
-        })
-        .then(function() {
-          // Update successful.
-        })
-        .catch(function(error) {
-          console.log(error);
-          alert(error.message);
-          commit('FAIL', error.message);
-        });
+      await res.user.updateProfile({
+        displayName: registerData.displayName,
+      });
       // fb.usersCollection.doc(res.user.uid).set({
       //   username: registerData.username,
       // });
       const userInfo = {
-        username: res.user.displayName,
+        displayName: res.user.displayName,
         email: res.user.email,
         emailVerified: res.user.emailVerified,
         photoURL: res.user.photoURL,
       };
-      commit('REGISTER', userInfo);
+      commit('setCurrentUser', userInfo);
+      router.push('/feed');
+    } catch (error) {
+      console.log(error);
+      alert(error.message);
+      commit('FAIL', error.message);
+    }
+  },
+  updateProfile: async (context, data) => {
+    try {
+      await firebaseAuth.currentUser.updateProfile({
+        displayName: data.displayName,
+      });
+    } catch (error) {
+      console.log(error);
+      alert(error.message);
+    }
+  },
+  resetPassword: async ({ commit }, email) => {
+    commit('PENDING');
+    try {
+      await firebaseAuth.sendPasswordResetEmail(email);
+      commit('LOGOUT');
+      //router.push('login');
     } catch (error) {
       console.log(error);
       alert(error.message);
