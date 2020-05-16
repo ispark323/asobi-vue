@@ -53,6 +53,7 @@ const actions = {
         email: res.user.email,
         emailVerified: res.user.emailVerified,
         photoURL: res.user.photoURL,
+        uid: res.user.uid,
       };
       commit('setCurrentUser', userInfo);
       router.push('/feed');

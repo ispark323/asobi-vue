@@ -1,11 +1,11 @@
 <template>
   <div id="navigation">
-    <nav class="site-nav navbar navbar-expand">
+    <nav class="navbar navbar-expand fixed-top bg-white">
       <div class="container-fluid">
         <router-link class="navbar-brand" to="/feed">
           <img src="favicon.ico" width="30" height="30" alt="" />
         </router-link>
-        <div class="right menu">
+        <div>
           <div v-if="isLoggedIn" class="horizontal">
             <router-link to="/createpost" class="nav-item nav-link">
               <svg
@@ -115,10 +115,3 @@ export default {
   },
 };
 </script>
-
-<style lang="scss" scoped>
-.horizontal {
-  display: flex;
-  flex-direction: row;
-}
-</style>

@@ -1,5 +1,5 @@
 import { firestoreAction } from 'vuexfire';
-import { postsCollection } from '@/firebase';
+import { firebaseAuth, postsCollection } from '@/firebase';
 // import { usersCollection } from '../../firebase';
 
 const state = {
@@ -28,7 +28,9 @@ const actions = {
     try {
       const newPost = {
         title: post.title,
-        content: post.content,
+        link: post.link,
+        uid: firebaseAuth.currentUser.uid,
+        //content: post.content,
         // userId: context.rootState.auth.userData.userInfo.uid,
         // username: context.rootState.auth.userData.userInfo,
         comments: 0,
