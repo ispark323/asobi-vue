@@ -7,21 +7,19 @@
         <div class="card-body">
           <div class="create-post">
             <h2>Share Link</h2>
-            <label for="title">Title</label>
-            <input type="text" placeholder="Title" v-model="post.title" id="title" class="m-1" />
+            <label for="text1">Text</label>
+            <input type="text" placeholder="Text" v-model="post.text" id="text1" class="m-1" />
             <br />
             <label for="link">Link</label>
             <input
               type="text"
               placeholder="Paste link here..."
-              v-model="post.link"
+              v-model="post.mediaURL"
               @keypress.enter="handleSubmit"
               id="link"
               class="m-1"
             />
-            <button @click="handleSubmit" class="btn btn-primary">
-              Post
-            </button>
+            <button @click="handleSubmit" class="btn btn-primary">Post</button>
           </div>
         </div>
       </div>
@@ -36,20 +34,20 @@ export default {
   data() {
     return {
       post: {
-        title: '',
-        link: '',
+        text: '',
+        mediaURL: '',
       },
     };
   },
   methods: {
     ...mapActions(['createPost']),
     handleSubmit: function() {
-      if (this.post.title.length === 0 || this.post.link.length === 0) {
+      if (this.post.text.length === 0 || this.post.mediaURL.length === 0) {
         return alert('There is no content.');
       }
       this.createPost(this.post);
-      this.post.title = '';
-      this.post.link = '';
+      this.post.text = '';
+      this.post.mediaURL = '';
     },
   },
 };

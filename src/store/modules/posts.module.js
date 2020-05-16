@@ -1,6 +1,7 @@
 import { firestoreAction } from 'vuexfire';
 import { firebaseAuth, postsCollection } from '@/firebase';
 // import { usersCollection } from '../../firebase';
+import router from '@/router/router';
 
 const state = {
   posts: [],
@@ -17,9 +18,12 @@ const mutations = {
 };
 
 const actions = {
-  bindPosts: firestoreAction(async context => {
+  bindPostsRef: firestoreAction(async context => {
     try {
-      return await context.bindFirestoreRef('posts', postsCollection.orderBy('createdAt', 'desc'));
+      return await context.bindFirestoreRef(
+        'posts',
+        postsCollection.orderBy('createdAt', 'desc').limit(5)
+      );
     } catch (error) {
       alert(error);
     }
@@ -27,10 +31,9 @@ const actions = {
   createPost: async (context, post) => {
     try {
       const newPost = {
-        title: post.title,
-        link: post.link,
+        text: post.text,
+        mediaURL: post.mediaURL,
         uid: firebaseAuth.currentUser.uid,
-        //content: post.content,
         // userId: context.rootState.auth.userData.userInfo.uid,
         // username: context.rootState.auth.userData.userInfo,
         comments: 0,
@@ -41,6 +44,7 @@ const actions = {
       // console.log('=== here ===');
       // console.log(context.rootState.auth.userData.userInfo);
       await postsCollection.add(newPost);
+      router.push('/mypage');
     } catch (error) {
       console.log(error);
       alert(error);
