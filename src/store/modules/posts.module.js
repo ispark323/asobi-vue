@@ -20,10 +20,7 @@ const mutations = {
 const actions = {
   bindPostsRef: firestoreAction(async context => {
     try {
-      return await context.bindFirestoreRef(
-        'posts',
-        postsCollection.orderBy('createdAt', 'desc').limit(5)
-      );
+      return await context.bindFirestoreRef('posts', postsCollection.orderBy('createdAt', 'desc'));
     } catch (error) {
       alert(error);
     }

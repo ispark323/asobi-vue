@@ -1,0 +1,67 @@
+#login {
+  margin: auto;
+  max-width: 400px;
+}
+
+#register {
+  margin: auto;
+  max-width: 500px;
+}
+
+#navigation {
+  .navbar {
+    margin: auto;
+    max-width: 650px;
+  }
+
+  .horizontal {
+    display: flex;
+    flex-direction: row;
+    .nav-item {
+      padding: 0px 2px 0px 2px;
+    }
+    .btn {
+      border: 0;
+    }
+  }
+}
+
+#feed {
+  margin: auto;
+  max-width: 600px;
+  // .col1 {
+  //   max-width: 600px;
+  // }
+
+  footer {
+    position: relative;
+    width: 400px;
+    height: 200px;
+
+    #scroll-trigger {
+      height: 100px;
+    }
+
+    .circle-loader {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      border: 5px solid #bd3b6c;
+      border-top: 5px solid #df82ca;
+      animation: animate 1.5s infinite linear;
+    }
+  }
+
+  @keyframes animate {
+    0% {
+      transform: translate(-50%, -50%) rotate(0deg);
+    }
+    100% {
+      transform: translate(-50%, -50%) rotate(360deg);
+    }
+  }
+}

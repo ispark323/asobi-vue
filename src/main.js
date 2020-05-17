@@ -4,7 +4,7 @@ import router from './router/router';
 import store from './store/store';
 import './plugins/bootstrap-vue';
 const fb = require('@/firebase.js');
-import './scss/custom.scss'; // Custom CSCC
+import './assets/scss/main.scss';
 
 Vue.config.productionTip = false;
 

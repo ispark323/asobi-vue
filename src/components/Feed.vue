@@ -1,41 +1,29 @@
 <template>
   <div id="feed">
-    <div class="card-columns p-2">
-      <div v-for="(n, index) in pageOffset" :key="index">
-        <div v-if="getPosts[index] != null">
-          <div class="card">
-            <div class="card-body">
-              <h5 class="card-title">{{ getPosts[index].text }}</h5>
-            </div>
-            <div class="embed-responsive embed-responsive-16by9">
-              <iframe
-                id="ytplayer"
-                class="embed-responsive-item rounded-lg"
-                type="text/html"
-                v-bind:src="getPosts[index].mediaURL"
-                frameborder="0"
-                loading="lazy"
-              ></iframe>
-            </div>
-            <!-- <div class="embed-responsive embed-responsive-16by9">
-                <iframe
-                  id="ytplayer"
-                  class="embed-responsive-item rounded-lg"
-                  type="text/html"
-                  v-bind:src="getPosts[index].link"
-                  frameborder="0"
-                  loading="lazy"
-                ></iframe>
-            </div>-->
-            <!-- <p class="card-text">text text text</p> -->
-            <!-- <p class="card-text text-right">
+    <div v-for="(n, index) in pageOffset" :key="index" class="m-2">
+      <div v-if="getPosts[index] != null">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">{{ getPosts[index].text }}</h5>
+          </div>
+          <div class="embed-responsive embed-responsive-16by9">
+            <iframe
+              id="ytplayer"
+              class="embed-responsive-item rounded-lg"
+              type="text/html"
+              v-bind:src="getPosts[index].mediaURL"
+              frameborder="0"
+              loading="lazy"
+            ></iframe>
+          </div>
+          <!-- <p class="card-text">text text text</p> -->
+          <!-- <p class="card-text text-right">
                 <small class="text-muted">
                   {{
                   getPosts[index].createdAt.toDate().toLocaleString()
                   }}
                 </small>
-            </p>-->
-          </div>
+          </p>-->
         </div>
       </div>
     </div>
