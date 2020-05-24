@@ -7,7 +7,7 @@
         </router-link>
         <div>
           <div v-if="isLoggedIn" class="horizontal">
-            <router-link to="/createpost" class="nav-item nav-link">
+            <router-link to="/createpost" class="nav-item nav-link m-auto">
               <svg
                 class="bi bi-plus-square"
                 width="2em"
@@ -33,7 +33,7 @@
                 />
               </svg>
             </router-link>
-            <router-link to="/mypage" class="nav-item nav-link">
+            <router-link to="/mypage" class="nav-item nav-link m-auto">
               <svg
                 class="bi bi-person-square"
                 width="2em"
@@ -80,17 +80,10 @@
                 />
               </svg>
             </button>
-            <button class="text-secondary">{{ userDisplayname }}</button>
+            <p class="text-secondary m-auto">{{ userDisplayname }}</p>
           </div>
-
           <router-link v-else class="nav-item nav-link" to="/login">Login</router-link>
         </div>
-        <!-- <div class="navbar-nav ml-auto">
-          <router-link class="nav-item nav-link" to="/home" v-if="user">home</router-link>
-          <router-link class="nav-item nav-link" to="/login" v-if="!user">log in</router-link>
-          <router-link class="nav-item nav-link" to="/register" v-if="!user">register</router-link>
-          <button class="nav-item nav-link btn btn-link" @click="$emit('logout')">logout</button>
-        </div>-->
       </div>
     </nav>
   </div>

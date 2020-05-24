@@ -6,17 +6,24 @@
           <div class="card-body">
             <h5 class="card-title">{{ getPosts[index].text }}</h5>
           </div>
-          <div class="embed-responsive embed-responsive-16by9">
-            <iframe
-              id="ytplayer"
-              class="embed-responsive-item rounded-lg"
-              type="text/html"
-              v-bind:src="getPosts[index].mediaURL"
-              frameborder="0"
-              loading="lazy"
-            ></iframe>
+          <div v-if="getPosts[index].mediaURL != ''">
+            <div class="embed-responsive embed-responsive-16by9">
+              <iframe
+                id="ytplayer"
+                class="embed-responsive-item rounded-lg"
+                type="text/html"
+                v-bind:src="getPosts[index].mediaURL"
+                frameborder="0"
+                loading="lazy"
+              ></iframe>
+            </div>
           </div>
-          <!-- <p class="card-text">text text text</p> -->
+          <div
+            v-else-if="getPosts[index].photoURL != ''"
+            class="text-center border rounded-lg lazyimage"
+          >
+            <img v-bind:src="getPosts[index].photoURL" class="img-fluid" loading="lazy" />
+          </div>
           <!-- <p class="card-text text-right">
                 <small class="text-muted">
                   {{
@@ -29,7 +36,11 @@
     </div>
     <footer>
       <div ref="infiniteScrollTrigger" id="scroll-trigger"></div>
-      <div class="circle-loader"></div>
+      <div v-if="showloader != false" class="text-center">
+        <div class="spinner-border text-primary" role="status">
+          <span class="sr-only">Loading...</span>
+        </div>
+      </div>
     </footer>
   </div>
 </template>
@@ -86,16 +97,12 @@ export default {
         mediaURL: '',
       },
       currentPage: 1,
-      maxPerPage: 3,
-      // totalResults: 1000,
+      maxPerPage: 2,
       showloader: true,
     };
   },
   computed: {
     ...mapGetters(['userData', 'getPosts']),
-    // pageCount() {
-    //   return Math.ceil(this.totalResults / this.maxPerPage);
-    // },
     pageOffset() {
       return this.maxPerPage * this.currentPage;
     },
@@ -106,7 +113,6 @@ export default {
       const observer = new IntersectionObserver(entries => {
         entries.forEach(entry => {
           if (entry.intersectionRatio > 0) {
-            //&& this.currentPage < this.pageCount) {
             this.showloader = true;
             setTimeout(() => {
               this.currentPage += 1;
