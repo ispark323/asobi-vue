@@ -1,4 +1,4 @@
-import { firebaseAuth } from '@/firebase';
+import { firebaseAuth, usersCollection } from '@/firebase';
 import router from '@/router/router';
 
 const state = {
@@ -49,7 +49,7 @@ const actions = {
         loginData.password
       );
       const userInfo = {
-        displayName: res.user.displayName,
+        username: res.user.displayName,
         email: res.user.email,
         emailVerified: res.user.emailVerified,
         imageUrl: res.user.imageUrl,
@@ -84,17 +84,20 @@ const actions = {
       );
       // let user = fb.firebaseAuth().currentUser;
       await res.user.updateProfile({
-        displayName: registerData.displayName,
+        displayName: registerData.username,
       });
-      // fb.usersCollection.doc(res.user.uid).set({
-      //   username: registerData.username,
-      // });
+      await usersCollection.doc(res.user.uid).set({
+        uid: res.user.uid,
+        username: registerData.username,
+        email: registerData.email,
+      });
       const userInfo = {
-        displayName: res.user.displayName,
+        username: res.user.displayName,
         email: res.user.email,
         emailVerified: res.user.emailVerified,
         imageUrl: res.user.imageUrl,
       };
+
       commit('setCurrentUser', userInfo);
       router.push('/feed');
     } catch (error) {
@@ -106,7 +109,7 @@ const actions = {
   updateProfile: async (context, data) => {
     try {
       await firebaseAuth.currentUser.updateProfile({
-        displayName: data.displayName,
+        username: data.username,
       });
     } catch (error) {
       console.log(error);

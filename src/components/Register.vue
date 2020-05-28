@@ -6,8 +6,8 @@
       <div class="card bg-light">
         <div class="card-body">
           <h2>Get started</h2>
-          <label for="displayName">Nickname</label>
-          <input v-model="displayName" type="text" placeholder="Nickname" id="displayName" />
+          <label for="username">Username</label>
+          <input v-model="username" type="text" placeholder="Username" id="username" />
           <br />
 
           <label for="email1">Email</label>
@@ -23,9 +23,7 @@
             @keypress.enter="handleRegister"
           />
 
-          <button @click="handleRegister" class="btn btn-primary">
-            Register
-          </button>
+          <button @click="handleRegister" class="btn btn-primary">Register</button>
         </div>
       </div>
       <div class="text-right m-2">
@@ -40,7 +38,7 @@ import { mapActions } from 'vuex';
 export default {
   data() {
     return {
-      displayName: '',
+      username: '',
       email: '',
       password: '',
     };
@@ -49,7 +47,7 @@ export default {
     ...mapActions(['register']),
     handleRegister() {
       const registerData = {
-        displayName: this.displayName,
+        username: this.username,
         email: this.email,
         password: this.password,
       };

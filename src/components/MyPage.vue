@@ -5,7 +5,7 @@
       <div class="card bg-light m-1">
         <div class="card-body">
           <h2>My Profile</h2>
-          <li>Nickname : {{ userData.userInfo.displayName }}</li>
+          <li>Username : {{ userData.userInfo.username }}</li>
           <li>My Photo</li>
         </div>
         <router-link to="/profile" class="nav-item nav-link text-right">Edit Profile</router-link>

@@ -80,7 +80,6 @@
                 />
               </svg>
             </button>
-            <p class="text-secondary m-auto">{{ userDisplayname }}</p>
           </div>
           <router-link v-else class="nav-item nav-link" to="/login">Login</router-link>
         </div>
@@ -98,9 +97,6 @@ export default {
     ...mapGetters(['userData']),
     isLoggedIn() {
       return this.userData.isLoggedIn;
-    },
-    userDisplayname() {
-      return this.userData.userInfo.displayName;
     },
   },
   methods: {

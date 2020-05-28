@@ -11,12 +11,12 @@
         <div class="card bg-light">
           <div class="card-body">
             <h2>Profile</h2>
-            <label for="displayName">Nickname</label>
+            <label for="username">Username</label>
             <input
-              v-model.trim="displayName"
+              v-model.trim="username"
               type="text"
-              :placeholder="userData.userInfo.displayName"
-              id="displayName"
+              :placeholder="userData.userInfo.username"
+              id="username"
             />
             <button @click="handleSubmit" class="btn btn-primary">Update Profile</button>
           </div>
@@ -32,7 +32,7 @@ import { mapGetters, mapActions } from 'vuex';
 export default {
   data() {
     return {
-      displayName: '',
+      username: '',
       showSuccess: false,
     };
   },
@@ -43,10 +43,10 @@ export default {
     ...mapActions(['updateProfile']),
     handleSubmit() {
       const data = {
-        displayName: this.displayName !== '' ? this.displayName : this.userProfile.name,
+        username: this.username !== '' ? this.username : this.userProfile.name,
       };
       this.updateProfile(data);
-      this.displayName = '';
+      this.username = '';
       this.showSuccess = true;
 
       setTimeout(() => {
