@@ -109,7 +109,7 @@
             <div class="modal-container">
               <div class="modal-header">
                 <h5 class="modal-title" id="uploadPhotoPostLabel">Upload Photo</h5>
-                <button class="close" @click="showUploadPhotoPost = false">
+                <button class="close" @click="closeUploadPhotoPost()">
                   <span aria-hidden="true">&times;</span>
                 </button>
               </div>
@@ -152,7 +152,7 @@
                 </div>
               </div>
               <div class="modal-footer">
-                <button class="btn btn-primary" @click="showUploadPhotoPost = false">
+                <button class="btn btn-primary" @click="closeUploadPhotoPost()">
                   Close
                 </button>
                 <button @click="handleSubmitUploadPhoto" class="btn btn-primary">
@@ -196,9 +196,17 @@ export default {
       if (this.post.text.length === 0 || this.post.mediaURL.length === 0) {
         return alert('There is no content.');
       }
+      var url = this.post.mediaURL;
+      if (url.match('youtu.be')) {
+        url = url.replace('youtu.be', 'youtube.com/embed');
+      } else if (url.match('watch')) {
+        url = url.replace('watch?v=', 'embed/');
+      }
+      this.post.mediaURL = url;
       this.createPost(this.post);
       this.post.text = '';
       this.post.mediaURL = '';
+      this.showYoutubePost = false;
     },
     handleSubmitPhoto: function() {
       if (this.post.text.length === 0 || this.post.photoURL.length === 0) {
@@ -207,6 +215,7 @@ export default {
       this.createPost(this.post);
       this.post.text = '';
       this.post.photoURL = '';
+      this.showPhotoPost = false;
     },
     handleSubmitUploadPhoto: function() {
       if (this.post.text.length === 0 || this.post.photoURL.length === 0) {
@@ -215,6 +224,7 @@ export default {
       this.createPost(this.post);
       this.post.text = '';
       this.post.photoURL = '';
+      this.showUploadPhotoPost = false;
     },
     uploadImage() {
       let file = document.getElementById('uploadPhotoInput').files[0];
@@ -227,9 +237,13 @@ export default {
       this.deleteFile(this.fileName);
       this.uploading = false;
       this.uploadEnd = false;
-      this.photoURL = '';
+      this.post.photoURL = '';
       // this.progressUpload = 0;
       this.$refs.uploadInputForm.reset();
+    },
+    closeUploadPhotoPost() {
+      this.deleteImage();
+      this.showUploadPhotoPost = false;
     },
   },
   watch: {
