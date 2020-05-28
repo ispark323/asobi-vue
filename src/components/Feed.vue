@@ -1,115 +1,47 @@
 <template>
-  <div class="card-columns p-2">
-    <div class="card">
-      <div class="card-body">
-        <div class="embed-responsive embed-responsive-16by9">
-          <iframe
-            id="ytplayer"
-            class="embed-responsive-item rounded-lg"
-            type="text/html"
-            src="https://www.youtube.com/embed/XRCVF5qPBKk?autoplay=1"
-            frameborder="0"
-            loading="lazy"
-          ></iframe>
+  <div id="feed">
+    <div v-for="(n, index) in pageOffset" :key="index" class="m-2">
+      <div v-if="getPosts[index] != null">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">{{ getPosts[index].text }}</h5>
+          </div>
+          <div v-if="getPosts[index].mediaUrl != ''">
+            <div class="embed-responsive embed-responsive-16by9">
+              <iframe
+                id="ytplayer"
+                class="embed-responsive-item rounded-lg"
+                type="text/html"
+                v-bind:src="getPosts[index].mediaUrl"
+                frameborder="0"
+                loading="lazy"
+              ></iframe>
+            </div>
+          </div>
+          <div
+            v-else-if="getPosts[index].imageUrl != ''"
+            class="text-center border rounded-lg lazyimage"
+          >
+            <img v-bind:src="getPosts[index].imageUrl" class="img-fluid" loading="lazy" />
+          </div>
+          <!-- <p class="card-text text-right">
+                <small class="text-muted">
+                  {{
+                  getPosts[index].createdAt.toDate().toLocaleString()
+                  }}
+                </small>
+          </p>-->
         </div>
-        <h5 class="card-title">1. Card title that wraps to a new line</h5>
-        <p class="card-text">
-          1. This is a longer card with supporting text below as a natural lead-in to additional
-          content. This content is a little bit longer.
-        </p>
-        <p class="card-text">
-          <small class="text-muted">Last updated 3 mins ago</small>
-        </p>
       </div>
     </div>
-    <div class="card">
-      <div class="card-body">
-        <div class="embed-responsive embed-responsive-16by9">
-          <iframe
-            id="ytplayer"
-            class="embed-responsive-item rounded-lg"
-            type="text/html"
-            src="https://www.youtube.com/embed/H5SW_xMyESI?autoplay=1"
-            frameborder="0"
-            loading="lazy"
-          ></iframe>
+    <footer>
+      <div ref="infiniteScrollTrigger" id="scroll-trigger"></div>
+      <div v-if="showloader != false" class="text-center">
+        <div class="spinner-border text-primary" role="status">
+          <span class="sr-only">Loading...</span>
         </div>
-        <h5 class="card-title">2. Card title that wraps to a new line</h5>
-        <p class="card-text">
-          2. This is a longer card with supporting text below as a natural lead-in to additional
-          content. This content is a little bit longer.
-        </p>
-        <p class="card-text">
-          <small class="text-muted">Last updated 3 mins ago</small>
-        </p>
       </div>
-    </div>
-    <div class="card">
-      <div class="card-body">
-        <div class="embed-responsive embed-responsive-16by9">
-          <iframe
-            id="ytplayer"
-            class="embed-responsive-item rounded-lg"
-            type="text/html"
-            src="https://www.youtube.com/embed/m0daIFQjLIc?autoplay=1"
-            frameborder="0"
-            loading="lazy"
-          ></iframe>
-        </div>
-        <h5 class="card-title">3. Card title that wraps to a new line</h5>
-        <p class="card-text">
-          3. This is a longer card with supporting text below as a natural lead-in to additional
-          content. This content is a little bit longer.
-        </p>
-        <p class="card-text">
-          <small class="text-muted">Last updated 3 mins ago</small>
-        </p>
-      </div>
-    </div>
-    <div class="card">
-      <div class="card-body">
-        <div class="embed-responsive embed-responsive-16by9">
-          <iframe
-            id="ytplayer"
-            class="embed-responsive-item rounded-lg"
-            type="text/html"
-            src="https://www.youtube.com/embed/LScZ3DLKly4?autoplay=1"
-            frameborder="0"
-            loading="lazy"
-          ></iframe>
-        </div>
-        <h5 class="card-title">4. Card title that wraps to a new line</h5>
-        <p class="card-text">
-          4. This is a longer card with supporting text below as a natural lead-in to additional
-          content. This content is a little bit longer.
-        </p>
-        <p class="card-text">
-          <small class="text-muted">Last updated 3 mins ago</small>
-        </p>
-      </div>
-    </div>
-    <div class="card">
-      <div class="card-body">
-        <div class="embed-responsive embed-responsive-16by9">
-          <iframe
-            id="ytplayer"
-            class="embed-responsive-item rounded-lg"
-            type="text/html"
-            src="https://www.youtube.com/embed/zun-CRis3gg?autoplay=1"
-            frameborder="0"
-            loading="lazy"
-          ></iframe>
-        </div>
-        <h5 class="card-title">5. Card title that wraps to a new line</h5>
-        <p class="card-text">
-          5. This is a longer card with supporting text below as a natural lead-in to additional
-          content. This content is a little bit longer.
-        </p>
-        <p class="card-text">
-          <small class="text-muted">Last updated 3 mins ago</small>
-        </p>
-      </div>
-    </div>
+    </footer>
   </div>
 </template>
 
@@ -161,21 +93,43 @@ export default {
   data() {
     return {
       post: {
-        title: '',
-        content: '',
+        text: '',
+        mediaUrl: '',
       },
+      currentPage: 1,
+      maxPerPage: 2,
+      showloader: true,
     };
   },
-  methods: {
-    ...mapActions(['createPost']),
-    handleSubmit: function() {
-      if (this.content.length === 0) {
-        return alert('There is no content.');
-      }
-      this.createPost(this.post);
-      this.post.title = '';
-      this.post.content = '';
+  computed: {
+    ...mapGetters(['userData', 'getPosts']),
+    pageOffset() {
+      return this.maxPerPage * this.currentPage;
     },
+  },
+  methods: {
+    ...mapActions(['bindPostsRef']),
+    scrollTrigger() {
+      const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          if (entry.intersectionRatio > 0) {
+            this.showloader = true;
+            setTimeout(() => {
+              this.currentPage += 1;
+              this.showloader = false;
+            }, 2000);
+          }
+        });
+      });
+
+      observer.observe(this.$refs.infiniteScrollTrigger);
+    },
+  },
+  mounted() {
+    this.scrollTrigger();
+  },
+  created() {
+    this.bindPostsRef();
   },
 };
 </script>

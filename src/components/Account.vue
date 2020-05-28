@@ -1,25 +1,29 @@
 <template>
-  <section id="account">
+  <div id="account">
+    <h3 class="text-center">Unknown girls' playground</h3>
+    <br />
     <div>
-      <p>Profile</p>
-
       <transition name="fade">
         <p v-if="showSuccess" class="success">profile updated</p>
       </transition>
 
       <form @submit.prevent>
-        <label for="displayName">Nickname</label>
-        <input
-          v-model.trim="displayName"
-          type="text"
-          :placeholder="userData.userInfo.displayName"
-          id="displayName"
-        />
-        <br />
-        <button @click="handleSubmit" class="btn btn-primary">Update Profile</button>
+        <div class="card bg-light">
+          <div class="card-body">
+            <h2>Profile</h2>
+            <label for="displayName">Nickname</label>
+            <input
+              v-model.trim="displayName"
+              type="text"
+              :placeholder="userData.userInfo.displayName"
+              id="displayName"
+            />
+            <button @click="handleSubmit" class="btn btn-primary">Update Profile</button>
+          </div>
+        </div>
       </form>
     </div>
-  </section>
+  </div>
 </template>
 
 <script>
@@ -52,5 +56,3 @@ export default {
   },
 };
 </script>
-
-<style lang="scss" scoped></style>

@@ -52,7 +52,8 @@ const actions = {
         displayName: res.user.displayName,
         email: res.user.email,
         emailVerified: res.user.emailVerified,
-        photoURL: res.user.photoURL,
+        imageUrl: res.user.imageUrl,
+        uid: res.user.uid,
       };
       commit('setCurrentUser', userInfo);
       router.push('/feed');
@@ -92,7 +93,7 @@ const actions = {
         displayName: res.user.displayName,
         email: res.user.email,
         emailVerified: res.user.emailVerified,
-        photoURL: res.user.photoURL,
+        imageUrl: res.user.imageUrl,
       };
       commit('setCurrentUser', userInfo);
       router.push('/feed');

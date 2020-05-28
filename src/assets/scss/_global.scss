@@ -1,0 +1,30 @@
+$font-family-sans-serif: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue',
+  Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol' !default;
+
+// Color
+$theme-colors: (
+  'primary': #bd3b6c,
+  'secondary': #df82ca,
+  'danger': #900,
+);
+
+body {
+  padding-top: 55px;
+}
+
+@import 'node_modules/bootstrap/scss/bootstrap';
+
+// You have two options: include all of Bootstrap, or pick the parts you need.
+// We encourage the latter, though be aware there are some requirements
+// and dependencies across our components.
+// Required
+//@import "node_modules/bootstrap/scss/functions";
+//@import "node_modules/bootstrap/scss/variables";
+//@import "node_modules/bootstrap/scss/mixins";
+
+// Optional
+//@import "node_modules/bootstrap/scss/reboot";
+//@import "node_modules/bootstrap/scss/type";
+//@import "node_modules/bootstrap/scss/images";
+//@import "node_modules/bootstrap/scss/code";
+//@import "node_modules/bootstrap/scss/grid";
