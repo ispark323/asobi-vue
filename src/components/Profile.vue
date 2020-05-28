@@ -1,5 +1,5 @@
 <template>
-  <div id="account">
+  <div id="profile">
     <h3 class="text-center">Unknown girls' playground</h3>
     <br />
     <div>

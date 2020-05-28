@@ -5,7 +5,7 @@ import Register from '@/components/Register';
 import Feed from '@/components/Feed.vue';
 import CreatePost from '@/components/CreatePost.vue';
 import MyPage from '@/components/MyPage.vue';
-import Account from '@/components/Account';
+import Profile from '@/components/Profile';
 
 import firebase from 'firebase';
 
@@ -45,9 +45,9 @@ const routes = [
     meta: { requiresAuth: true },
   },
   {
-    path: '/account',
-    name: 'Account',
-    component: Account,
+    path: '/profile',
+    name: 'Profile',
+    component: Profile,
     meta: { requiresAuth: true },
   },
 ];

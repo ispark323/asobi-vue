@@ -8,7 +8,7 @@
           <li>Nickname : {{ userData.userInfo.displayName }}</li>
           <li>My Photo</li>
         </div>
-        <router-link to="/account" class="nav-item nav-link text-right">Edit Profile</router-link>
+        <router-link to="/profile" class="nav-item nav-link text-right">Edit Profile</router-link>
       </div>
 
       <div class="card bg-light m-1">
