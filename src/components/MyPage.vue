@@ -8,9 +8,7 @@
           <li>Nickname : {{ userData.userInfo.displayName }}</li>
           <li>My Photo</li>
         </div>
-        <router-link to="/account" class="nav-item nav-link text-right">
-          Edit Profile
-        </router-link>
+        <router-link to="/account" class="nav-item nav-link text-right">Edit Profile</router-link>
       </div>
 
       <div class="card bg-light m-1">
@@ -18,14 +16,12 @@
           <h2>My Posts</h2>
           <div v-if="getPosts.length">
             <div v-for="(post, index) in getPosts" :key="post.id">
-              <div v-if="post.uid == userData.userInfo.uid">
+              <div v-if="post.ownerId == userData.userInfo.uid">
                 <li>
                   {{ post.text }}
-                  <!-- {{ post.mediaURL }}, -->
-                  <small class="text-muted">
-                    @ {{ post.createdAt.toDate().toLocaleString() }}
-                  </small>
-                  <button @click="handleDelete(index)" class="btn btn-link ">
+                  <!-- {{ post.mediaUrl }}, -->
+                  <small class="text-muted">@ {{ post.createdAt.toDate().toLocaleString() }}</small>
+                  <button @click="handleDelete(index)" class="btn btn-link">
                     <svg
                       class="bi bi-x-square"
                       width="1.5em"

@@ -5,15 +5,9 @@
     <div class="card bg-light m-1">
       <div class="card-body">
         <h2>Share Link</h2>
-        <button class="btn btn-primary m-1" @click="showYoutubePost = true">
-          YouTube Link
-        </button>
-        <button class="btn btn-primary m-1" @click="showPhotoPost = true">
-          Photo Link
-        </button>
-        <button class="btn btn-primary m-1" @click="showUploadPhotoPost = true">
-          Upload Photo
-        </button>
+        <button class="btn btn-primary m-1" @click="showYoutubePost = true">YouTube Link</button>
+        <button class="btn btn-primary m-1" @click="showPhotoPost = true">Photo Link</button>
+        <button class="btn btn-primary m-1" @click="showUploadPhotoPost = true">Upload Photo</button>
       </div>
     </div>
 
@@ -36,24 +30,20 @@
                     <textarea class="form-control" id="text" v-model="post.text"></textarea>
                   </div>
                   <div class="form-group">
-                    <label for="mediaURL" class="col-form-label">YouTube Link:</label>
+                    <label for="mediaUrl" class="col-form-label">YouTube Link:</label>
                     <textarea
                       class="form-control"
-                      id="mediaURL"
+                      id="mediaUrl"
                       placeholder="Paste link here..."
-                      v-model="post.mediaURL"
+                      v-model="post.mediaUrl"
                       @keypress.enter="handleSubmit"
                     ></textarea>
                   </div>
                 </form>
               </div>
               <div class="modal-footer">
-                <button class="btn btn-primary" @click="showYoutubePost = false">
-                  Close
-                </button>
-                <button @click="handleSubmitYoutube" class="btn btn-primary">
-                  Post
-                </button>
+                <button class="btn btn-primary" @click="showYoutubePost = false">Close</button>
+                <button @click="handleSubmitYoutube" class="btn btn-primary">Post</button>
               </div>
             </div>
           </div>
@@ -78,24 +68,20 @@
                     <textarea class="form-control" id="text" v-model="post.text"></textarea>
                   </div>
                   <div class="form-group">
-                    <label for="photoURL" class="col-form-label">Photo Link:</label>
+                    <label for="imageUrl" class="col-form-label">Photo Link:</label>
                     <textarea
                       class="form-control"
-                      id="photoURL"
+                      id="imageUrl"
                       placeholder="Paste link here..."
-                      v-model="post.photoURL"
+                      v-model="post.imageUrl"
                       @keypress.enter="handleSubmit"
                     ></textarea>
                   </div>
                 </form>
               </div>
               <div class="modal-footer">
-                <button class="btn btn-primary" @click="showPhotoPost = false">
-                  Close
-                </button>
-                <button @click="handleSubmitPhoto" class="btn btn-primary">
-                  Post
-                </button>
+                <button class="btn btn-primary" @click="showPhotoPost = false">Close</button>
+                <button @click="handleSubmitPhoto" class="btn btn-primary">Post</button>
               </div>
             </div>
           </div>
@@ -135,7 +121,7 @@
                 <div v-if="uploadEnd" class="text-center">
                   <img
                     v-if="uploadEnd"
-                    v-bind:src="post.photoURL"
+                    v-bind:src="post.imageUrl"
                     class="img-thumbnail"
                     style="max-width:200px"
                   />
@@ -146,18 +132,14 @@
                   <div class="progress-bar bg-secondary" role="progressbar" v-bind:style="{ width: progressUpload + '%' }" >
                     {{ progressUpload }}%
                   </div>
-                </div> -->
+                </div>-->
                 <div v-if="uploadEnd" class="text-right">
                   <button class="btn btn-primary btn-sm m-1" @click="deleteImage()">Delete</button>
                 </div>
               </div>
               <div class="modal-footer">
-                <button class="btn btn-primary" @click="closeUploadPhotoPost()">
-                  Close
-                </button>
-                <button @click="handleSubmitUploadPhoto" class="btn btn-primary">
-                  Post
-                </button>
+                <button class="btn btn-primary" @click="closeUploadPhotoPost()">Close</button>
+                <button @click="handleSubmitUploadPhoto" class="btn btn-primary">Post</button>
               </div>
             </div>
           </div>
@@ -175,8 +157,8 @@ export default {
     return {
       post: {
         text: '',
-        mediaURL: '',
-        photoURL: '',
+        mediaUrl: '',
+        imageUrl: '',
       },
       showYoutubePost: false,
       showPhotoPost: false,
@@ -193,37 +175,37 @@ export default {
   methods: {
     ...mapActions(['createPost', 'uploadFile', 'deleteFile']),
     handleSubmitYoutube: function() {
-      if (this.post.text.length === 0 || this.post.mediaURL.length === 0) {
+      if (this.post.text.length === 0 || this.post.mediaUrl.length === 0) {
         return alert('There is no content.');
       }
-      var url = this.post.mediaURL;
+      var url = this.post.mediaUrl;
       if (url.match('youtu.be')) {
         url = url.replace('youtu.be', 'youtube.com/embed');
       } else if (url.match('watch')) {
         url = url.replace('watch?v=', 'embed/');
       }
-      this.post.mediaURL = url;
+      this.post.mediaUrl = url;
       this.createPost(this.post);
       this.post.text = '';
-      this.post.mediaURL = '';
+      this.post.mediaUrl = '';
       this.showYoutubePost = false;
     },
     handleSubmitPhoto: function() {
-      if (this.post.text.length === 0 || this.post.photoURL.length === 0) {
+      if (this.post.text.length === 0 || this.post.imageUrl.length === 0) {
         return alert('There is no content.');
       }
       this.createPost(this.post);
       this.post.text = '';
-      this.post.photoURL = '';
+      this.post.imageUrl = '';
       this.showPhotoPost = false;
     },
     handleSubmitUploadPhoto: function() {
-      if (this.post.text.length === 0 || this.post.photoURL.length === 0) {
+      if (this.post.text.length === 0 || this.post.imageUrl.length === 0) {
         return alert('There is no content.');
       }
       this.createPost(this.post);
       this.post.text = '';
-      this.post.photoURL = '';
+      this.post.imageUrl = '';
       this.showUploadPhotoPost = false;
     },
     uploadImage() {
@@ -237,7 +219,7 @@ export default {
       this.deleteFile(this.fileName);
       this.uploading = false;
       this.uploadEnd = false;
-      this.post.photoURL = '';
+      this.post.imageUrl = '';
       // this.progressUpload = 0;
       this.$refs.uploadInputForm.reset();
     },
@@ -248,7 +230,7 @@ export default {
   },
   watch: {
     getStorageURL: function() {
-      this.post.photoURL = this.getStorageURL;
+      this.post.imageUrl = this.getStorageURL;
       // this.progressUpload = 100;
     },
   },

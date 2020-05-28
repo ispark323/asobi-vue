@@ -6,23 +6,23 @@
           <div class="card-body">
             <h5 class="card-title">{{ getPosts[index].text }}</h5>
           </div>
-          <div v-if="getPosts[index].mediaURL != ''">
+          <div v-if="getPosts[index].mediaUrl != ''">
             <div class="embed-responsive embed-responsive-16by9">
               <iframe
                 id="ytplayer"
                 class="embed-responsive-item rounded-lg"
                 type="text/html"
-                v-bind:src="getPosts[index].mediaURL"
+                v-bind:src="getPosts[index].mediaUrl"
                 frameborder="0"
                 loading="lazy"
               ></iframe>
             </div>
           </div>
           <div
-            v-else-if="getPosts[index].photoURL != ''"
+            v-else-if="getPosts[index].imageUrl != ''"
             class="text-center border rounded-lg lazyimage"
           >
-            <img v-bind:src="getPosts[index].photoURL" class="img-fluid" loading="lazy" />
+            <img v-bind:src="getPosts[index].imageUrl" class="img-fluid" loading="lazy" />
           </div>
           <!-- <p class="card-text text-right">
                 <small class="text-muted">
@@ -94,7 +94,7 @@ export default {
     return {
       post: {
         text: '',
-        mediaURL: '',
+        mediaUrl: '',
       },
       currentPage: 1,
       maxPerPage: 2,

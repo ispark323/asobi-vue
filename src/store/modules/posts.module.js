@@ -33,13 +33,13 @@ const actions = {
     try {
       const newPost = {
         text: post.text,
-        mediaURL: post.mediaURL,
-        photoURL: post.photoURL,
-        uid: firebaseAuth.currentUser.uid,
-        // userId: context.rootState.auth.userData.userInfo.uid,
+        imageUrl: post.imageUrl,
+        mediaUrl: post.mediaUrl,
+        ownerId: firebaseAuth.currentUser.uid,
+        // profileImageUrl
         // username: context.rootState.auth.userData.userInfo,
-        comments: 0,
         likes: 0,
+        comments: 0,
         createdAt: new Date(),
         updatedAt: new Date(),
       };
