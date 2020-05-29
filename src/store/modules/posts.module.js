@@ -36,7 +36,6 @@ const actions = {
         imageUrl: post.imageUrl,
         mediaUrl: post.mediaUrl,
         ownerId: firebaseAuth.currentUser.uid,
-        // profileImageUrl
         // username: context.rootState.auth.userData.userInfo,
         likes: 0,
         comments: 0,

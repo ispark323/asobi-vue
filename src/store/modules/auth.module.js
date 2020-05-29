@@ -48,12 +48,24 @@ const actions = {
         loginData.email,
         loginData.password
       );
+
+      let profileImageUrl;
+      await usersCollection
+        .doc(res.user.uid)
+        .get()
+        .then(function(doc) {
+          if (doc.exists) {
+            profileImageUrl = doc.data().avatar;
+          } else {
+            console.log('No such document');
+          }
+        });
+
       const userInfo = {
         username: res.user.displayName,
         email: res.user.email,
         emailVerified: res.user.emailVerified,
-        imageUrl: res.user.imageUrl,
-        uid: res.user.uid,
+        avatar: profileImageUrl,
       };
       commit('setCurrentUser', userInfo);
       router.push('/feed');
@@ -95,7 +107,6 @@ const actions = {
         username: res.user.displayName,
         email: res.user.email,
         emailVerified: res.user.emailVerified,
-        imageUrl: res.user.imageUrl,
       };
 
       commit('setCurrentUser', userInfo);

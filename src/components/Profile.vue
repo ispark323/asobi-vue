@@ -3,10 +3,14 @@
     <div class="post-container">
       <div class="card bg-light m-1">
         <div class="card-body">
-          <h2>My Profile</h2>
-          <li>Username : {{ userData.userInfo.username }}</li>
-          <li>My Photo</li>
-          <li>{{ userData.userInfo }}</li>
+          <div v-if="userData.userInfo.avatar">
+            <b-img v-bind:src="userData.userInfo.avatar" width="50" height="50" rounded="circle" />
+            @{{ userData.userInfo.username }}
+          </div>
+          <div v-else>
+            <img src="user-placeholder.jpg" width="50" height="50" />
+            @{{ userData.userInfo.username }}
+          </div>
         </div>
         <router-link to="/editprofile" class="nav-item nav-link text-right">Edit Profile</router-link>
       </div>
