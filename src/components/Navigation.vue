@@ -33,7 +33,7 @@
                 />
               </svg>
             </router-link>
-            <router-link to="/mypage" class="nav-item nav-link m-auto">
+            <router-link to="/profile" class="nav-item nav-link m-auto">
               <svg
                 class="bi bi-person-square"
                 width="2em"

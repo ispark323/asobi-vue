@@ -1,27 +1,61 @@
 <template>
   <div id="profile">
-    <h3 class="text-center">Unknown girls' playground</h3>
-    <br />
-    <div>
-      <transition name="fade">
-        <p v-if="showSuccess" class="success">profile updated</p>
-      </transition>
+    <div class="post-container">
+      <div class="card bg-light m-1">
+        <div class="card-body">
+          <h2>My Profile</h2>
+          <li>Username : {{ userData.userInfo.username }}</li>
+          <li>My Photo</li>
+          <li>{{ userData.userInfo }}</li>
+        </div>
+        <router-link to="/editprofile" class="nav-item nav-link text-right">Edit Profile</router-link>
+      </div>
 
-      <form @submit.prevent>
-        <div class="card bg-light">
-          <div class="card-body">
-            <h2>Profile</h2>
-            <label for="username">Username</label>
-            <input
-              v-model.trim="username"
-              type="text"
-              :placeholder="userData.userInfo.username"
-              id="username"
-            />
-            <button @click="handleSubmit" class="btn btn-primary">Update Profile</button>
+      <div class="card bg-light m-1">
+        <div class="card-body">
+          <h2>My Posts</h2>
+          <div v-if="getPosts.length">
+            <div v-for="(post, index) in getPosts" :key="post.id">
+              <div v-if="post.ownerId == userData.userInfo.uid">
+                <li>
+                  {{ post.text }}
+                  <!-- {{ post.mediaUrl }}, -->
+                  <small class="text-muted">@ {{ post.createdAt.toDate().toLocaleString() }}</small>
+                  <button @click="handleDelete(index)" class="btn btn-link">
+                    <svg
+                      class="bi bi-x-square"
+                      width="1.5em"
+                      height="1.5em"
+                      viewBox="0 0 16 16"
+                      fill="currentColor"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        fill-rule="evenodd"
+                        d="M14 1H2a1 1 0 00-1 1v12a1 1 0 001 1h12a1 1 0 001-1V2a1 1 0 00-1-1zM2 0a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2V2a2 2 0 00-2-2H2z"
+                        clip-rule="evenodd"
+                      />
+                      <path
+                        fill-rule="evenodd"
+                        d="M11.854 4.146a.5.5 0 010 .708l-7 7a.5.5 0 01-.708-.708l7-7a.5.5 0 01.708 0z"
+                        clip-rule="evenodd"
+                      />
+                      <path
+                        fill-rule="evenodd"
+                        d="M4.146 4.146a.5.5 0 000 .708l7 7a.5.5 0 00.708-.708l-7-7a.5.5 0 00-.708 0z"
+                        clip-rule="evenodd"
+                      />
+                    </svg>
+                  </button>
+                </li>
+              </div>
+            </div>
+          </div>
+          <div v-else>
+            <p class="no-results">There are currently no posts.</p>
           </div>
         </div>
-      </form>
+      </div>
     </div>
   </div>
 </template>
@@ -30,29 +64,22 @@
 import { mapGetters, mapActions } from 'vuex';
 
 export default {
-  data() {
-    return {
-      username: '',
-      showSuccess: false,
-    };
-  },
-  computed: {
-    ...mapGetters(['userData']),
-  },
+  name: 'Profile',
+  computed: mapGetters(['userData', 'getPosts']),
   methods: {
-    ...mapActions(['updateProfile']),
-    handleSubmit() {
-      const data = {
-        username: this.username !== '' ? this.username : this.userProfile.name,
+    ...mapActions(['bindPostsRef', 'deletePost']),
+    handleDelete(index) {
+      const post = {
+        id: this.getPosts[index].id,
+        text: this.getPosts[index].text,
       };
-      this.updateProfile(data);
-      this.username = '';
-      this.showSuccess = true;
-
-      setTimeout(() => {
-        this.showSuccess = false;
-      }, 2000);
+      if (confirm('Delete your post?\n"' + post.text + '"')) {
+        this.deletePost(post);
+      }
     },
+  },
+  created() {
+    this.bindPostsRef();
   },
 };
 </script>

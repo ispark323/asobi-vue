@@ -4,8 +4,8 @@ import Login from '@/components/Login.vue';
 import Register from '@/components/Register';
 import Feed from '@/components/Feed.vue';
 import CreatePost from '@/components/CreatePost.vue';
-import MyPage from '@/components/MyPage.vue';
-import Profile from '@/components/Profile';
+import Profile from '@/components/Profile.vue';
+import EditProfile from '@/components/EditProfile';
 
 import firebase from 'firebase';
 
@@ -39,15 +39,15 @@ const routes = [
     meta: { requiresAuth: true },
   },
   {
-    path: '/mypage',
-    name: 'MyPage',
-    component: MyPage,
-    meta: { requiresAuth: true },
-  },
-  {
     path: '/profile',
     name: 'Profile',
     component: Profile,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/editprofile',
+    name: 'EditProfile',
+    component: EditProfile,
     meta: { requiresAuth: true },
   },
 ];
