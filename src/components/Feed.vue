@@ -161,10 +161,10 @@ export default {
       return null;
     },
     addLike(index) {
-      this.likePost(this.getPosts[index].postId);
+      this.likePost(this.getPosts[index]);
     },
     deleteLike(index) {
-      this.unlikePost(this.getPosts[index].postId);
+      this.unlikePost(this.getPosts[index]);
     },
     timeFromCreated(index) {
       var today = new Date();

@@ -20,7 +20,7 @@ const currentUser = firebaseAuth.currentUser;
 
 // firebase collections
 const usersCollection = db.collection('users');
-const postsCollection = db.collection('allPosts');
+const allPostsCollection = db.collection('allPosts');
 const myPostsCollection = db.collection('myPosts');
 const timelineCollection = db.collection('timeline');
 const commentsCollection = db.collection('comments');
@@ -35,7 +35,7 @@ export {
   firebaseAuth,
   currentUser,
   usersCollection,
-  postsCollection,
+  allPostsCollection,
   myPostsCollection,
   timelineCollection,
   commentsCollection,
