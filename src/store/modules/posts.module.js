@@ -1,5 +1,5 @@
 import { firestoreAction } from 'vuexfire';
-import { firebaseAuth, postsCollection, storage } from '@/firebase';
+import { firebase, firebaseAuth, postsCollection, storage } from '@/firebase';
 import router from '@/router/router';
 
 const state = {
@@ -36,15 +36,19 @@ const actions = {
         imageUrl: post.imageUrl,
         mediaUrl: post.mediaUrl,
         ownerId: firebaseAuth.currentUser.uid,
-        // username: context.rootState.auth.userData.userInfo,
-        likes: 0,
-        comments: 0,
+        postId: '',
+        username: firebaseAuth.currentUser.displayName,
+        likeCount: 0,
+        likes: [],
         createdAt: new Date(),
-        updatedAt: new Date(),
+        //comments: 0,
+        //updatedAt: new Date(),
       };
       // console.log('=== here ===');
       // console.log(context.rootState.auth.userData.userInfo);
-      await postsCollection.add(newPost);
+      var newPostRef = await postsCollection.doc();
+      newPost.postId = newPostRef.id;
+      newPostRef.set(newPost);
       router.push('/feed');
     } catch (error) {
       console.log(error);
@@ -54,6 +58,32 @@ const actions = {
   deletePost: async (context, post) => {
     try {
       await postsCollection.doc(post.id).delete();
+    } catch (error) {
+      console.log(error);
+      alert(error);
+    }
+  },
+  likePost: async (context, postId) => {
+    try {
+      var postRef = postsCollection.doc(postId);
+      // add uid to likes and plus likeCount
+      await postRef.update({
+        likes: firebase.firestore.FieldValue.arrayUnion(firebaseAuth.currentUser.uid),
+        likeCount: firebase.firestore.FieldValue.increment(1),
+      });
+    } catch (error) {
+      console.log(error);
+      alert(error);
+    }
+  },
+  unlikePost: async (context, postId) => {
+    try {
+      var postRef = postsCollection.doc(postId);
+      // delete uid to likes and minus likeCount
+      await postRef.update({
+        likes: firebase.firestore.FieldValue.arrayRemove(firebaseAuth.currentUser.uid),
+        likeCount: firebase.firestore.FieldValue.increment(-1),
+      });
     } catch (error) {
       console.log(error);
       alert(error);
