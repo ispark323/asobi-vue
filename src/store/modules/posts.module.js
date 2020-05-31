@@ -1,5 +1,13 @@
 import { firestoreAction } from 'vuexfire';
-import { firebaseAuth, postsCollection, storage } from '@/firebase';
+import {
+  firebase,
+  firebaseAuth,
+  usersCollection,
+  allPostsCollection,
+  myPostsCollection,
+  likesCollection,
+  storage,
+} from '@/firebase';
 import router from '@/router/router';
 
 const state = {
@@ -24,7 +32,10 @@ const mutations = {
 const actions = {
   bindPostsRef: firestoreAction(async context => {
     try {
-      return await context.bindFirestoreRef('posts', postsCollection.orderBy('createdAt', 'desc'));
+      return await context.bindFirestoreRef(
+        'posts',
+        allPostsCollection.orderBy('createdAt', 'desc')
+      );
     } catch (error) {
       alert(error);
     }
@@ -36,15 +47,29 @@ const actions = {
         imageUrl: post.imageUrl,
         mediaUrl: post.mediaUrl,
         ownerId: firebaseAuth.currentUser.uid,
-        // username: context.rootState.auth.userData.userInfo,
-        likes: 0,
-        comments: 0,
+        postId: '',
+        username: firebaseAuth.currentUser.displayName,
+        likeCount: 0,
+        likes: [],
         createdAt: new Date(),
-        updatedAt: new Date(),
+        //comments: 0,
+        //updatedAt: new Date(),
       };
       // console.log('=== here ===');
       // console.log(context.rootState.auth.userData.userInfo);
-      await postsCollection.add(newPost);
+
+      // Create a post in allPosts
+      var newPostRef = await allPostsCollection.doc();
+      newPost.postId = newPostRef.id;
+      newPostRef.set(newPost);
+
+      // Create a post in myPosts
+      var newMyPostRef = await myPostsCollection
+        .doc(firebaseAuth.currentUser.uid)
+        .collection('userPosts')
+        .doc(newPost.postId);
+      newMyPostRef.set(newPost);
+
       router.push('/feed');
     } catch (error) {
       console.log(error);
@@ -53,7 +78,95 @@ const actions = {
   },
   deletePost: async (context, post) => {
     try {
-      await postsCollection.doc(post.id).delete();
+      // delete a post from allPosts
+      await allPostsCollection.doc(post.id).delete();
+
+      // delete a post from myPosts
+      await myPostsCollection
+        .doc(firebaseAuth.currentUser.uid)
+        .collection('userPosts')
+        .doc(post.id)
+        .delete();
+
+      // delete all like from likes
+      usersCollection.get().then(function(querySnapshot) {
+        querySnapshot.forEach(function(doc) {
+          likesCollection
+            .doc(doc.id)
+            .collection('myLikes')
+            .doc(post.id)
+            .delete();
+        });
+      });
+    } catch (error) {
+      console.log(error);
+      alert(error);
+    }
+  },
+  likePost: async (context, post) => {
+    try {
+      // add uid to likes and plus likeCount in allPosts
+      var postRef = await allPostsCollection.doc(post.postId);
+      await postRef.update({
+        likes: firebase.firestore.FieldValue.arrayUnion(firebaseAuth.currentUser.uid),
+        likeCount: firebase.firestore.FieldValue.increment(1),
+      });
+
+      // add uid to likes and plus likeCount in myPosts
+      var myPostRef = myPostsCollection
+        .doc(post.ownerId)
+        .collection('userPosts')
+        .doc(post.postId);
+      myPostRef.update({
+        likes: firebase.firestore.FieldValue.arrayUnion(firebaseAuth.currentUser.uid),
+        likeCount: firebase.firestore.FieldValue.increment(1),
+      });
+
+      // add uid to likes and minus likeCount in likes
+      postRef.get().then(function(doc) {
+        if (doc.exists) {
+          var postData = doc.data();
+
+          var likesRef = likesCollection
+            .doc(firebaseAuth.currentUser.uid)
+            .collection('myLikes')
+            .doc(post.postId);
+          likesRef.set(postData);
+        } else {
+          // doc.data() will be undefined in this case
+          console.log('No such document!');
+        }
+      });
+    } catch (error) {
+      console.log(error);
+      alert(error);
+    }
+  },
+  unlikePost: async (context, post) => {
+    try {
+      // delete uid to likes and minus likeCount in all Posts
+      var postRef = allPostsCollection.doc(post.postId);
+      await postRef.update({
+        likes: firebase.firestore.FieldValue.arrayRemove(firebaseAuth.currentUser.uid),
+        likeCount: firebase.firestore.FieldValue.increment(-1),
+      });
+
+      // delete uid to likes and minus likeCount in myPosts
+      var myPostRef = myPostsCollection
+        .doc(post.ownerId)
+        .collection('userPosts')
+        .doc(post.postId);
+      myPostRef.update({
+        likes: firebase.firestore.FieldValue.arrayRemove(firebaseAuth.currentUser.uid),
+        likeCount: firebase.firestore.FieldValue.increment(-1),
+      });
+
+      // delete uid to likes and minus likeCount in likes
+      var likesRef = likesCollection
+        .doc(firebaseAuth.currentUser.uid)
+        .collection('myLikes')
+        .doc(post.postId);
+      likesRef.delete();
     } catch (error) {
       console.log(error);
       alert(error);
@@ -62,7 +175,7 @@ const actions = {
   uploadFile: async (context, file) => {
     try {
       context.state.storageURL = '';
-      var uploadTask = storage.ref('images/' + file.name).put(file);
+      var uploadTask = storage.ref('posts/' + file.name).put(file);
 
       // Listen for state changes, errors, and completion of the upload.
       uploadTask.on(
@@ -70,14 +183,14 @@ const actions = {
         'state_changed',
         function(snapshot) {
           // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
-          var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          console.log('Upload is ' + progress + '% done');
+          // var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          // console.log('Upload is ' + progress + '% done');
           switch (snapshot.state) {
             case 'paused': //storage.TaskState.PAUSED: // or 'paused'
-              console.log('Upload is paused');
+              // console.log('Upload is paused');
               break;
             case 'running': //storage.TaskState.RUNNING: // or 'running'
-              console.log('Upload is running');
+              // console.log('Upload is running');
               break;
           }
         },
@@ -112,7 +225,7 @@ const actions = {
   },
   deleteFile: async (context, fileName) => {
     try {
-      await storage.ref('images/' + fileName).delete();
+      await storage.ref('posts/' + fileName).delete();
     } catch (error) {
       console.log(error);
       alert(error);
