@@ -1,36 +1,40 @@
 <template>
   <div id="editprofile">
-    <div>
-      <transition name="fade">
-        <p v-if="showSuccess" class="success">Profile updated</p>
-      </transition>
+    <transition name="fade">
+      <p v-if="showSuccess" class="success">Profile updated</p>
+    </transition>
 
-      <form @submit.prevent>
-        <div class="card bg-light">
-          <div class="card-body">
-            <h3>Edit Profile</h3>
-            <div v-if="userData.userInfo.avatar">
-              <b-img v-bind:src="userData.userInfo.avatar" width="50" height="50" rounded="circle" />
-            </div>
-            <div v-else>
-              <b-avatar src="user-placeholder.jpg" variant="light" size="3.5em"></b-avatar>
-              <label for="username">Username</label>
-              <input v-model="userData.userInfo.username" />
-            </div>
-            <button>
-              <input
-                id="uploadPhotoInput"
-                type="file"
-                accept="image/*"
-                :multiple="false"
-                class="form-control"
-              />
-            </button>
-            <button @click="handleSubmit" class="btn btn-primary">Update Profile</button>
+    <form @submit.prevent>
+      <div class="card bg-light">
+        <div class="card-body">
+          <h3>Edit Profile</h3>
+          <div v-if="userData.userInfo.avatar">
+            <b-img v-bind:src="userData.userInfo.avatar" width="50" height="50" rounded="circle" />
           </div>
+          <div v-else>
+            <b-avatar src="user-placeholder.jpg" variant="light" size="3.5em"></b-avatar>
+          </div>
+
+          <br />
+
+          <button class="btn primary m-1">
+            Change profile photo
+            <input
+              id="uploadPhotoInput"
+              type="file"
+              accept="image/*"
+              :multiple="false"
+              class="form-control"
+            />
+          </button>
+          <br />
+          <label for="username">Username</label>
+          <br />
+          <input v-model="userData.userInfo.username" />
+          <button @click="handleSubmit" class="btn btn-primary">Update Profile</button>
         </div>
-      </form>
-    </div>
+      </div>
+    </form>
   </div>
 </template>
 
@@ -41,8 +45,6 @@ export default {
   name: 'EditProfile',
   data() {
     return {
-      // username: '',
-      // // email: '',
       fileName: '',
       uploading: false,
       uploadEnd: false,

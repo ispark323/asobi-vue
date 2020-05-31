@@ -1,17 +1,19 @@
+.container {
+  max-width: 630px;
+}
+
 #login {
-  margin: auto;
-  max-width: 400px;
+  margin: 0 auto;
 }
 
 #register {
   margin: auto;
-  max-width: 500px;
 }
 
 #navigation {
   .navbar {
     margin: auto;
-    max-width: 650px;
+    max-width: 630px;
   }
 
   .horizontal {
@@ -30,7 +32,6 @@
 
 #feed {
   margin: auto;
-  max-width: 600px;
 
   .lazyimage {
     min-height: 300px;
@@ -49,12 +50,19 @@
 
 #profile {
   margin: auto;
-  max-width: 600px;
+
+  .btn {
+    border: 0;
+    width: 200px;
+  }
 }
 
-#createPost {
+#editprofile {
   margin: auto;
-  max-width: 600px;
+}
+
+#createpost {
+  margin: auto;
 
   .modal-mask {
     position: fixed;

@@ -1,7 +1,5 @@
 <template>
   <div id="register">
-    <h3 class="text-center">Unknown girls' playground</h3>
-    <br />
     <form @submit.prevent>
       <div class="card bg-light">
         <div class="card-body">

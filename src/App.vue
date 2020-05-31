@@ -1,6 +1,7 @@
 <template>
   <div id="app" class="container">
     <Navigation />
+    <hr />
     <router-view />
   </div>
 </template>
@@ -16,8 +17,3 @@ export default {
   },
 };
 </script>
-
-<style lang="scss">
-$primary: #bd3b6c;
-@import 'node_modules/bootstrap/scss/bootstrap';
-</style>
