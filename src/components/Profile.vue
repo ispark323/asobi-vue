@@ -8,7 +8,7 @@
             @{{ userData.userInfo.username }}
           </div>
           <div v-else>
-            <img src="user-placeholder.jpg" width="50" height="50" />
+            <b-avatar src="user-placeholder.jpg" variant="light" size="3.5em"></b-avatar>
             @{{ userData.userInfo.username }}
           </div>
         </div>
