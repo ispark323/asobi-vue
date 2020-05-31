@@ -1,8 +1,9 @@
 <template>
   <div id="profile">
     <div class="post-container">
-      <div class="card bg-light m-1">
-        <div class="card-body">
+      <div class="card bg-light m-1 text-center">
+        <div>
+          <br />
           <div v-if="userData.userInfo.avatar">
             <b-img v-bind:src="userData.userInfo.avatar" width="50" height="50" rounded="circle" />
             @{{ userData.userInfo.username }}
@@ -12,7 +13,13 @@
             @{{ userData.userInfo.username }}
           </div>
         </div>
-        <router-link to="/editprofile" class="nav-item nav-link text-right">Edit Profile</router-link>
+        <p></p>
+        <div>
+          <b-button to="/editprofile" variant="primary m-1">Edit Profile</b-button>
+          <br />
+          <button @click="handleLogout" class="btn btn-dark m-1">Logout</button>
+        </div>
+        <br />
       </div>
 
       <div class="card bg-light m-1">
@@ -71,7 +78,7 @@ export default {
   name: 'Profile',
   computed: mapGetters(['userData', 'getPosts']),
   methods: {
-    ...mapActions(['bindPostsRef', 'deletePost']),
+    ...mapActions(['bindPostsRef', 'deletePost', 'logout']),
     handleDelete(index) {
       const post = {
         id: this.getPosts[index].id,
@@ -80,6 +87,9 @@ export default {
       if (confirm('Delete your post?\n"' + post.text + '"')) {
         this.deletePost(post);
       }
+    },
+    handleLogout() {
+      this.logout();
     },
   },
   created() {

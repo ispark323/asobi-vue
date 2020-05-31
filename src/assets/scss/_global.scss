@@ -9,7 +9,26 @@ $theme-colors: (
 );
 
 body {
-  padding-top: 55px;
+  // margin: 0;
+  padding-top: 45px;
+}
+
+form {
+  label {
+    display: block;
+    font-size: 16px;
+    margin-bottom: 0.5rem;
+  }
+
+  input {
+    display: inline-block;
+    margin-bottom: 1rem;
+    font-size: 13px;
+    padding: 10px;
+    outline: 0;
+    border: 1px solid #e6ecf0;
+    border-radius: 3px;
+  }
 }
 
 @import 'node_modules/bootstrap/scss/bootstrap';

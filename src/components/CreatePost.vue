@@ -1,12 +1,12 @@
 <template>
-  <div id="createPost">
-    <h3 class="text-center">Unknown girls' playground</h3>
-    <br />
+  <div id="createpost">
     <div class="card bg-light m-1">
       <div class="card-body">
         <h2>Share Link</h2>
         <button class="btn btn-primary m-1" @click="showYoutubePost = true">YouTube Link</button>
+        <br />
         <button class="btn btn-primary m-1" @click="showPhotoPost = true">Photo Link</button>
+        <br />
         <button class="btn btn-primary m-1" @click="showUploadPhotoPost = true">Upload Photo</button>
       </div>
     </div>
