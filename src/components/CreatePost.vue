@@ -7,7 +7,9 @@
         <br />
         <button class="btn btn-primary m-1" @click="showPhotoPost = true">Photo Link</button>
         <br />
-        <button class="btn btn-primary m-1" @click="showUploadPhotoPost = true">Upload Photo</button>
+        <button class="btn btn-primary m-1" @click="showUploadPhotoPost = true">
+          Upload Photo
+        </button>
       </div>
     </div>
 
@@ -68,12 +70,12 @@
                     <textarea class="form-control" id="text" v-model="post.text"></textarea>
                   </div>
                   <div class="form-group">
-                    <label for="imageUrl" class="col-form-label">Photo Link:</label>
+                    <label for="imageLinkUrl" class="col-form-label">Photo Link:</label>
                     <textarea
                       class="form-control"
-                      id="imageUrl"
+                      id="imageLinkUrl"
                       placeholder="Paste link here..."
-                      v-model="post.imageUrl"
+                      v-model="post.imageLinkUrl"
                       @keypress.enter="handleSubmit"
                     ></textarea>
                   </div>
@@ -159,6 +161,7 @@ export default {
         text: '',
         mediaUrl: '',
         imageUrl: '',
+        imageLinkUrl: '',
       },
       showYoutubePost: false,
       showPhotoPost: false,
@@ -196,7 +199,7 @@ export default {
       }
       this.createPost(this.post);
       this.post.text = '';
-      this.post.imageUrl = '';
+      this.post.imageLinkUrl = '';
       this.showPhotoPost = false;
     },
     handleSubmitUploadPhoto: function() {
