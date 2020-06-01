@@ -1,16 +1,12 @@
 <template>
   <div id="feed">
-    <div v-for="(n, index) in pageOffset" :key="index" class="m-2">
+    <div v-for="(n, index) in pageOffset" :key="index" class="mt-4">
       <div v-if="getPosts[index] != null">
         <div class="card">
           <div class="card-body">
             <div class="card-title">
               <div v-if="getPosts[index].avatar">
-                <b-avatar
-                  v-bind:src="getPosts[index].avatar"
-                  size="2em"
-                  variant="primary"
-                ></b-avatar>
+                <b-avatar v-bind:src="getPosts[index].avatar" size="2em" variant="primary"></b-avatar>
                 @{{ getPosts[index].username }}
               </div>
               <div v-else>
@@ -31,11 +27,7 @@
                 <div v-else>
                   <!-- if already like, allowed only unlike -->
                   <div v-if="isMyLike(index)">
-                    <b-icon
-                      icon="heart-fill"
-                      v-on:click="deleteLike(index)"
-                      variant="danger"
-                    ></b-icon>
+                    <b-icon icon="heart-fill" v-on:click="deleteLike(index)" variant="danger"></b-icon>
                     {{ getPosts[index].likeCount }} Likes, {{ timeFromCreated(index) }}
                   </div>
                   <!-- if not yet, allowed like -->
@@ -133,12 +125,8 @@
       <!-- Footer -->
       <template v-slot:modal-footer="{ cancel }">
         <!-- Emulate built in modal footer ok and cancel button actions -->
-        <b-button size="sm" variant="primary" @click="handleEditMyPost">
-          Edit
-        </b-button>
-        <b-button size="sm" variant="primary" @click="cancel()">
-          Cancel
-        </b-button>
+        <b-button size="sm" variant="primary" @click="handleEditMyPost">Edit</b-button>
+        <b-button size="sm" variant="primary" @click="cancel()">Cancel</b-button>
       </template>
     </b-modal>
   </div>

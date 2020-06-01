@@ -6,8 +6,8 @@
   >
     <br />
     <br />
-    <h4>#MakeupAddiction</h4>
-    <p>Share your makeup photos</p>
+    <div class="title">Share your photos of</div>
+    <div class="title">#MakeupAddiction</div>
     <form v-if="showLoginForm" @submit.prevent>
       <div class="card-body">
         <input v-model="email" type="text" placeholder="Email" id="email1" class="m-1" />

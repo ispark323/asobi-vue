@@ -4,6 +4,20 @@
 
 #login {
   margin: 0 auto;
+  .title {
+    font-family: 'Montserrat';
+    font-weight: 900;
+    font-size: 2em;
+    line-height: 1.5;
+    color: #fff;
+  }
+  .tag {
+    font-family: 'Montserrat';
+    font-weight: 900;
+    font-size: 1.5em;
+    line-height: 1.5;
+    color: #fff;
+  }
 }
 
 #register {
@@ -21,7 +35,7 @@
     flex-direction: row;
 
     .nav-item {
-      padding: 0px 2px 0px 2px;
+      padding: 0px 5px;
     }
 
     .btn {

@@ -5,7 +5,7 @@
     </transition>
 
     <form @submit.prevent>
-      <div class="card bg-light">
+      <div class="card bg-light mt-4">
         <div class="card-body">
           <h3>Edit Profile</h3>
           <div v-if="userData.userInfo.avatar">
