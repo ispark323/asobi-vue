@@ -88,22 +88,22 @@ const actions = {
       commit('FAIL', error.message);
     }
   },
-  register: async ({ commit }, registerData) => {
+  signup: async ({ commit }, signupData) => {
     commit('PENDING');
     try {
       const res = await firebaseAuth.createUserWithEmailAndPassword(
-        registerData.email,
-        registerData.password
+        signupData.email,
+        signupData.password
       );
       // let user = fb.firebaseAuth().currentUser;
       await res.user.updateProfile({
-        displayName: registerData.username,
+        displayName: signupData.username,
       });
 
       await usersCollection.doc(res.user.uid).set({
         uid: res.user.uid,
-        username: registerData.username,
-        email: registerData.email,
+        username: signupData.username,
+        email: signupData.email,
       });
 
       const userInfo = {

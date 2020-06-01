@@ -8,9 +8,10 @@
     <br />
     <div class="title">Share your photos of</div>
     <div class="title">#MakeupAddiction</div>
+    <!-- Login Form -->
     <form v-if="showLoginForm" @submit.prevent>
       <div class="card-body">
-        <input v-model="email" type="text" placeholder="Email" id="email1" class="m-1" />
+        <input v-model="email" type="text" placeholder="Email" id="email1" />
         <br />
         <input
           v-model="password"
@@ -18,13 +19,12 @@
           placeholder="Password"
           id="password1"
           @keypress.enter="handleLogin"
-          class="m-1"
         />
         <br />
         <button @click="handleLogin" class="btn btn-primary">Login</button>
         <br />
         <br />Don't have an account?
-        <router-link class="nav-item nav-link" to="/register">Sign up</router-link>
+        <router-link class="nav-item nav-link" to="/signup">Sign up</router-link>
         <div class="text-right m-2">
           <b-button @click="toggleForm" variant="link" style="font-size: 13px">Forgot Password</b-button>
         </div>
@@ -35,7 +35,7 @@
     <form v-if="!showLoginForm" @submit.prevent class="password-reset">
       <div v-if="!passwordResetSuccess">
         <div>
-          <!-- <div class="card-body"> -->
+          <br />
           <h2>Reset Password</h2>
           <p>We will send you an email to reset your password</p>
           <input
@@ -46,7 +46,6 @@
             class="m-1"
           />
           <button @click="handleResetPassword" class="btn btn-primary m-1">Submit</button>
-          <!-- </div> -->
         </div>
         <div class="text-right m-2">
           <b-button @click="toggleForm" variant="link" style="font-size: 13px">Back to Login</b-button>
