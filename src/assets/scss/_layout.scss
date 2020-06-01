@@ -1,17 +1,33 @@
+.container {
+  max-width: 630px;
+}
+
 #login {
-  margin: auto;
-  max-width: 400px;
+  margin: 0 auto;
+  .title {
+    font-family: 'Montserrat';
+    font-weight: 900;
+    font-size: 2em;
+    line-height: 1.5;
+    color: #fff;
+  }
+  .tag {
+    font-family: 'Montserrat';
+    font-weight: 900;
+    font-size: 1.5em;
+    line-height: 1.5;
+    color: #fff;
+  }
 }
 
 #register {
   margin: auto;
-  max-width: 500px;
 }
 
 #navigation {
   .navbar {
     margin: auto;
-    max-width: 650px;
+    max-width: 630px;
   }
 
   .horizontal {
@@ -19,7 +35,7 @@
     flex-direction: row;
 
     .nav-item {
-      padding: 0px 2px 0px 2px;
+      padding: 0px 5px;
     }
 
     .btn {
@@ -30,7 +46,6 @@
 
 #feed {
   margin: auto;
-  max-width: 600px;
 
   .lazyimage {
     min-height: 300px;
@@ -47,14 +62,21 @@
   }
 }
 
-#mypage {
+#profile {
   margin: auto;
-  max-width: 600px;
+
+  .btn {
+    border: 0;
+    width: 200px;
+  }
 }
 
-#createPost {
+#editprofile {
   margin: auto;
-  max-width: 600px;
+}
+
+#createpost {
+  margin: auto;
 
   .modal-mask {
     position: fixed;

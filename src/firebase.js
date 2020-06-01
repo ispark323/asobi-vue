@@ -20,7 +20,9 @@ const currentUser = firebaseAuth.currentUser;
 
 // firebase collections
 const usersCollection = db.collection('users');
-const postsCollection = db.collection('posts');
+const allPostsCollection = db.collection('allPosts');
+const myPostsCollection = db.collection('myPosts');
+const timelineCollection = db.collection('timeline');
 const commentsCollection = db.collection('comments');
 const likesCollection = db.collection('likes');
 
@@ -28,11 +30,14 @@ const likesCollection = db.collection('likes');
 const storage = firebase.storage();
 
 export {
+  firebase,
   db,
   firebaseAuth,
   currentUser,
   usersCollection,
-  postsCollection,
+  allPostsCollection,
+  myPostsCollection,
+  timelineCollection,
   commentsCollection,
   likesCollection,
   storage,

@@ -1,11 +1,45 @@
 <template>
   <div id="feed">
-    <div v-for="(n, index) in pageOffset" :key="index" class="m-2">
+    <div v-for="(n, index) in pageOffset" :key="index" class="mt-4">
       <div v-if="getPosts[index] != null">
         <div class="card">
           <div class="card-body">
-            <h5 class="card-title">{{ getPosts[index].text }}</h5>
+            <div class="card-title">
+              <div v-if="getPosts[index].avatar">
+                <b-avatar v-bind:src="getPosts[index].avatar" size="2em" variant="primary"></b-avatar>
+                @{{ getPosts[index].username }}
+              </div>
+              <div v-else>
+                <b-avatar src="user-placeholder.jpg" size="2em" variant="light"></b-avatar>
+                @{{ getPosts[index].username }}
+              </div>
+              <h5>{{ getPosts[index].text }}</h5>
+            </div>
+            <p class="card-text text-right">
+              <small class="text-muted">
+                <!-- if my post, not allowed like,unlick -->
+                <div v-if="getPosts[index].ownerId == userData.userInfo.uid">
+                  <b-icon icon="heart" variant="danger"></b-icon>
+                  {{ getPosts[index].likeCount }} Likes, {{ timeFromCreated(index) }}
+                  <b-icon icon="pencil-square" v-on:click="showEditMyPost(index)"></b-icon>
+                </div>
+                <!-- if not my post -->
+                <div v-else>
+                  <!-- if already like, allowed only unlike -->
+                  <div v-if="isMyLike(index)">
+                    <b-icon icon="heart-fill" v-on:click="deleteLike(index)" variant="danger"></b-icon>
+                    {{ getPosts[index].likeCount }} Likes, {{ timeFromCreated(index) }}
+                  </div>
+                  <!-- if not yet, allowed like -->
+                  <div v-else>
+                    <b-icon icon="heart" v-on:click="addLike(index)" variant="danger"></b-icon>
+                    {{ getPosts[index].likeCount }} Likes, {{ timeFromCreated(index) }}
+                  </div>
+                </div>
+              </small>
+            </p>
           </div>
+          <!-- Youtube Link Post -->
           <div v-if="getPosts[index].mediaUrl != ''">
             <div class="embed-responsive embed-responsive-16by9">
               <iframe
@@ -18,19 +52,13 @@
               ></iframe>
             </div>
           </div>
+          <!-- Photo Link / Uploaded Photo Post -->
           <div
             v-else-if="getPosts[index].imageUrl != ''"
             class="text-center border rounded-lg lazyimage"
           >
             <img v-bind:src="getPosts[index].imageUrl" class="img-fluid" loading="lazy" />
           </div>
-          <!-- <p class="card-text text-right">
-                <small class="text-muted">
-                  {{
-                  getPosts[index].createdAt.toDate().toLocaleString()
-                  }}
-                </small>
-          </p>-->
         </div>
       </div>
     </div>
@@ -42,6 +70,65 @@
         </div>
       </div>
     </footer>
+    <b-modal id="editMyPost" title="Edit" @ok="handleEditMyPost">
+      <form ref="editMyPostFormRef">
+        <b-form-group label="Text:" label-for="text1" invalid-feedback="Text is required">
+          <b-form-textarea
+            id="text1"
+            v-model="editedPost.text"
+            :state="textState"
+            placeholder="Enter at least 1 letters"
+            rows="3"
+            max-rows="10"
+            required
+          ></b-form-textarea>
+        </b-form-group>
+        <div v-if="postType == 'media'">
+          <b-form-group label="Link:" label-for="mediaUrl" invalid-feedback="URL is required">
+            <b-form-textarea
+              id="mediaUrl"
+              v-model="editedPost.mediaUrl"
+              :state="mediaUrlState"
+              placeholder="Enter at least 1 letters"
+              rows="2"
+              max-rows="3"
+              required
+            ></b-form-textarea>
+          </b-form-group>
+        </div>
+        <div v-else-if="postType == 'imageLink'">
+          <b-form-group label="Link:" label-for="imageLinkUrl" invalid-feedback="URL is required">
+            <b-form-textarea
+              id="imageLinkUrl"
+              v-model="editedPost.imageLinkUrl"
+              :state="imageLinkUrlState"
+              placeholder="Enter at least 1 letters"
+              rows="2"
+              max-rows="3"
+              required
+            ></b-form-textarea>
+          </b-form-group>
+        </div>
+        <div v-else-if="postType == 'image'">
+          <b-form-file
+            v-model="editedPost.image"
+            accept="image/*"
+            placeholder="Choose a file or drop it here..."
+            drop-placeholder="Drop file here..."
+          >
+            <template slot="file-name" slot-scope="{ names }">
+              <b-badge variant="primary">{{ names[0] }}</b-badge>
+            </template>
+          </b-form-file>
+        </div>
+      </form>
+      <!-- Footer -->
+      <template v-slot:modal-footer="{ cancel }">
+        <!-- Emulate built in modal footer ok and cancel button actions -->
+        <b-button size="sm" variant="primary" @click="handleEditMyPost">Edit</b-button>
+        <b-button size="sm" variant="primary" @click="cancel()">Cancel</b-button>
+      </template>
+    </b-modal>
   </div>
 </template>
 
@@ -92,13 +179,24 @@ export default {
   name: 'Feed',
   data() {
     return {
-      post: {
+      editedPost: {
+        ownerId: '',
+        postId: '',
         text: '',
         mediaUrl: '',
+        imageLinkUrl: '',
+        imageUrl: '',
+        image: null,
       },
       currentPage: 1,
       maxPerPage: 2,
       showloader: true,
+      textState: null,
+      mediaUrlState: null,
+      imageLinkUrlState: null,
+      imageUrlState: null,
+      postType: '',
+      postIndex: '',
     };
   },
   computed: {
@@ -108,7 +206,7 @@ export default {
     },
   },
   methods: {
-    ...mapActions(['bindPostsRef']),
+    ...mapActions(['bindPostsRef', 'likePost', 'unlikePost', 'editPost']),
     scrollTrigger() {
       const observer = new IntersectionObserver(entries => {
         entries.forEach(entry => {
@@ -123,6 +221,78 @@ export default {
       });
 
       observer.observe(this.$refs.infiniteScrollTrigger);
+    },
+    isMyLike(index) {
+      var likes = this.getPosts[index].likes;
+      if (likes != null) {
+        return this.getPosts[index].likes.includes(this.userData.userInfo.uid);
+      }
+      return null;
+    },
+    addLike(index) {
+      this.likePost(this.getPosts[index]);
+    },
+    deleteLike(index) {
+      this.unlikePost(this.getPosts[index]);
+    },
+    timeFromCreated(index) {
+      var today = new Date();
+      var msPerDay = 24 * 60 * 60 * 1000;
+      // var msPerHour = 60 * 60 * 1000;
+      var days = (today.getTime() - this.getPosts[index].createdAt.toDate().getTime()) / msPerDay;
+
+      if (days < 1) {
+        return Math.round(days * 24) + 'h';
+      } else {
+        return Math.round(days) + 'd';
+      }
+    },
+    showEditMyPost(index) {
+      //this.initEditMyPost();
+      this.postIndex = index;
+      this.editedPost.ownerId = this.getPosts[index].ownerId;
+      this.editedPost.postId = this.getPosts[index].postId;
+      this.editedPost.text = this.getPosts[index].text;
+      this.editedPost.mediaUrl = this.getPosts[index].mediaUrl;
+      this.editedPost.imageLinkUrl = this.getPosts[index].imageLinkUrl;
+      this.editedPost.imageUrl = this.getPosts[index].imageUrl;
+      this.textState = null;
+      this.mediaUrlState = null;
+      this.imageLinkUrlState = null;
+      this.imageUrlState = null;
+      if (this.editedPost.mediaUrl) {
+        this.postType = 'media';
+      } else if (this.editedPost.imageLinkUrl) {
+        this.postType = 'imageLink';
+      } else if (this.editedPost.imageUrl) {
+        this.postType = 'image';
+      }
+      this.$bvModal.show('editMyPost');
+    },
+    handleEditMyPost(bvModalEvt) {
+      // Prevent modal from closing
+      bvModalEvt.preventDefault();
+
+      if (this.editedPost.text.length < 1) {
+        this.textState = false;
+        return;
+      } else if (this.postType == 'media' && this.editedPost.mediaUrl.length < 1) {
+        this.mediaUrlState = false;
+        return;
+      } else if (this.postType == 'imageLink' && this.editedPost.imageLinkUrl.length < 1) {
+        this.imageLinkUrlState = false;
+        return;
+      } else if (this.postType == 'image' && this.editedPost.imageUrl.length < 1) {
+        this.imageUrlState = false;
+        return;
+      }
+
+      this.editPost(this.editedPost);
+
+      // Hide the modal manually
+      this.$nextTick(() => {
+        this.$bvModal.hide('editMyPost');
+      });
     },
   },
   mounted() {

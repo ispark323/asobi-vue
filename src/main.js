@@ -12,7 +12,7 @@ Vue.config.productionTip = false;
 let app;
 fb.firebaseAuth.onAuthStateChanged(user => {
   if (user) {
-    console.log('=== user logged in : ' + user.email + ' ===');
+    console.log('=== logged in: ' + user.email + ' ===');
     // store.commit("setCurrentUser", user);
   }
   if (!app) {
