@@ -1,12 +1,11 @@
 <template>
   <div
     id="signup"
-    style="background-image: url('makeup.jpg');background-size:cover;"
+    style="background: url('makeup.jpg') no-repeat center; background-size: cover;"
     class="text-center"
   >
     <!-- Sign up Form -->
     <form @submit.prevent>
-      <br />
       <br />
       <div class="title">Get started</div>
       <br />
@@ -25,9 +24,10 @@
       <button @click="handleSignup" class="btn btn-primary">Sign up</button>
 
       <div class="text-right m-2">
-        <router-link class="nav-item nav-link" to="/login">Back to Login</router-link>
+        <router-link class="nav-item nav-link" to="/login" style="font-size: 13px">Back to Login</router-link>
       </div>
     </form>
+    <div style="height: 250px;"></div>
   </div>
 </template>
 
