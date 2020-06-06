@@ -23,7 +23,7 @@
 
     <div class="card bg-light mt-4">
       <div class="card-body">
-        <h2>My Posts</h2>
+        <h3>My Posts</h3>
         <div v-if="getPosts.length">
           <div v-for="(post, index) in getPosts" :key="post.id">
             <div v-if="post.ownerId == userData.userInfo.uid">

@@ -2,7 +2,7 @@
   <div id="createpost">
     <div class="card bg-light mt-4">
       <div class="card-body">
-        <h2>Share Link</h2>
+        <h3>Share Link</h3>
         <button class="btn btn-primary m-1" @click="showYoutubePost = true">YouTube Link</button>
         <br />
         <button class="btn btn-primary m-1" @click="showPhotoPost = true">Photo Link</button>

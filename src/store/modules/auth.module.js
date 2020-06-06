@@ -120,6 +120,17 @@ const actions = {
       commit('FAIL', error.message);
     }
   },
+  fetchUserProfile: async ({ commit }) => {
+    usersCollection
+      .doc(state.userData.userInfo.uid)
+      .get()
+      .then(doc => {
+        commit('setCurrentUser', doc.data());
+      })
+      .catch(err => {
+        console.log(err);
+      });
+  },
   updateProfile: async ({ commit }, data) => {
     try {
       // Change username in firebaseAuth (displayName) and usersCollection (username)

@@ -5,35 +5,33 @@
     class="text-center"
   >
     <br />
-    <div class="title">Share your photos of</div>
-    <div class="title">#MakeupAddiction</div>
+    <div class="title m-1">Share your photos of</div>
+    <div class="title m-1">#MakeupAddiction</div>
     <!-- Login Form -->
     <form v-if="showLoginForm" @submit.prevent>
-      <div class="card-body">
-        <input v-model="email" type="text" placeholder="Email" id="email1" />
-        <br />
-        <input
-          v-model="password"
-          type="password"
-          placeholder="Password"
-          id="password1"
-          @keypress.enter="handleLogin"
-        />
-        <br />
-        <button @click="handleLogin" class="btn btn-primary">Login</button>
-        <br />
-        <br />
-        <table align="center">
-          <tr>
-            <td>Don't have an account?</td>
-            <td>
-              <router-link class="nav-item nav-link" to="/signup">Sign up</router-link>
-            </td>
-          </tr>
-        </table>
-        <div class="text-right">
-          <b-button @click="toggleForm" variant="link" style="font-size: 13px">Forgot Password</b-button>
-        </div>
+      <input v-model="email" type="text" placeholder="Email" id="email1" />
+      <br />
+      <input
+        v-model="password"
+        type="password"
+        placeholder="Password"
+        id="password1"
+        @keypress.enter="handleLogin"
+      />
+      <br />
+      <button @click="handleLogin" class="btn btn-primary">Login</button>
+      <br />
+      <br />
+      <table align="center">
+        <tr>
+          <td>Don't have an account?</td>
+          <td>
+            <router-link class="nav-item nav-link" to="/signup">Sign up</router-link>
+          </td>
+        </tr>
+      </table>
+      <div class="text-right m-2">
+        <b-button @click="toggleForm" variant="link" style="font-size: 13px">Forgot Password</b-button>
       </div>
     </form>
 
