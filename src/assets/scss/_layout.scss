@@ -2,6 +2,10 @@
   max-width: 630px;
 }
 
+.modal-dialog {
+  max-width: 590px;
+}
+
 #login {
   margin: 0 auto;
   .title {
@@ -39,6 +43,10 @@
 
     .nav-item {
       padding: 0px 5px;
+    }
+
+    .nav-link {
+      cursor: pointer;
     }
 
     .btn {

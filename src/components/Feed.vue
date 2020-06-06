@@ -6,7 +6,11 @@
           <div class="card-body">
             <div class="card-title">
               <div v-if="getPosts[index].avatar">
-                <b-avatar v-bind:src="getPosts[index].avatar" size="2em" variant="primary"></b-avatar>
+                <b-avatar
+                  v-bind:src="getPosts[index].avatar"
+                  size="2em"
+                  variant="primary"
+                ></b-avatar>
                 @{{ getPosts[index].username }}
               </div>
               <div v-else>
@@ -15,29 +19,30 @@
               </div>
               <h5>{{ getPosts[index].text }}</h5>
             </div>
-            <p class="card-text text-right">
-              <small class="text-muted">
-                <!-- if my post, not allowed like,unlick -->
-                <div v-if="getPosts[index].ownerId == userData.userInfo.uid">
-                  <b-icon icon="heart" variant="danger"></b-icon>
-                  {{ getPosts[index].likeCount }} Likes, {{ timeFromCreated(index) }}
-                  <b-icon icon="pencil-square" v-on:click="showEditMyPost(index)"></b-icon>
-                </div>
-                <!-- if not my post -->
-                <div v-else>
-                  <!-- if already like, allowed only unlike -->
-                  <div v-if="isMyLike(index)">
-                    <b-icon icon="heart-fill" v-on:click="deleteLike(index)" variant="danger"></b-icon>
-                    {{ getPosts[index].likeCount }} Likes, {{ timeFromCreated(index) }}
-                  </div>
-                  <!-- if not yet, allowed like -->
-                  <div v-else>
-                    <b-icon icon="heart" v-on:click="addLike(index)" variant="danger"></b-icon>
-                    {{ getPosts[index].likeCount }} Likes, {{ timeFromCreated(index) }}
-                  </div>
-                </div>
-              </small>
-            </p>
+            <div class="card-text text-right">
+              <!-- <small class="text-muted"> -->
+              <!-- if already like, allowed only unlike -->
+              <div v-if="isMyLike(index)">
+                <b-icon icon="heart-fill" v-on:click="deleteLike(index)" variant="danger"></b-icon>
+                {{ getPosts[index].likeCount }} Likes, {{ timeFromCreated(index) }}
+                <b-icon
+                  icon="pencil-square"
+                  v-if="getPosts[index].ownerId == userData.userInfo.uid"
+                  v-on:click="showEditMyPost(index)"
+                ></b-icon>
+              </div>
+              <!-- if not yet, allowed like -->
+              <div v-else>
+                <b-icon icon="heart" v-on:click="addLike(index)" variant="danger"></b-icon>
+                {{ getPosts[index].likeCount }} Likes, {{ timeFromCreated(index) }}
+                <b-icon
+                  icon="pencil-square"
+                  v-if="getPosts[index].ownerId == userData.userInfo.uid"
+                  v-on:click="showEditMyPost(index)"
+                ></b-icon>
+              </div>
+              <!-- </small> -->
+            </div>
           </div>
           <!-- Youtube Link Post -->
           <div v-if="getPosts[index].mediaUrl != ''">
@@ -52,7 +57,7 @@
               ></iframe>
             </div>
           </div>
-          <!-- Photo Link / Uploaded Photo Post -->
+          <!-- Photo Post -->
           <div
             v-else-if="getPosts[index].imageUrl != ''"
             class="text-center border rounded-lg lazyimage"
@@ -70,61 +75,47 @@
         </div>
       </div>
     </footer>
+
+    <!-- Edit my post -->
     <b-modal id="editMyPost" title="Edit" @ok="handleEditMyPost">
-      <form ref="editMyPostFormRef">
-        <b-form-group label="Text:" label-for="text1" invalid-feedback="Text is required">
+      <b-form-group label="Text:" label-for="text1" invalid-feedback="Text is required">
+        <b-form-textarea
+          id="text1"
+          v-model="editedPost.text"
+          :state="textState"
+          placeholder="Enter at least 1 letters"
+          rows="3"
+          max-rows="10"
+          required
+        ></b-form-textarea>
+      </b-form-group>
+      <div v-if="postType == 'media'">
+        <b-form-group label="Link:" label-for="mediaUrl" invalid-feedback="URL is required">
           <b-form-textarea
-            id="text1"
-            v-model="editedPost.text"
-            :state="textState"
+            id="mediaUrl"
+            v-model="editedPost.mediaUrl"
+            :state="mediaUrlState"
             placeholder="Enter at least 1 letters"
-            rows="3"
-            max-rows="10"
+            rows="2"
+            max-rows="3"
             required
           ></b-form-textarea>
         </b-form-group>
-        <div v-if="postType == 'media'">
-          <b-form-group label="Link:" label-for="mediaUrl" invalid-feedback="URL is required">
-            <b-form-textarea
-              id="mediaUrl"
-              v-model="editedPost.mediaUrl"
-              :state="mediaUrlState"
-              placeholder="Enter at least 1 letters"
-              rows="2"
-              max-rows="3"
-              required
-            ></b-form-textarea>
-          </b-form-group>
-        </div>
-        <div v-else-if="postType == 'imageLink'">
-          <b-form-group label="Link:" label-for="imageLinkUrl" invalid-feedback="URL is required">
-            <b-form-textarea
-              id="imageLinkUrl"
-              v-model="editedPost.imageLinkUrl"
-              :state="imageLinkUrlState"
-              placeholder="Enter at least 1 letters"
-              rows="2"
-              max-rows="3"
-              required
-            ></b-form-textarea>
-          </b-form-group>
-        </div>
-        <div v-else-if="postType == 'image'">
-          <b-form-file
-            v-model="editedPost.image"
-            accept="image/*"
-            placeholder="Choose a file or drop it here..."
-            drop-placeholder="Drop file here..."
-          >
-            <template slot="file-name" slot-scope="{ names }">
-              <b-badge variant="primary">{{ names[0] }}</b-badge>
-            </template>
-          </b-form-file>
-        </div>
-      </form>
+      </div>
+      <div v-else-if="postType == 'image'">
+        <b-form-file
+          v-model="editedPost.image"
+          accept="image/*"
+          placeholder="Choose a file or drop it here..."
+          drop-placeholder="Drop file here..."
+        >
+          <template slot="file-name" slot-scope="{ names }">
+            <b-badge variant="primary">{{ names[0] }}</b-badge>
+          </template>
+        </b-form-file>
+      </div>
       <!-- Footer -->
       <template v-slot:modal-footer="{ cancel }">
-        <!-- Emulate built in modal footer ok and cancel button actions -->
         <b-button size="sm" variant="primary" @click="handleEditMyPost">Edit</b-button>
         <b-button size="sm" variant="primary" @click="cancel()">Cancel</b-button>
       </template>
@@ -184,7 +175,6 @@ export default {
         postId: '',
         text: '',
         mediaUrl: '',
-        imageLinkUrl: '',
         imageUrl: '',
         image: null,
       },
@@ -193,7 +183,6 @@ export default {
       showloader: true,
       textState: null,
       mediaUrlState: null,
-      imageLinkUrlState: null,
       imageUrlState: null,
       postType: '',
       postIndex: '',
@@ -219,7 +208,6 @@ export default {
           }
         });
       });
-
       observer.observe(this.$refs.infiniteScrollTrigger);
     },
     isMyLike(index) {
@@ -238,7 +226,6 @@ export default {
     timeFromCreated(index) {
       var today = new Date();
       var msPerDay = 24 * 60 * 60 * 1000;
-      // var msPerHour = 60 * 60 * 1000;
       var days = (today.getTime() - this.getPosts[index].createdAt.toDate().getTime()) / msPerDay;
 
       if (days < 1) {
@@ -248,22 +235,17 @@ export default {
       }
     },
     showEditMyPost(index) {
-      //this.initEditMyPost();
       this.postIndex = index;
       this.editedPost.ownerId = this.getPosts[index].ownerId;
       this.editedPost.postId = this.getPosts[index].postId;
       this.editedPost.text = this.getPosts[index].text;
       this.editedPost.mediaUrl = this.getPosts[index].mediaUrl;
-      this.editedPost.imageLinkUrl = this.getPosts[index].imageLinkUrl;
       this.editedPost.imageUrl = this.getPosts[index].imageUrl;
       this.textState = null;
       this.mediaUrlState = null;
-      this.imageLinkUrlState = null;
       this.imageUrlState = null;
       if (this.editedPost.mediaUrl) {
         this.postType = 'media';
-      } else if (this.editedPost.imageLinkUrl) {
-        this.postType = 'imageLink';
       } else if (this.editedPost.imageUrl) {
         this.postType = 'image';
       }
@@ -278,9 +260,6 @@ export default {
         return;
       } else if (this.postType == 'media' && this.editedPost.mediaUrl.length < 1) {
         this.mediaUrlState = false;
-        return;
-      } else if (this.postType == 'imageLink' && this.editedPost.imageLinkUrl.length < 1) {
-        this.imageLinkUrlState = false;
         return;
       } else if (this.postType == 'image' && this.editedPost.imageUrl.length < 1) {
         this.imageUrlState = false;

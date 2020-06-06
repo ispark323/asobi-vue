@@ -12,21 +12,23 @@ import router from '@/router/router';
 
 const state = {
   posts: [],
-  storageURL: '',
+  myPosts: [],
+  // storageURL: '',
 };
 
 const getters = {
   getPosts: state => state.posts,
-  getStorageURL: state => state.storageURL,
+  getMyPosts: state => state.myPosts,
+  // getStorageURL: state => state.storageURL,
 };
 
 const mutations = {
   // setPosts: (state, posts) => {
   //   state.posts = posts;
   // },
-  setStorageURL: (state, downloadURL) => {
-    state.storageURL = downloadURL;
-  },
+  // setStorageURL: (state, downloadURL) => {
+  //   state.storageURL = downloadURL;
+  // },
 };
 
 const actions = {
@@ -35,6 +37,19 @@ const actions = {
       return await context.bindFirestoreRef(
         'posts',
         allPostsCollection.orderBy('createdAt', 'desc')
+      );
+    } catch (error) {
+      alert(error);
+    }
+  }),
+  bindMyPostsRef: firestoreAction(async context => {
+    try {
+      return await context.bindFirestoreRef(
+        'myPosts',
+        myPostsCollection
+          .doc(firebaseAuth.currentUser.uid)
+          .collection('userPosts')
+          .orderBy('createdAt', 'desc')
       );
     } catch (error) {
       alert(error);
@@ -77,6 +92,114 @@ const actions = {
       alert(error);
     }
   },
+  createPost2: async (context, post) => {
+    try {
+      const newPost = {
+        postId: '',
+        text: post.text,
+        imageUrl: '', //post.imageUrl,
+        mediaUrl: post.mediaUrl,
+        ownerId: firebaseAuth.currentUser.uid,
+        username: firebaseAuth.currentUser.displayName,
+        avatar: '',
+        likeCount: 0,
+        likes: [],
+        createdAt: new Date(),
+        //comments: 0,
+        //updatedAt: new Date(),
+      };
+
+      // get writer's avatar Url
+      await usersCollection
+        .doc(newPost.ownerId)
+        .get()
+        .then(function(doc) {
+          if (doc.exists) {
+            newPost.avatar = doc.data().avatar;
+          } else {
+            console.log('No such document');
+          }
+        });
+
+      // in case of image upload
+      if (post.image != null) {
+        console.log('=== photo ===');
+
+        // Create a post in allPosts
+        var newPostRef = await allPostsCollection.doc();
+        newPost.postId = newPostRef.id;
+        var uploadTask = storage.ref('posts/' + newPost.postId).put(post.image);
+
+        // Listen for state changes, errors, and completion of the upload.
+        uploadTask.on(
+          //storage.TaskEvent.STATE_CHANGED, // or 'state_changed'
+          'state_changed',
+          function(snapshot) {
+            // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
+            // var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            // console.log('Upload is ' + progress + '% done');
+            switch (snapshot.state) {
+              case 'paused': //storage.TaskState.PAUSED: // or 'paused'
+                // console.log('Upload is paused');
+                break;
+              case 'running': //storage.TaskState.RUNNING: // or 'running'
+                // console.log('Upload is running');
+                break;
+            }
+          },
+          function(error) {
+            // A full list of error codes is available at
+            // https://firebase.google.com/docs/storage/web/handle-errors
+            switch (error.code) {
+              case 'storage/unauthorized':
+                // User doesn't have permission to access the object
+                break;
+              case 'storage/canceled':
+                // User canceled the upload
+                break;
+              case 'storage/unknown':
+                // Unknown error occurred, inspect error.serverResponse
+                break;
+            }
+          },
+          function() {
+            // Upload completed successfully, now we can get the download URL
+            uploadTask.snapshot.ref.getDownloadURL().then(function(downloadURL) {
+              console.log('File available at', downloadURL);
+              // Set the post in allPost
+              newPost.imageUrl = downloadURL;
+              newPostRef.set(newPost);
+
+              // Create a post in myPosts
+              var newMyPostRef = myPostsCollection
+                .doc(firebaseAuth.currentUser.uid)
+                .collection('userPosts')
+                .doc(newPost.postId);
+              newMyPostRef.set(newPost);
+            });
+          }
+        );
+      } else {
+        console.log('=== youtube ===');
+        // Create a post in allPosts
+        var newPostRef2 = await allPostsCollection.doc();
+        newPost.postId = newPostRef2.id;
+        newPostRef2.set(newPost);
+
+        // Create a post in myPosts
+        var newMyPostRef = await myPostsCollection
+          .doc(firebaseAuth.currentUser.uid)
+          .collection('userPosts')
+          .doc(newPost.postId);
+        newMyPostRef.set(newPost);
+      }
+      // move the page top after posting
+      scroll(0, 0);
+    } catch (error) {
+      console.log(error);
+      alert(error);
+    }
+  },
   deletePost: async (context, post) => {
     try {
       // delete a post from allPosts
@@ -106,8 +229,8 @@ const actions = {
   },
   editPost: async (context, post) => {
     try {
-      // in case of image upload
-      if (post.imageUrl) {
+      // in case image is changed
+      if (post.image != null) {
         var uploadTask = storage.ref('posts/' + post.postId).put(post.image);
 
         // Listen for state changes, errors, and completion of the upload.
@@ -147,38 +270,32 @@ const actions = {
             uploadTask.snapshot.ref.getDownloadURL().then(function(downloadURL) {
               // console.log('File available at', downloadURL);
               // edit the post from allPosts
-              var postRef = allPostsCollection.doc(post.postId);
+              const postRef = allPostsCollection.doc(post.postId);
               postRef.update({
                 text: post.text,
-                mediaUrl: post.mediaUrl,
-                imageLinkUrl: post.imageLinkUrl,
                 imageUrl: downloadURL,
               });
 
               // edit the post from myPosts
-              var myPostRef = myPostsCollection
+              const myPostRef = myPostsCollection
                 .doc(post.ownerId)
                 .collection('userPosts')
                 .doc(post.postId);
               myPostRef.update({
                 text: post.text,
-                mediaUrl: post.mediaUrl,
-                imageLinkUrl: post.imageLinkUrl,
                 imageUrl: downloadURL,
               });
 
               // edit all posts from likes
               usersCollection.get().then(function(querySnapshot) {
                 querySnapshot.forEach(function(doc) {
-                  var likesRef = likesCollection
+                  const likesRef = likesCollection
                     .doc(doc.id)
                     .collection('myLikes')
                     .doc(post.postId);
                   likesRef
                     .update({
                       text: post.text,
-                      mediaUrl: post.mediaUrl,
-                      imageLinkUrl: post.imageLinkUrl,
                       imageUrl: downloadURL,
                     })
                     .then(function() {})
@@ -189,14 +306,12 @@ const actions = {
           }
         );
       } else {
-        // in case of media link or image link
+        // in case image is not changed
         // edit the post from allPosts
         var postRef = await allPostsCollection.doc(post.postId);
         await postRef.update({
           text: post.text,
           mediaUrl: post.mediaUrl,
-          imageLinkUrl: post.imageLinkUrl,
-          imageUrl: post.imageUrl,
         });
 
         // edit the post from myPosts
@@ -207,8 +322,6 @@ const actions = {
         myPostRef.update({
           text: post.text,
           mediaUrl: post.mediaUrl,
-          imageLinkUrl: post.imageLinkUrl,
-          imageUrl: post.imageUrl,
         });
 
         // edit all posts from likes
@@ -222,8 +335,6 @@ const actions = {
               .update({
                 text: post.text,
                 mediaUrl: post.mediaUrl,
-                imageLinkUrl: post.imageLinkUrl,
-                imageUrl: post.imageUrl,
               })
               .then(function() {})
               .catch(function() {
@@ -231,26 +342,22 @@ const actions = {
               });
             // Need to Check later ----------------------
             // likesCollection
-            // .doc(doc.id)
-            // .collection('myLikes')
-            // .doc(post.postId)
-            // .get()
-            // .then(function(doc2) {
-            //   if (doc2.exists) {
-            //     console.log('doc');
-            //     doc2.update({
-            //       text: post.text,
-            //       mediaUrl: post.mediaUrl,
-            //       imageLinkUrl: post.imageLinkUrl,
-            //       imageUrl: post.imageUrl,
-            //     });
-            //   } else {
-            //     console.log('no doc');
-            //   }
-            // })
-            // .catch(function(error) {
-            //   console.log(error);
-            // });
+            //   .doc(doc.id)
+            //   .collection('myLikes')
+            //   .doc(post.postId)
+            //   .get()
+            //   .then(function(doc2) {
+            //     if (doc2.exists) {
+            //       console.log('doc' + doc2.data().text);
+            //       doc2.data().text = post.text;
+            //       doc2.data().mediaUrl = post.mediaUrl;
+            //     } else {
+            //       console.log('no doc');
+            //     }
+            //   })
+            //   .catch(function(error) {
+            //     console.log(error);
+            //   });
           });
         });
       }
@@ -289,7 +396,6 @@ const actions = {
             .doc(post.postId);
           likesRef.set(postData);
         } else {
-          // doc.data() will be undefined in this case
           console.log('No such document!');
         }
       });

@@ -1,4 +1,11 @@
-import { firebaseAuth, usersCollection, storage } from '@/firebase';
+import {
+  firebaseAuth,
+  usersCollection,
+  allPostsCollection,
+  myPostsCollection,
+  //likesCollection,
+  storage,
+} from '@/firebase';
 import router from '@/router/router';
 
 const state = {
@@ -131,23 +138,102 @@ const actions = {
         console.log(err);
       });
   },
-  updateProfile: async ({ commit }, data) => {
+  updateProfile: async ({ commit }, profile) => {
     try {
+      const newUserInfo = this.userData.userInfo;
+      console.log('===', newUserInfo);
+
+      if (profile.username) {
+        newUserInfo.username = profile.username;
+      }
+      if (profile.avatar) {
+        let uploadTask = storage.ref('avatar/' + firebaseAuth.currentUser.uid).put(profile.avatar);
+
+        // Listen for state changes, errors, and completion of the upload.
+        uploadTask.on(
+          //storage.TaskEvent.STATE_CHANGED, // or 'state_changed'
+          'state_changed',
+          function(snapshot) {
+            // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
+            // var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            // console.log('Upload is ' + progress + '% done');
+            switch (snapshot.state) {
+              case 'paused': //storage.TaskState.PAUSED: // or 'paused'
+                // console.log('Upload is paused');
+                break;
+              case 'running': //storage.TaskState.RUNNING: // or 'running'
+                // console.log('Upload is running');
+                break;
+            }
+          },
+          function(error) {
+            // A full list of error codes is available at
+            // https://firebase.google.com/docs/storage/web/handle-errors
+            switch (error.code) {
+              case 'storage/unauthorized':
+                // User doesn't have permission to access the object
+                console.log(error);
+                break;
+              case 'storage/canceled':
+                // User canceled the upload
+                console.log(error);
+                break;
+              case 'storage/unknown':
+                // Unknown error occurred, inspect error.serverResponse
+                console.log(error);
+                break;
+            }
+          },
+          function() {
+            // Upload completed successfully, now we can get the download URL
+            uploadTask.snapshot.ref.getDownloadURL().then(function(downloadURL) {
+              newUserInfo.avatar = downloadURL;
+              // usersCollection.doc(firebaseAuth.currentUser.uid).update({
+              //   avatar: downloadURL,
+              // });
+            });
+          }
+        );
+      }
+
       // Change username in firebaseAuth (displayName) and usersCollection (username)
       await firebaseAuth.currentUser.updateProfile({
-        displayName: data.username,
+        displayName: newUserInfo.username,
       });
 
       await usersCollection.doc(firebaseAuth.currentUser.uid).update({
-        username: data.username,
+        username: newUserInfo.username,
+        avatar: newUserInfo.avatar,
       });
 
-      const userInfo = {
-        username: data.username,
-        email: data.email,
-      };
+      await allPostsCollection
+        .where('ownerId', '==', newUserInfo.uid)
+        .get()
+        .then(function(querySnapshot) {
+          querySnapshot.forEach(function(doc) {
+            doc.data().username = newUserInfo.username;
+            doc.data().avatar = newUserInfo.avatar;
+          });
+        });
 
-      commit('setCurrentUser', userInfo);
+      // edit the post from myPosts
+      await myPostsCollection
+        .doc(newUserInfo.uid)
+        .dollection('userPosts')
+        .get()
+        .then(function(querySnapshot) {
+          querySnapshot.forEach(function(doc) {
+            doc.data().username = newUserInfo.username;
+            doc.data().avatar = newUserInfo.avatar;
+          });
+        });
+
+      // const userInfo = {
+      //   username: data.username,
+      //   email: data.email,
+      // };
+
+      commit('setCurrentUser', newUserInfo);
     } catch (error) {
       console.log(error);
       alert(error.message);
