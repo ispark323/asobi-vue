@@ -13,21 +13,16 @@ import router from '@/router/router';
 const state = {
   posts: [],
   myPosts: [],
-  // storageURL: '',
 };
 
 const getters = {
   getPosts: state => state.posts,
   getMyPosts: state => state.myPosts,
-  // getStorageURL: state => state.storageURL,
 };
 
 const mutations = {
   // setPosts: (state, posts) => {
   //   state.posts = posts;
-  // },
-  // setStorageURL: (state, downloadURL) => {
-  //   state.storageURL = downloadURL;
   // },
 };
 
@@ -97,7 +92,7 @@ const actions = {
       const newPost = {
         postId: '',
         text: post.text,
-        imageUrl: '', //post.imageUrl,
+        imageUrl: '',
         mediaUrl: post.mediaUrl,
         ownerId: firebaseAuth.currentUser.uid,
         username: firebaseAuth.currentUser.displayName,
@@ -123,7 +118,7 @@ const actions = {
 
       // in case of image upload
       if (post.image != null) {
-        console.log('=== photo ===');
+        // console.log('=== photo ===');
 
         // Create a post in allPosts
         var newPostRef = await allPostsCollection.doc();
@@ -132,40 +127,28 @@ const actions = {
 
         // Listen for state changes, errors, and completion of the upload.
         uploadTask.on(
-          //storage.TaskEvent.STATE_CHANGED, // or 'state_changed'
           'state_changed',
           function(snapshot) {
-            // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
-            // var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-            // console.log('Upload is ' + progress + '% done');
             switch (snapshot.state) {
               case 'paused': //storage.TaskState.PAUSED: // or 'paused'
-                // console.log('Upload is paused');
                 break;
               case 'running': //storage.TaskState.RUNNING: // or 'running'
-                // console.log('Upload is running');
                 break;
             }
           },
           function(error) {
-            // A full list of error codes is available at
-            // https://firebase.google.com/docs/storage/web/handle-errors
             switch (error.code) {
               case 'storage/unauthorized':
-                // User doesn't have permission to access the object
                 break;
               case 'storage/canceled':
-                // User canceled the upload
                 break;
               case 'storage/unknown':
-                // Unknown error occurred, inspect error.serverResponse
                 break;
             }
           },
           function() {
             // Upload completed successfully, now we can get the download URL
             uploadTask.snapshot.ref.getDownloadURL().then(function(downloadURL) {
-              console.log('File available at', downloadURL);
               // Set the post in allPost
               newPost.imageUrl = downloadURL;
               newPostRef.set(newPost);
@@ -180,7 +163,7 @@ const actions = {
           }
         );
       } else {
-        console.log('=== youtube ===');
+        // console.log('=== youtube ===');
         // Create a post in allPosts
         var newPostRef2 = await allPostsCollection.doc();
         newPost.postId = newPostRef2.id;
@@ -229,46 +212,37 @@ const actions = {
   },
   editPost: async (context, post) => {
     try {
+      // const newPost = allPostsCollection.doc(post.postId).get();
+      // console.log('==', newPost);
+
       // in case image is changed
       if (post.image != null) {
         var uploadTask = storage.ref('posts/' + post.postId).put(post.image);
 
         // Listen for state changes, errors, and completion of the upload.
         uploadTask.on(
-          //storage.TaskEvent.STATE_CHANGED, // or 'state_changed'
           'state_changed',
           function(snapshot) {
-            // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
-            // var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-            // console.log('Upload is ' + progress + '% done');
             switch (snapshot.state) {
               case 'paused': //storage.TaskState.PAUSED: // or 'paused'
-                // console.log('Upload is paused');
                 break;
               case 'running': //storage.TaskState.RUNNING: // or 'running'
-                // console.log('Upload is running');
                 break;
             }
           },
           function(error) {
-            // A full list of error codes is available at
-            // https://firebase.google.com/docs/storage/web/handle-errors
             switch (error.code) {
               case 'storage/unauthorized':
-                // User doesn't have permission to access the object
                 break;
               case 'storage/canceled':
-                // User canceled the upload
                 break;
               case 'storage/unknown':
-                // Unknown error occurred, inspect error.serverResponse
                 break;
             }
           },
           function() {
             // Upload completed successfully, now we can get the download URL
             uploadTask.snapshot.ref.getDownloadURL().then(function(downloadURL) {
-              // console.log('File available at', downloadURL);
               // edit the post from allPosts
               const postRef = allPostsCollection.doc(post.postId);
               postRef.update({
@@ -327,37 +301,23 @@ const actions = {
         // edit all posts from likes
         usersCollection.get().then(function(querySnapshot) {
           querySnapshot.forEach(function(doc) {
-            var likesRef = likesCollection
+            likesCollection
               .doc(doc.id)
               .collection('myLikes')
-              .doc(post.postId);
-            likesRef
-              .update({
-                text: post.text,
-                mediaUrl: post.mediaUrl,
-              })
-              .then(function() {})
-              .catch(function() {
-                // console.log('No document');
+              .where('postId', '==', post.postId)
+              .get()
+              .then(function(querySnapshot2) {
+                querySnapshot2.forEach(function() {
+                  likesCollection
+                    .doc(doc.id)
+                    .collection('myLikes')
+                    .doc(post.postId)
+                    .update({
+                      text: post.text,
+                      mediaUrl: post.mediaUrl,
+                    });
+                });
               });
-            // Need to Check later ----------------------
-            // likesCollection
-            //   .doc(doc.id)
-            //   .collection('myLikes')
-            //   .doc(post.postId)
-            //   .get()
-            //   .then(function(doc2) {
-            //     if (doc2.exists) {
-            //       console.log('doc' + doc2.data().text);
-            //       doc2.data().text = post.text;
-            //       doc2.data().mediaUrl = post.mediaUrl;
-            //     } else {
-            //       console.log('no doc');
-            //     }
-            //   })
-            //   .catch(function(error) {
-            //     console.log(error);
-            //   });
           });
         });
       }
@@ -429,65 +389,6 @@ const actions = {
         .collection('myLikes')
         .doc(post.postId);
       likesRef.delete();
-    } catch (error) {
-      console.log(error);
-      alert(error);
-    }
-  },
-  uploadFile: async (context, file) => {
-    try {
-      context.state.storageURL = '';
-      var uploadTask = storage.ref('posts/' + file.name).put(file);
-
-      // Listen for state changes, errors, and completion of the upload.
-      uploadTask.on(
-        //storage.TaskEvent.STATE_CHANGED, // or 'state_changed'
-        'state_changed',
-        function(snapshot) {
-          // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
-          // var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          // console.log('Upload is ' + progress + '% done');
-          switch (snapshot.state) {
-            case 'paused': //storage.TaskState.PAUSED: // or 'paused'
-              // console.log('Upload is paused');
-              break;
-            case 'running': //storage.TaskState.RUNNING: // or 'running'
-              // console.log('Upload is running');
-              break;
-          }
-        },
-        function(error) {
-          // A full list of error codes is available at
-          // https://firebase.google.com/docs/storage/web/handle-errors
-          switch (error.code) {
-            case 'storage/unauthorized':
-              // User doesn't have permission to access the object
-              break;
-            case 'storage/canceled':
-              // User canceled the upload
-              break;
-            case 'storage/unknown':
-              // Unknown error occurred, inspect error.serverResponse
-              break;
-          }
-        },
-        function() {
-          // Upload completed successfully, now we can get the download URL
-          uploadTask.snapshot.ref.getDownloadURL().then(function(downloadURL) {
-            context.state.storageURL = downloadURL;
-            //context.commit('setStorageURL', downloadURL);
-            //console.log('File available at', downloadURL);
-          });
-        }
-      );
-    } catch (error) {
-      console.log(error);
-      alert(error);
-    }
-  },
-  deleteFile: async (context, fileName) => {
-    try {
-      await storage.ref('posts/' + fileName).delete();
     } catch (error) {
       console.log(error);
       alert(error);

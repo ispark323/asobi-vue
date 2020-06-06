@@ -3,7 +3,7 @@ import {
   usersCollection,
   allPostsCollection,
   myPostsCollection,
-  //likesCollection,
+  likesCollection,
   storage,
 } from '@/firebase';
 import router from '@/router/router';
@@ -138,48 +138,38 @@ const actions = {
         console.log(err);
       });
   },
-  updateProfile: async ({ commit }, profile) => {
+  updateProfile: async ({ dispatch }, profile) => {
     try {
-      const newUserInfo = this.userData.userInfo;
-      console.log('===', newUserInfo);
+      const newUserInfo = state.userData.userInfo;
 
+      // if username is changed
       if (profile.username) {
         newUserInfo.username = profile.username;
       }
+      // if avatar is changed
       if (profile.avatar) {
         let uploadTask = storage.ref('avatar/' + firebaseAuth.currentUser.uid).put(profile.avatar);
 
         // Listen for state changes, errors, and completion of the upload.
         uploadTask.on(
-          //storage.TaskEvent.STATE_CHANGED, // or 'state_changed'
           'state_changed',
           function(snapshot) {
-            // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
-            // var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-            // console.log('Upload is ' + progress + '% done');
             switch (snapshot.state) {
-              case 'paused': //storage.TaskState.PAUSED: // or 'paused'
-                // console.log('Upload is paused');
+              case 'paused':
                 break;
-              case 'running': //storage.TaskState.RUNNING: // or 'running'
-                // console.log('Upload is running');
+              case 'running':
                 break;
             }
           },
           function(error) {
-            // A full list of error codes is available at
-            // https://firebase.google.com/docs/storage/web/handle-errors
             switch (error.code) {
               case 'storage/unauthorized':
-                // User doesn't have permission to access the object
                 console.log(error);
                 break;
               case 'storage/canceled':
-                // User canceled the upload
                 console.log(error);
                 break;
               case 'storage/unknown':
-                // Unknown error occurred, inspect error.serverResponse
                 console.log(error);
                 break;
             }
@@ -188,52 +178,77 @@ const actions = {
             // Upload completed successfully, now we can get the download URL
             uploadTask.snapshot.ref.getDownloadURL().then(function(downloadURL) {
               newUserInfo.avatar = downloadURL;
-              // usersCollection.doc(firebaseAuth.currentUser.uid).update({
-              //   avatar: downloadURL,
-              // });
             });
           }
         );
       }
 
-      // Change username in firebaseAuth (displayName) and usersCollection (username)
+      // Change username in firebaseAuth (displayName)
       await firebaseAuth.currentUser.updateProfile({
         displayName: newUserInfo.username,
       });
 
+      // Change username and avatar in usersCollection
       await usersCollection.doc(firebaseAuth.currentUser.uid).update({
         username: newUserInfo.username,
         avatar: newUserInfo.avatar,
       });
 
+      // Change username and avatar in allPostsCollection
       await allPostsCollection
         .where('ownerId', '==', newUserInfo.uid)
         .get()
         .then(function(querySnapshot) {
           querySnapshot.forEach(function(doc) {
-            doc.data().username = newUserInfo.username;
-            doc.data().avatar = newUserInfo.avatar;
+            allPostsCollection.doc(doc.id).update({
+              username: newUserInfo.username,
+              avatar: newUserInfo.avatar,
+            });
           });
         });
 
-      // edit the post from myPosts
+      // Change username and avatar in myPostsCollection
       await myPostsCollection
         .doc(newUserInfo.uid)
-        .dollection('userPosts')
+        .collection('userPosts')
         .get()
         .then(function(querySnapshot) {
           querySnapshot.forEach(function(doc) {
-            doc.data().username = newUserInfo.username;
-            doc.data().avatar = newUserInfo.avatar;
+            myPostsCollection
+              .doc(newUserInfo.uid)
+              .collection('userPosts')
+              .doc(doc.id)
+              .update({
+                username: newUserInfo.username,
+                avatar: newUserInfo.avatar,
+              });
           });
         });
 
-      // const userInfo = {
-      //   username: data.username,
-      //   email: data.email,
-      // };
+      // Change username and avatar in likesCollection
+      await usersCollection.get().then(function(querySnapshot) {
+        querySnapshot.forEach(function(doc) {
+          likesCollection
+            .doc(doc.id)
+            .collection('myLikes')
+            .where('ownerId', '==', newUserInfo.uid)
+            .get()
+            .then(function(querySnapshot2) {
+              querySnapshot2.forEach(function(doc2) {
+                likesCollection
+                  .doc(doc.id)
+                  .collection('myLikes')
+                  .doc(doc2.id)
+                  .update({
+                    username: newUserInfo.username,
+                    avatar: newUserInfo.avatar,
+                  });
+              });
+            });
+        });
+      });
 
-      commit('setCurrentUser', newUserInfo);
+      dispatch('fetchUserProfile');
     } catch (error) {
       console.log(error);
       alert(error.message);

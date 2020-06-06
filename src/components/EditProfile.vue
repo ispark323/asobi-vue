@@ -12,7 +12,16 @@
           <table>
             <tr>
               <td>
-                <div v-if="userData.userInfo.avatar">
+                <div v-if="profile.avatar">
+                  <b-img
+                    id="preview"
+                    v-bind:src="previewUrl"
+                    width="70"
+                    height="70"
+                    rounded="circle"
+                  />
+                </div>
+                <div v-else-if="userData.userInfo.avatar">
                   <b-img
                     v-bind:src="userData.userInfo.avatar"
                     width="70"
@@ -24,7 +33,7 @@
                   <b-avatar src="user-placeholder.jpg" variant="light" size="3.5em"></b-avatar>
                 </div>
               </td>
-              <td>
+              <!-- <td>
                 <button class="btn primary m-4">
                   Change profile photo
                   <input
@@ -35,9 +44,11 @@
                     class="form-control"
                   />
                 </button>
-              </td>
+              </td> -->
             </tr>
           </table>
+
+          <br />
 
           <!-- Sungmin -->
           <!-- <br />Username
@@ -58,7 +69,7 @@
                 <b-form-group invalid-feedback="Enter at least 6 letters">
                   <b-form-input
                     id="usernameInput"
-                    v-model="profile.username"
+                    v-model="userData.userInfo.username"
                     :state="usernameState"
                     placeholder="Enter Username"
                     class="m-0"
@@ -87,10 +98,12 @@
               </div>
               <div class="col-12 col-sm-9">
                 <b-form-file
+                  id="avatarForm"
                   v-model="profile.avatar"
                   accept="image/*"
                   placeholder="Choose a file or drop it here..."
                   drop-placeholder="Drop file here..."
+                  @change="previewAvatar"
                 >
                   <template slot="file-name" slot-scope="{ names }">
                     <b-badge variant="primary">{{ names[0] }}</b-badge>
@@ -115,52 +128,49 @@ export default {
   name: 'EditProfile',
   data() {
     return {
-      fileName: '',
       showSuccess: false,
-      // email: this.userData.userInfo.username,
       profile: {
         username: '',
-        //location: '',
-        avatar: '',
+        avatar: null,
       },
       usernameState: null,
-      // locationState: null,
+      previewUrl: '',
     };
   },
   computed: {
     ...mapGetters(['userData']),
   },
   methods: {
-    ...mapActions(['updateProfile', 'uploadAvatar']),
+    ...mapActions(['updateProfile']),
     handleSubmit() {
-      // const data = {
-      //   username: this.userData.userInfo.username,
-      // };
-
-      // let avatar = document.getElementById('uploadPhotoInput').files[0];
-      // if (avatar) {
-      //   this.uploadAvatar(avatar);
-      //   this.uploading = true;
-      //   this.uploadEnd = true;
+      this.profile.username = this.userData.userInfo.username;
+      // if (this.profile.username.length < 6) {
+      //   this.usernamestate = false;
+      //   return;
       // }
-
-      if (this.profile.username.length < 6) {
-        this.usernameState = false;
-        return;
-      }
       this.updateProfile(this.profile);
 
-      this.usernameState = null;
-
+      // this.usernameState = null;
+      this.profile.avatar = null;
       this.showSuccess = true;
       setTimeout(() => {
         this.showSuccess = false;
       }, 2000);
     },
+    previewAvatar: function(event) {
+      const input = event.target;
+      if (input.files && input.files[0]) {
+        const reader = new FileReader();
+
+        reader.onload = e => {
+          this.previewUrl = e.target.result;
+        };
+        reader.readAsDataURL(input.files[0]);
+      }
+    },
   },
-  created() {
+  mounted() {
     this.profile.username = this.userData.userInfo.username;
-    //this.profile.location = this.userData.userInfo.location;
   },
 };
 </script>
