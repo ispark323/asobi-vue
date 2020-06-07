@@ -178,75 +178,136 @@ const actions = {
             // Upload completed successfully, now we can get the download URL
             uploadTask.snapshot.ref.getDownloadURL().then(function(downloadURL) {
               newUserInfo.avatar = downloadURL;
-            });
-          }
-        );
-      }
 
-      // Change username in firebaseAuth (displayName)
-      await firebaseAuth.currentUser.updateProfile({
-        displayName: newUserInfo.username,
-      });
+              // Change username in firebaseAuth (displayName)
+              firebaseAuth.currentUser.updateProfile({
+                displayName: newUserInfo.username,
+              });
 
-      // Change username and avatar in usersCollection
-      await usersCollection.doc(firebaseAuth.currentUser.uid).update({
-        username: newUserInfo.username,
-        avatar: newUserInfo.avatar,
-      });
-
-      // Change username and avatar in allPostsCollection
-      await allPostsCollection
-        .where('ownerId', '==', newUserInfo.uid)
-        .get()
-        .then(function(querySnapshot) {
-          querySnapshot.forEach(function(doc) {
-            allPostsCollection.doc(doc.id).update({
-              username: newUserInfo.username,
-              avatar: newUserInfo.avatar,
-            });
-          });
-        });
-
-      // Change username and avatar in myPostsCollection
-      await myPostsCollection
-        .doc(newUserInfo.uid)
-        .collection('userPosts')
-        .get()
-        .then(function(querySnapshot) {
-          querySnapshot.forEach(function(doc) {
-            myPostsCollection
-              .doc(newUserInfo.uid)
-              .collection('userPosts')
-              .doc(doc.id)
-              .update({
+              // Change username and avatar in usersCollection
+              usersCollection.doc(firebaseAuth.currentUser.uid).update({
                 username: newUserInfo.username,
                 avatar: newUserInfo.avatar,
               });
-          });
-        });
 
-      // Change username and avatar in likesCollection
-      await usersCollection.get().then(function(querySnapshot) {
-        querySnapshot.forEach(function(doc) {
-          likesCollection
-            .doc(doc.id)
-            .collection('myLikes')
-            .where('ownerId', '==', newUserInfo.uid)
-            .get()
-            .then(function(querySnapshot2) {
-              querySnapshot2.forEach(function(doc2) {
-                likesCollection
-                  .doc(doc.id)
-                  .collection('myLikes')
-                  .doc(doc2.id)
-                  .update({
-                    username: newUserInfo.username,
-                    avatar: newUserInfo.avatar,
+              // Change username and avatar in allPostsCollection
+              allPostsCollection
+                .where('ownerId', '==', newUserInfo.uid)
+                .get()
+                .then(function(querySnapshot) {
+                  querySnapshot.forEach(function(doc) {
+                    allPostsCollection.doc(doc.id).update({
+                      username: newUserInfo.username,
+                      avatar: newUserInfo.avatar,
+                    });
                   });
+                });
+
+              // Change username and avatar in myPostsCollection
+              myPostsCollection
+                .doc(newUserInfo.uid)
+                .collection('userPosts')
+                .get()
+                .then(function(querySnapshot) {
+                  querySnapshot.forEach(function(doc) {
+                    myPostsCollection
+                      .doc(newUserInfo.uid)
+                      .collection('userPosts')
+                      .doc(doc.id)
+                      .update({
+                        username: newUserInfo.username,
+                        avatar: newUserInfo.avatar,
+                      });
+                  });
+                });
+
+              // Change username and avatar in likesCollection
+              usersCollection.get().then(function(querySnapshot) {
+                querySnapshot.forEach(function(doc) {
+                  likesCollection
+                    .doc(doc.id)
+                    .collection('myLikes')
+                    .where('ownerId', '==', newUserInfo.uid)
+                    .get()
+                    .then(function(querySnapshot2) {
+                      querySnapshot2.forEach(function(doc2) {
+                        likesCollection
+                          .doc(doc.id)
+                          .collection('myLikes')
+                          .doc(doc2.id)
+                          .update({
+                            username: newUserInfo.username,
+                            avatar: newUserInfo.avatar,
+                          });
+                      });
+                    });
+                });
               });
             });
+          }
+        );
+      } else {
+        // Change username in firebaseAuth (displayName)
+        await firebaseAuth.currentUser.updateProfile({
+          displayName: newUserInfo.username,
         });
-      });
+
+        // Change username and avatar in usersCollection
+        await usersCollection.doc(firebaseAuth.currentUser.uid).update({
+          username: newUserInfo.username,
+        });
+
+        // Change username and avatar in allPostsCollection
+        await allPostsCollection
+          .where('ownerId', '==', newUserInfo.uid)
+          .get()
+          .then(function(querySnapshot) {
+            querySnapshot.forEach(function(doc) {
+              allPostsCollection.doc(doc.id).update({
+                username: newUserInfo.username,
+              });
+            });
+          });
+
+        // Change username and avatar in myPostsCollection
+        await myPostsCollection
+          .doc(newUserInfo.uid)
+          .collection('userPosts')
+          .get()
+          .then(function(querySnapshot) {
+            querySnapshot.forEach(function(doc) {
+              myPostsCollection
+                .doc(newUserInfo.uid)
+                .collection('userPosts')
+                .doc(doc.id)
+                .update({
+                  username: newUserInfo.username,
+                });
+            });
+          });
+
+        // Change username and avatar in likesCollection
+        await usersCollection.get().then(function(querySnapshot) {
+          querySnapshot.forEach(function(doc) {
+            likesCollection
+              .doc(doc.id)
+              .collection('myLikes')
+              .where('ownerId', '==', newUserInfo.uid)
+              .get()
+              .then(function(querySnapshot2) {
+                querySnapshot2.forEach(function(doc2) {
+                  likesCollection
+                    .doc(doc.id)
+                    .collection('myLikes')
+                    .doc(doc2.id)
+                    .update({
+                      username: newUserInfo.username,
+                    });
+                });
+              });
+          });
+        });
+      }
 
       dispatch('fetchUserProfile');
     } catch (error) {
