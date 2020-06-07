@@ -165,6 +165,14 @@ export default {
         return;
       } else this.imageState = true;
 
+      let url = this.post.mediaUrl;
+      if (url.match('youtu.be')) {
+        url = url.replace('youtu.be', 'youtube.com/embed');
+      } else if (url.match('watch')) {
+        url = url.replace('watch?v=', 'embed/');
+      }
+      this.post.mediaUrl = url;
+
       this.createPost2(this.post);
 
       // Hide the modal manually
