@@ -1,4 +1,11 @@
-import { firebaseAuth, usersCollection, storage } from '@/firebase';
+import {
+  firebaseAuth,
+  usersCollection,
+  allPostsCollection,
+  myPostsCollection,
+  likesCollection,
+  storage,
+} from '@/firebase';
 import router from '@/router/router';
 
 const state = {
@@ -88,22 +95,22 @@ const actions = {
       commit('FAIL', error.message);
     }
   },
-  register: async ({ commit }, registerData) => {
+  signup: async ({ commit }, signupData) => {
     commit('PENDING');
     try {
       const res = await firebaseAuth.createUserWithEmailAndPassword(
-        registerData.email,
-        registerData.password
+        signupData.email,
+        signupData.password
       );
       // let user = fb.firebaseAuth().currentUser;
       await res.user.updateProfile({
-        displayName: registerData.username,
+        displayName: signupData.username,
       });
 
       await usersCollection.doc(res.user.uid).set({
         uid: res.user.uid,
-        username: registerData.username,
-        email: registerData.email,
+        username: signupData.username,
+        email: signupData.email,
       });
 
       const userInfo = {
@@ -120,23 +127,191 @@ const actions = {
       commit('FAIL', error.message);
     }
   },
-  updateProfile: async ({ commit }, data) => {
+  fetchUserProfile: async ({ commit }) => {
+    usersCollection
+      .doc(state.userData.userInfo.uid)
+      .get()
+      .then(doc => {
+        commit('setCurrentUser', doc.data());
+      })
+      .catch(err => {
+        console.log(err);
+      });
+  },
+  updateProfile: async ({ dispatch }, profile) => {
     try {
-      // Change username in firebaseAuth (displayName) and usersCollection (username)
-      await firebaseAuth.currentUser.updateProfile({
-        displayName: data.username,
-      });
+      const newUserInfo = state.userData.userInfo;
 
-      await usersCollection.doc(firebaseAuth.currentUser.uid).update({
-        username: data.username,
-      });
+      // if username is changed
+      if (profile.username) {
+        newUserInfo.username = profile.username;
+      }
+      // if avatar is changed
+      if (profile.avatar) {
+        let uploadTask = storage.ref('avatar/' + firebaseAuth.currentUser.uid).put(profile.avatar);
 
-      const userInfo = {
-        username: data.username,
-        email: data.email,
-      };
+        // Listen for state changes, errors, and completion of the upload.
+        uploadTask.on(
+          'state_changed',
+          function(snapshot) {
+            switch (snapshot.state) {
+              case 'paused':
+                break;
+              case 'running':
+                break;
+            }
+          },
+          function(error) {
+            switch (error.code) {
+              case 'storage/unauthorized':
+                console.log(error);
+                break;
+              case 'storage/canceled':
+                console.log(error);
+                break;
+              case 'storage/unknown':
+                console.log(error);
+                break;
+            }
+          },
+          function() {
+            // Upload completed successfully, now we can get the download URL
+            uploadTask.snapshot.ref.getDownloadURL().then(function(downloadURL) {
+              newUserInfo.avatar = downloadURL;
 
-      commit('setCurrentUser', userInfo);
+              // Change username in firebaseAuth (displayName)
+              firebaseAuth.currentUser.updateProfile({
+                displayName: newUserInfo.username,
+              });
+
+              // Change username and avatar in usersCollection
+              usersCollection.doc(firebaseAuth.currentUser.uid).update({
+                username: newUserInfo.username,
+                avatar: newUserInfo.avatar,
+              });
+
+              // Change username and avatar in allPostsCollection
+              allPostsCollection
+                .where('ownerId', '==', newUserInfo.uid)
+                .get()
+                .then(function(querySnapshot) {
+                  querySnapshot.forEach(function(doc) {
+                    allPostsCollection.doc(doc.id).update({
+                      username: newUserInfo.username,
+                      avatar: newUserInfo.avatar,
+                    });
+                  });
+                });
+
+              // Change username and avatar in myPostsCollection
+              myPostsCollection
+                .doc(newUserInfo.uid)
+                .collection('userPosts')
+                .get()
+                .then(function(querySnapshot) {
+                  querySnapshot.forEach(function(doc) {
+                    myPostsCollection
+                      .doc(newUserInfo.uid)
+                      .collection('userPosts')
+                      .doc(doc.id)
+                      .update({
+                        username: newUserInfo.username,
+                        avatar: newUserInfo.avatar,
+                      });
+                  });
+                });
+
+              // Change username and avatar in likesCollection
+              usersCollection.get().then(function(querySnapshot) {
+                querySnapshot.forEach(function(doc) {
+                  likesCollection
+                    .doc(doc.id)
+                    .collection('myLikes')
+                    .where('ownerId', '==', newUserInfo.uid)
+                    .get()
+                    .then(function(querySnapshot2) {
+                      querySnapshot2.forEach(function(doc2) {
+                        likesCollection
+                          .doc(doc.id)
+                          .collection('myLikes')
+                          .doc(doc2.id)
+                          .update({
+                            username: newUserInfo.username,
+                            avatar: newUserInfo.avatar,
+                          });
+                      });
+                    });
+                });
+              });
+              dispatch('fetchUserProfile');
+            });
+          }
+        );
+      } else {
+        // Change username in firebaseAuth (displayName)
+        await firebaseAuth.currentUser.updateProfile({
+          displayName: newUserInfo.username,
+        });
+
+        // Change username and avatar in usersCollection
+        await usersCollection.doc(firebaseAuth.currentUser.uid).update({
+          username: newUserInfo.username,
+        });
+
+        // Change username and avatar in allPostsCollection
+        await allPostsCollection
+          .where('ownerId', '==', newUserInfo.uid)
+          .get()
+          .then(function(querySnapshot) {
+            querySnapshot.forEach(function(doc) {
+              allPostsCollection.doc(doc.id).update({
+                username: newUserInfo.username,
+              });
+            });
+          });
+
+        // Change username and avatar in myPostsCollection
+        await myPostsCollection
+          .doc(newUserInfo.uid)
+          .collection('userPosts')
+          .get()
+          .then(function(querySnapshot) {
+            querySnapshot.forEach(function(doc) {
+              myPostsCollection
+                .doc(newUserInfo.uid)
+                .collection('userPosts')
+                .doc(doc.id)
+                .update({
+                  username: newUserInfo.username,
+                });
+            });
+          });
+
+        // Change username and avatar in likesCollection
+        await usersCollection.get().then(function(querySnapshot) {
+          querySnapshot.forEach(function(doc) {
+            likesCollection
+              .doc(doc.id)
+              .collection('myLikes')
+              .where('ownerId', '==', newUserInfo.uid)
+              .get()
+              .then(function(querySnapshot2) {
+                querySnapshot2.forEach(function(doc2) {
+                  likesCollection
+                    .doc(doc.id)
+                    .collection('myLikes')
+                    .doc(doc2.id)
+                    .update({
+                      username: newUserInfo.username,
+                    });
+                });
+              });
+          });
+        });
+        dispatch('fetchUserProfile');
+      }
+
+      // dispatch('fetchUserProfile');
     } catch (error) {
       console.log(error);
       alert(error.message);

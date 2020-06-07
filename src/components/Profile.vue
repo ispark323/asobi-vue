@@ -4,7 +4,7 @@
       <div>
         <br />
         <div v-if="userData.userInfo.avatar">
-          <b-img v-bind:src="userData.userInfo.avatar" width="50" height="50" rounded="circle" />
+          <b-avatar v-bind:src="userData.userInfo.avatar" variant="light" size="3.5em"></b-avatar>
           @{{ userData.userInfo.username }}
         </div>
         <div v-else>
@@ -24,40 +24,29 @@
     <div class="card bg-light mt-4">
       <div class="card-body">
         <h2>My Posts</h2>
-        <div v-if="getPosts.length">
-          <div v-for="(post, index) in getPosts" :key="post.id">
-            <div v-if="post.ownerId == userData.userInfo.uid">
-              <li>
-                {{ post.text }}
-                <!-- {{ post.mediaUrl }}, -->
-                <small class="text-muted">@ {{ post.createdAt.toDate().toLocaleString() }}</small>
-                <button @click="handleDelete(index)" class="btn btn-link">
-                  <svg
-                    class="bi bi-x-square"
-                    width="1.5em"
-                    height="1.5em"
-                    viewBox="0 0 16 16"
-                    fill="currentColor"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      fill-rule="evenodd"
-                      d="M14 1H2a1 1 0 00-1 1v12a1 1 0 001 1h12a1 1 0 001-1V2a1 1 0 00-1-1zM2 0a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2V2a2 2 0 00-2-2H2z"
-                      clip-rule="evenodd"
-                    />
-                    <path
-                      fill-rule="evenodd"
-                      d="M11.854 4.146a.5.5 0 010 .708l-7 7a.5.5 0 01-.708-.708l7-7a.5.5 0 01.708 0z"
-                      clip-rule="evenodd"
-                    />
-                    <path
-                      fill-rule="evenodd"
-                      d="M4.146 4.146a.5.5 0 000 .708l7 7a.5.5 0 00.708-.708l-7-7a.5.5 0 00-.708 0z"
-                      clip-rule="evenodd"
-                    />
-                  </svg>
-                </button>
-              </li>
+        <div v-if="getMyPosts.length">
+          <div class="container">
+            <div v-for="(post, index) in getMyPosts" :key="post.id">
+              <div class="row">
+                <div class="col-sm-9 p-0">
+                  {{ post.text.replace(/(.{50})..+/, '$1…') }}
+                </div>
+                <div class="col-12 col-sm-3 text-right p-0">
+                  {{ timeFromCreated(index) }}
+                  <b-icon
+                    icon="pencil-square"
+                    v-on:click="showEditMyPost(index)"
+                    variant="primary"
+                    class="mr-1"
+                  ></b-icon>
+                  <b-icon
+                    icon="x-circle"
+                    v-on:click="handleDelete(index)"
+                    variant="primary"
+                    class="mr-1"
+                  ></b-icon>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -66,6 +55,51 @@
         </div>
       </div>
     </div>
+
+    <!-- Edit my post -->
+    <b-modal id="editMyPost" title="Edit" @ok="handleEditMyPost">
+      <b-form-group label="Text:" label-for="text1" invalid-feedback="Text is required">
+        <b-form-textarea
+          id="text1"
+          v-model="editedPost.text"
+          :state="textState"
+          placeholder="Enter at least 1 letters"
+          rows="3"
+          max-rows="10"
+          required
+        ></b-form-textarea>
+      </b-form-group>
+      <div v-if="postType == 'media'">
+        <b-form-group label="Link:" label-for="mediaUrl" invalid-feedback="URL is required">
+          <b-form-textarea
+            id="mediaUrl"
+            v-model="editedPost.mediaUrl"
+            :state="mediaUrlState"
+            placeholder="Enter at least 1 letters"
+            rows="2"
+            max-rows="3"
+            required
+          ></b-form-textarea>
+        </b-form-group>
+      </div>
+      <div v-else-if="postType == 'image'">
+        <b-form-file
+          v-model="editedPost.image"
+          accept="image/*"
+          placeholder="Choose a file or drop it here..."
+          drop-placeholder="Drop file here..."
+        >
+          <template slot="file-name" slot-scope="{ names }">
+            <b-badge variant="primary">{{ names[0] }}</b-badge>
+          </template>
+        </b-form-file>
+      </div>
+      <!-- Footer -->
+      <template v-slot:modal-footer="{ cancel }">
+        <b-button size="sm" variant="primary" @click="handleEditMyPost">Edit</b-button>
+        <b-button size="sm" variant="primary" @click="cancel()">Cancel</b-button>
+      </template>
+    </b-modal>
   </div>
 </template>
 
@@ -74,13 +108,30 @@ import { mapGetters, mapActions } from 'vuex';
 
 export default {
   name: 'Profile',
-  computed: mapGetters(['userData', 'getPosts']),
+  data() {
+    return {
+      editedPost: {
+        ownerId: '',
+        postId: '',
+        text: '',
+        mediaUrl: '',
+        imageUrl: '',
+        image: null,
+      },
+      textState: null,
+      mediaUrlState: null,
+      imageUrlState: null,
+      postType: '',
+      postIndex: '',
+    };
+  },
+  computed: mapGetters(['userData', 'getMyPosts']),
   methods: {
-    ...mapActions(['bindPostsRef', 'deletePost', 'logout']),
+    ...mapActions(['bindMyPostsRef', 'deletePost', 'editPost', 'logout']),
     handleDelete(index) {
       const post = {
-        id: this.getPosts[index].id,
-        text: this.getPosts[index].text,
+        id: this.getMyPosts[index].id,
+        text: this.getMyPosts[index].text,
       };
       if (confirm('Delete your post?\n"' + post.text + '"')) {
         this.deletePost(post);
@@ -89,9 +140,59 @@ export default {
     handleLogout() {
       this.logout();
     },
+    timeFromCreated(index) {
+      var today = new Date();
+      var msPerDay = 24 * 60 * 60 * 1000;
+      var days = (today.getTime() - this.getMyPosts[index].createdAt.toDate().getTime()) / msPerDay;
+
+      if (days < 1) {
+        return Math.round(days * 24) + 'h';
+      } else {
+        return Math.round(days) + 'd';
+      }
+    },
+    showEditMyPost(index) {
+      this.postIndex = index;
+      this.editedPost.ownerId = this.getMyPosts[index].ownerId;
+      this.editedPost.postId = this.getMyPosts[index].postId;
+      this.editedPost.text = this.getMyPosts[index].text;
+      this.editedPost.mediaUrl = this.getMyPosts[index].mediaUrl;
+      this.editedPost.imageUrl = this.getMyPosts[index].imageUrl;
+      this.textState = null;
+      this.mediaUrlState = null;
+      this.imageUrlState = null;
+      if (this.editedPost.mediaUrl) {
+        this.postType = 'media';
+      } else if (this.editedPost.imageUrl) {
+        this.postType = 'image';
+      }
+      this.$bvModal.show('editMyPost');
+    },
+    handleEditMyPost(bvModalEvt) {
+      // Prevent modal from closing
+      bvModalEvt.preventDefault();
+
+      if (this.editedPost.text.length < 1) {
+        this.textState = false;
+        return;
+      } else if (this.postType == 'media' && this.editedPost.mediaUrl.length < 1) {
+        this.mediaUrlState = false;
+        return;
+      } else if (this.postType == 'image' && this.editedPost.imageUrl.length < 1) {
+        this.imageUrlState = false;
+        return;
+      }
+
+      this.editPost(this.editedPost);
+
+      // Hide the modal manually
+      this.$nextTick(() => {
+        this.$bvModal.hide('editMyPost');
+      });
+    },
   },
   created() {
-    this.bindPostsRef();
+    this.bindMyPostsRef();
   },
 };
 </script>

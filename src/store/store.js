@@ -11,6 +11,7 @@ Vue.use(Vuex);
 fb.firebaseAuth.onAuthStateChanged(user => {
   if (user) {
     store.commit('setCurrentUser', user);
+    store.dispatch('fetchUserProfile');
   }
 });
 

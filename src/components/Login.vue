@@ -1,33 +1,37 @@
 <template>
   <div
     id="login"
-    style="background-image: url('makeup.jpg');background-size:cover;"
+    style="background: url('makeup.jpg') no-repeat center; background-size: cover;"
     class="text-center"
   >
     <br />
-    <br />
-    <div class="title">Share your photos of</div>
-    <div class="title">#MakeupAddiction</div>
+    <div class="title m-1">Share your photos of</div>
+    <div class="title m-1">#MakeupAddiction</div>
+    <!-- Login Form -->
     <form v-if="showLoginForm" @submit.prevent>
-      <div class="card-body">
-        <input v-model="email" type="text" placeholder="Email" id="email1" class="m-1" />
-        <br />
-        <input
-          v-model="password"
-          type="password"
-          placeholder="Password"
-          id="password1"
-          @keypress.enter="handleLogin"
-          class="m-1"
-        />
-        <br />
-        <button @click="handleLogin" class="btn btn-primary">Login</button>
-        <br />
-        <br />Don't have an account?
-        <router-link class="nav-item nav-link" to="/register">Sign up</router-link>
-        <div class="text-right m-2">
-          <b-button @click="toggleForm" variant="link" style="font-size: 13px">Forgot Password</b-button>
-        </div>
+      <input v-model="email" type="text" placeholder="Email" id="email1" />
+      <br />
+      <input
+        v-model="password"
+        type="password"
+        placeholder="Password"
+        id="password1"
+        @keypress.enter="handleLogin"
+      />
+      <br />
+      <button @click="handleLogin" class="btn btn-primary">Login</button>
+      <br />
+      <br />
+      <table align="center">
+        <tr>
+          <td>Don't have an account?</td>
+          <td>
+            <router-link class="nav-item nav-link" to="/signup">Sign up</router-link>
+          </td>
+        </tr>
+      </table>
+      <div class="text-right m-2">
+        <b-button @click="toggleForm" variant="link" style="font-size: 13px">Forgot Password</b-button>
       </div>
     </form>
 
@@ -35,9 +39,9 @@
     <form v-if="!showLoginForm" @submit.prevent class="password-reset">
       <div v-if="!passwordResetSuccess">
         <div>
-          <!-- <div class="card-body"> -->
+          <br />
           <h2>Reset Password</h2>
-          <p>We will send you an email to reset your password</p>
+          <p>We will send you an email to reset your password.</p>
           <input
             v-model.trim="passwordForm.email"
             type="text"
@@ -46,24 +50,22 @@
             class="m-1"
           />
           <button @click="handleResetPassword" class="btn btn-primary m-1">Submit</button>
-          <!-- </div> -->
         </div>
         <div class="text-right m-2">
           <b-button @click="toggleForm" variant="link" style="font-size: 13px">Back to Login</b-button>
         </div>
       </div>
+      <!-- Forgot Password Email Sent -->
       <div v-else>
-        <div class="card bg-light">
-          <div class="card-body">
-            <h1>Email Sent</h1>
-            <p>check your email for a link to reset your password</p>
-          </div>
-        </div>
+        <br />
+        <h2>Email Sent</h2>
+        <p>Please check your email for a link to reset your password.</p>
         <div class="text-right m-2">
-          <button @click="toggleForm" class="text-primary">Back to Login</button>
+          <b-button @click="toggleForm" variant="link" style="font-size: 13px">Back to Login</b-button>
         </div>
       </div>
     </form>
+    <div style="height: 250px;"></div>
   </div>
 </template>
 

@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
 import Login from '@/components/Login.vue';
-import Register from '@/components/Register';
+import Signup from '@/components/Signup';
 import Feed from '@/components/Feed.vue';
 import CreatePost from '@/components/CreatePost.vue';
 import Profile from '@/components/Profile.vue';
@@ -22,9 +22,9 @@ const routes = [
     component: Login,
   },
   {
-    path: '/register',
-    name: 'Register',
-    component: Register,
+    path: '/signup',
+    name: 'Signup',
+    component: Signup,
   },
   {
     path: '/feed',

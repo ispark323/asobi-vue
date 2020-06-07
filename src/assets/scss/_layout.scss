@@ -2,6 +2,10 @@
   max-width: 630px;
 }
 
+.modal-dialog {
+  max-width: 590px;
+}
+
 #login {
   margin: 0 auto;
   .title {
@@ -11,17 +15,20 @@
     line-height: 1.5;
     color: #fff;
   }
-  .tag {
-    font-family: 'Montserrat';
-    font-weight: 900;
-    font-size: 1.5em;
-    line-height: 1.5;
-    color: #fff;
+  .nav-item {
+    padding: 0px 3px;
   }
 }
 
-#register {
+#signup {
   margin: auto;
+  .title {
+    font-family: 'Montserrat';
+    font-weight: 900;
+    font-size: 2em;
+    line-height: 1.5;
+    color: #fff;
+  }
 }
 
 #navigation {
@@ -36,6 +43,10 @@
 
     .nav-item {
       padding: 0px 5px;
+    }
+
+    .nav-link {
+      cursor: pointer;
     }
 
     .btn {
