@@ -243,6 +243,7 @@ const actions = {
                     });
                 });
               });
+              dispatch('fetchUserProfile');
             });
           }
         );
@@ -307,9 +308,10 @@ const actions = {
               });
           });
         });
+        dispatch('fetchUserProfile');
       }
 
-      dispatch('fetchUserProfile');
+      // dispatch('fetchUserProfile');
     } catch (error) {
       console.log(error);
       alert(error.message);
