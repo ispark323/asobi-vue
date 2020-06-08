@@ -12,7 +12,7 @@
               <b-avatar src="user-placeholder.jpg" size="2.3em" variant="light"></b-avatar>
             </span>
             <div class="m-1">{{ getPosts[index].username }}</div>
-            <div class="ml-auto m-1">
+            <div class="ml-auto mt-1">
               <b-icon icon="three-dots"></b-icon>
             </div>
           </div>
@@ -42,7 +42,7 @@
           </div>
 
           <!-- Footer -->
-          <div class="card-text">
+          <div class="card-text text-right">
             <!-- <small class="text-muted"> -->
             <!-- if already like, allowed only unlike -->
             <div v-if="isMyLike(index)">
