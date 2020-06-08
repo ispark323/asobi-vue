@@ -1,20 +1,14 @@
 <template>
   <div id="feed">
-    <div v-for="(n, index) in pageOffset" :key="index" class="mt-4">
+    <div v-for="(n, index) in pageOffset" :key="index" class="mt-1">
       <div v-if="getPosts[index] != null">
         <div class="card border-0">
           <!-- Header -->
-          <div class="m-2 d-flex justify-content-between" v-if="getPosts[index].avatar">
-            <span>
+          <div class="m-2 d-flex justify-content-between">
+            <span v-if="getPosts[index].avatar">
               <b-avatar v-bind:src="getPosts[index].avatar" size="2.3em" variant="primary"></b-avatar>
             </span>
-            <div class="m-1">{{ getPosts[index].username }}</div>
-            <div class="ml-auto m-1">
-              <b-icon icon="three-dots"></b-icon>
-            </div>
-          </div>
-          <div class="m-2 d-flex justify-content-between" v-else>
-            <span>
+            <span v-else>
               <b-avatar src="user-placeholder.jpg" size="2.3em" variant="light"></b-avatar>
             </span>
             <div class="m-1">{{ getPosts[index].username }}</div>
@@ -22,7 +16,10 @@
               <b-icon icon="three-dots"></b-icon>
             </div>
           </div>
-
+          <!-- Post Text -->
+          <div class="ml-2">
+            <h5>{{ getPosts[index].text }}</h5>
+          </div>
           <!-- Youtube Link Post -->
           <div v-if="getPosts[index].mediaUrl != ''">
             <div class="embed-responsive embed-responsive-16by9">
@@ -43,32 +40,33 @@
           >
             <img v-bind:src="getPosts[index].imageUrl" class="img-fluid" loading="lazy" />
           </div>
-          <!-- Post Text -->
-          <div class="m-1">
-            <h4>{{ getPosts[index].text }}</h4>
-          </div>
+
           <!-- Footer -->
-          <div class="card-text text-right">
+          <div class="card-text">
             <!-- <small class="text-muted"> -->
             <!-- if already like, allowed only unlike -->
             <div v-if="isMyLike(index)">
-              <b-icon icon="heart-fill" v-on:click="deleteLike(index)" variant="danger"></b-icon>
-              <!-- {{ getPosts[index].likeCount }} Likes, {{ timeFromCreated(index) }} -->
-              <b-icon
-                icon="pencil-square"
-                v-if="getPosts[index].ownerId == userData.userInfo.uid"
-                v-on:click="showEditMyPost(index)"
-              ></b-icon>
+              <div class="m-2">
+                <b-icon icon="heart-fill" v-on:click="deleteLike(index)" variant="danger"></b-icon>
+                <!-- {{ getPosts[index].likeCount }} Likes, {{ timeFromCreated(index) }} -->
+                <b-icon
+                  icon="pencil-square"
+                  v-if="getPosts[index].ownerId == userData.userInfo.uid"
+                  v-on:click="showEditMyPost(index)"
+                ></b-icon>
+              </div>
             </div>
             <!-- if not yet, allowed like -->
             <div v-else>
-              <b-icon icon="heart" v-on:click="addLike(index)" variant="danger"></b-icon>
-              <!-- {{ getPosts[index].likeCount }} Likes, {{ timeFromCreated(index) }} -->
-              <b-icon
-                icon="pencil-square"
-                v-if="getPosts[index].ownerId == userData.userInfo.uid"
-                v-on:click="showEditMyPost(index)"
-              ></b-icon>
+              <div class="m-2">
+                <b-icon icon="heart" v-on:click="addLike(index)" variant="danger"></b-icon>
+                <!-- {{ getPosts[index].likeCount }} Likes, {{ timeFromCreated(index) }} -->
+                <b-icon
+                  icon="pencil-square"
+                  v-if="getPosts[index].ownerId == userData.userInfo.uid"
+                  v-on:click="showEditMyPost(index)"
+                ></b-icon>
+              </div>
             </div>
             <!-- </small> -->
           </div>
