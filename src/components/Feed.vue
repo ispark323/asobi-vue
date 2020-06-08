@@ -1,48 +1,24 @@
 <template>
   <div id="feed">
-    <div v-for="(n, index) in pageOffset" :key="index" class="mt-4">
+    <div v-for="(n, index) in pageOffset" :key="index" class="mt-1">
       <div v-if="getPosts[index] != null">
-        <div class="card">
-          <div class="card-body">
-            <div class="card-title">
-              <div v-if="getPosts[index].avatar">
-                <b-avatar
-                  v-bind:src="getPosts[index].avatar"
-                  size="2em"
-                  variant="primary"
-                ></b-avatar>
-                @{{ getPosts[index].username }}
-              </div>
-              <div v-else>
-                <b-avatar src="user-placeholder.jpg" size="2em" variant="light"></b-avatar>
-                @{{ getPosts[index].username }}
-              </div>
-              <h5>{{ getPosts[index].text }}</h5>
+        <div class="card border-0">
+          <!-- Header -->
+          <div class="m-2 d-flex justify-content-between">
+            <span v-if="getPosts[index].avatar">
+              <b-avatar v-bind:src="getPosts[index].avatar" size="2.3em" variant="primary"></b-avatar>
+            </span>
+            <span v-else>
+              <b-avatar src="user-placeholder.jpg" size="2.3em" variant="light"></b-avatar>
+            </span>
+            <div class="m-1">{{ getPosts[index].username }}</div>
+            <div class="ml-auto mt-1">
+              <b-icon icon="three-dots"></b-icon>
             </div>
-            <div class="card-text text-right">
-              <!-- <small class="text-muted"> -->
-              <!-- if already like, allowed only unlike -->
-              <div v-if="isMyLike(index)">
-                <b-icon icon="heart-fill" v-on:click="deleteLike(index)" variant="danger"></b-icon>
-                {{ getPosts[index].likeCount }} Likes, {{ timeFromCreated(index) }}
-                <b-icon
-                  icon="pencil-square"
-                  v-if="getPosts[index].ownerId == userData.userInfo.uid"
-                  v-on:click="showEditMyPost(index)"
-                ></b-icon>
-              </div>
-              <!-- if not yet, allowed like -->
-              <div v-else>
-                <b-icon icon="heart" v-on:click="addLike(index)" variant="danger"></b-icon>
-                {{ getPosts[index].likeCount }} Likes, {{ timeFromCreated(index) }}
-                <b-icon
-                  icon="pencil-square"
-                  v-if="getPosts[index].ownerId == userData.userInfo.uid"
-                  v-on:click="showEditMyPost(index)"
-                ></b-icon>
-              </div>
-              <!-- </small> -->
-            </div>
+          </div>
+          <!-- Post Text -->
+          <div class="ml-2">
+            <h5>{{ getPosts[index].text }}</h5>
           </div>
           <!-- Youtube Link Post -->
           <div v-if="getPosts[index].mediaUrl != ''">
@@ -63,6 +39,36 @@
             class="text-center border rounded-lg lazyimage"
           >
             <img v-bind:src="getPosts[index].imageUrl" class="img-fluid" loading="lazy" />
+          </div>
+
+          <!-- Footer -->
+          <div class="card-text text-right">
+            <!-- <small class="text-muted"> -->
+            <!-- if already like, allowed only unlike -->
+            <div v-if="isMyLike(index)">
+              <div class="m-2">
+                <b-icon icon="heart-fill" v-on:click="deleteLike(index)" variant="danger"></b-icon>
+                <!-- {{ getPosts[index].likeCount }} Likes, {{ timeFromCreated(index) }} -->
+                <b-icon
+                  icon="pencil-square"
+                  v-if="getPosts[index].ownerId == userData.userInfo.uid"
+                  v-on:click="showEditMyPost(index)"
+                ></b-icon>
+              </div>
+            </div>
+            <!-- if not yet, allowed like -->
+            <div v-else>
+              <div class="m-2">
+                <b-icon icon="heart" v-on:click="addLike(index)" variant="danger"></b-icon>
+                <!-- {{ getPosts[index].likeCount }} Likes, {{ timeFromCreated(index) }} -->
+                <b-icon
+                  icon="pencil-square"
+                  v-if="getPosts[index].ownerId == userData.userInfo.uid"
+                  v-on:click="showEditMyPost(index)"
+                ></b-icon>
+              </div>
+            </div>
+            <!-- </small> -->
           </div>
         </div>
       </div>
