@@ -112,6 +112,9 @@ export default {
         text: '',
         mediaUrl: '',
         image: null,
+        ownerId: '',
+        username: '',
+        avatar: '',
       },
       textState: null,
       mediaUrlState: null,
@@ -173,6 +176,9 @@ export default {
       }
       this.post.mediaUrl = url;
 
+      this.post.ownerId = this.userData.userInfo.uid;
+      this.post.username = this.userData.userInfo.username;
+      this.post.avatar = this.userData.userInfo.avatar;
       this.createPost2(this.post);
 
       // Hide the modal manually
