@@ -94,8 +94,8 @@ const actions = {
         text: post.text,
         imageUrl: '',
         mediaUrl: post.mediaUrl,
-        ownerId: firebaseAuth.currentUser.uid,
-        username: firebaseAuth.currentUser.displayName,
+        ownerId: post.ownerId,
+        username: post.username,
         avatar: '',
         likeCount: 0,
         likes: [],
@@ -104,17 +104,9 @@ const actions = {
         //updatedAt: new Date(),
       };
 
-      // get writer's avatar Url
-      await usersCollection
-        .doc(newPost.ownerId)
-        .get()
-        .then(function(doc) {
-          if (doc.exists) {
-            newPost.avatar = doc.data().avatar;
-          } else {
-            console.log('No such document');
-          }
-        });
+      if (post.avatar) {
+        newPost.avatar = post.avatar;
+      }
 
       // in case of image upload
       if (post.image != null) {
@@ -212,9 +204,6 @@ const actions = {
   },
   editPost: async (context, post) => {
     try {
-      // const newPost = allPostsCollection.doc(post.postId).get();
-      // console.log('==', newPost);
-
       // in case image is changed
       if (post.image != null) {
         var uploadTask = storage.ref('posts/' + post.postId).put(post.image);
