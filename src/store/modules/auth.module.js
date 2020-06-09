@@ -375,8 +375,7 @@ const actions = {
     commit('PENDING');
     try {
       await firebaseAuth.sendPasswordResetEmail(email);
-      commit('LOGOUT');
-      //router.push('login');
+      // commit('LOGOUT');
     } catch (error) {
       console.log(error);
       alert(error.message);
