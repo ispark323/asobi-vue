@@ -16,9 +16,23 @@
       <div>
         <b-button to="/editprofile" variant="primary m-1">Edit Profile</b-button>
         <br />
+        <b-button v-b-modal.changeP variant="primary m-1">Change Password</b-button>
+        <br />
         <button @click="handleLogout" class="btn btn-dark m-1">Logout</button>
       </div>
       <br />
+    </div>
+
+    <!-- Change Password -->
+    <div>
+      <b-modal id="changeP" title="Change Password">
+        <p>We will send you an email to reset your password.</p>
+        <input class="form-control" v-model="userData.userInfo.email" disabled />
+        <template v-slot:modal-footer="{ cancel }">
+          <b-button size="sm" variant="dark" @click="cancel()">Cancel</b-button>
+          <b-button size="sm" variant="primary m-1" @click="handleResetPassword">Submit</b-button>
+        </template>
+      </b-modal>
     </div>
 
     <div class="card bg-light mt-4">
@@ -28,9 +42,7 @@
           <div class="container">
             <div v-for="(post, index) in getMyPosts" :key="post.id">
               <div class="row">
-                <div class="col-sm-9 p-0">
-                  {{ post.text.replace(/(.{50})..+/, '$1…') }}
-                </div>
+                <div class="col-sm-9 p-0">{{ post.text.replace(/(.{50})..+/, '$1…') }}</div>
                 <div class="col-12 col-sm-3 text-right p-0">
                   {{ timeFromCreated(index) }}
                   <b-icon
@@ -127,7 +139,7 @@ export default {
   },
   computed: mapGetters(['userData', 'getMyPosts']),
   methods: {
-    ...mapActions(['bindMyPostsRef', 'deletePost', 'editPost', 'logout']),
+    ...mapActions(['bindMyPostsRef', 'editPost', 'deletePost', 'logout', 'resetPassword']),
     handleDelete(index) {
       const post = {
         id: this.getMyPosts[index].id,
@@ -139,6 +151,13 @@ export default {
     },
     handleLogout() {
       this.logout();
+    },
+    handleResetPassword() {
+      this.resetPassword(this.userData.userInfo.email);
+      alert('Email sent. Please check your email.');
+      this.$nextTick(() => {
+        this.$bvModal.hide('changeP');
+      });
     },
     timeFromCreated(index) {
       var today = new Date();
