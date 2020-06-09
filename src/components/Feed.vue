@@ -4,16 +4,28 @@
       <div v-if="getPosts[index] != null">
         <div class="card border-0">
           <!-- Header -->
-          <div class="m-2 d-flex justify-content-between">
+          <div class="m-1 d-flex justify-content-between">
             <span v-if="getPosts[index].avatar">
-              <b-avatar v-bind:src="getPosts[index].avatar" size="2.3em" variant="primary"></b-avatar>
+              <b-avatar v-bind:src="getPosts[index].avatar" size="2.3em" variant="light"></b-avatar>
             </span>
             <span v-else>
               <b-avatar src="user-placeholder.jpg" size="2.3em" variant="light"></b-avatar>
             </span>
             <div class="m-1">{{ getPosts[index].username }}</div>
-            <div class="ml-auto mt-1">
-              <b-icon icon="three-dots"></b-icon>
+            <div class="ml-auto">
+              <b-nav>
+                <b-nav-item-dropdown right no-caret menu-class="minw-none">
+                  <template slot="button-content">
+                    <b-icon icon="three-dots" font-scale="1.2" variant="dark"></b-icon>
+                  </template>
+                  <b-dropdown-item
+                    v-if="getPosts[index].ownerId == userData.userInfo.uid"
+                    v-on:click="showEditMyPost(index)"
+                  >Edit</b-dropdown-item>
+
+                  <b-dropdown-item v-else disabled>Edit</b-dropdown-item>
+                </b-nav-item-dropdown>
+              </b-nav>
             </div>
           </div>
           <!-- Post Text -->
@@ -47,7 +59,12 @@
             <!-- if already like, allowed only unlike -->
             <div v-if="isMyLike(index)">
               <div class="m-2">
-                <b-icon icon="heart-fill" v-on:click="deleteLike(index)" variant="danger"></b-icon>
+                <b-icon
+                  icon="heart-fill"
+                  v-on:click="deleteLike(index)"
+                  variant="danger"
+                  font-scale="1.2"
+                ></b-icon>
                 <!-- {{ getPosts[index].likeCount }} Likes, {{ timeFromCreated(index) }} -->
                 <b-icon
                   icon="pencil-square"
@@ -59,7 +76,7 @@
             <!-- if not yet, allowed like -->
             <div v-else>
               <div class="m-2">
-                <b-icon icon="heart" v-on:click="addLike(index)" variant="danger"></b-icon>
+                <b-icon icon="heart" v-on:click="addLike(index)" variant="danger" font-scale="1.2"></b-icon>
                 <!-- {{ getPosts[index].likeCount }} Likes, {{ timeFromCreated(index) }} -->
                 <b-icon
                   icon="pencil-square"
