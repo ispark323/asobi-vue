@@ -22,6 +22,10 @@
                     v-if="getPosts[index].ownerId == userData.userInfo.uid"
                     v-on:click="showEditMyPost(index)"
                   >Edit</b-dropdown-item>
+                  <b-dropdown-item
+                    v-if="getPosts[index].ownerId == userData.userInfo.uid"
+                    v-on:click="handleDelete(index)"
+                  >Delete</b-dropdown-item>
 
                   <b-dropdown-item v-else disabled>Edit</b-dropdown-item>
                 </b-nav-item-dropdown>
@@ -66,11 +70,6 @@
                   font-scale="1.2"
                 ></b-icon>
                 <!-- {{ getPosts[index].likeCount }} Likes, {{ timeFromCreated(index) }} -->
-                <b-icon
-                  icon="pencil-square"
-                  v-if="getPosts[index].ownerId == userData.userInfo.uid"
-                  v-on:click="showEditMyPost(index)"
-                ></b-icon>
               </div>
             </div>
             <!-- if not yet, allowed like -->
@@ -78,11 +77,6 @@
               <div class="m-2">
                 <b-icon icon="heart" v-on:click="addLike(index)" variant="danger" font-scale="1.2"></b-icon>
                 <!-- {{ getPosts[index].likeCount }} Likes, {{ timeFromCreated(index) }} -->
-                <b-icon
-                  icon="pencil-square"
-                  v-if="getPosts[index].ownerId == userData.userInfo.uid"
-                  v-on:click="showEditMyPost(index)"
-                ></b-icon>
               </div>
             </div>
             <!-- </small> -->
@@ -218,7 +212,7 @@ export default {
     },
   },
   methods: {
-    ...mapActions(['bindPostsRef', 'likePost', 'unlikePost', 'editPost']),
+    ...mapActions(['bindPostsRef', 'editPost', 'deletePost', 'likePost', 'unlikePost']),
     scrollTrigger() {
       const observer = new IntersectionObserver(entries => {
         entries.forEach(entry => {
@@ -295,6 +289,15 @@ export default {
       this.$nextTick(() => {
         this.$bvModal.hide('editMyPost');
       });
+    },
+    handleDelete(index) {
+      const post = {
+        id: this.getPosts[index].id,
+        text: this.getPosts[index].text,
+      };
+      if (confirm('Delete your post?\n"' + post.text + '"')) {
+        this.deletePost(post);
+      }
     },
   },
   mounted() {
