@@ -7,47 +7,27 @@
     <form @submit.prevent>
       <div class="card bg-light">
         <div class="card-body">
-          <h3>Edit Profile</h3>
-          <br />
-          <table>
-            <tr>
-              <td>
-                <div v-if="profile.avatar">
-                  <b-img
-                    id="preview"
-                    v-bind:src="previewUrl"
-                    width="70"
-                    height="70"
-                    rounded="circle"
-                  />
-                </div>
-                <div v-else-if="userData.userInfo.avatar">
-                  <b-img
-                    v-bind:src="userData.userInfo.avatar"
-                    width="70"
-                    height="70"
-                    rounded="circle"
-                  />
-                </div>
-                <div v-else>
-                  <b-avatar src="user-placeholder.jpg" variant="light" size="3.5em"></b-avatar>
-                </div>
-              </td>
-              <!-- <td>
-                <button class="btn primary m-4">
-                  Change profile photo
-                  <input
-                    id="uploadPhotoInput"
-                    type="file"
-                    accept="image/*"
-                    :multiple="false"
-                    class="form-control"
-                  />
-                </button>
-              </td> -->
-            </tr>
-          </table>
-
+          <div class="text-center">
+            <h3>Edit Profile</h3>
+            <br />
+            <div v-if="profile.avatar">
+              <b-img id="preview" v-bind:src="previewUrl" width="70" height="70" rounded="circle" />
+              @{{ userData.userInfo.username }}
+            </div>
+            <div v-else-if="userData.userInfo.avatar">
+              <b-img
+                v-bind:src="userData.userInfo.avatar"
+                width="70"
+                height="70"
+                rounded="circle"
+              />
+              @{{ userData.userInfo.username }}
+            </div>
+            <div v-else>
+              <b-avatar src="user-placeholder.jpg" variant="light" size="3.5em"></b-avatar>
+              @{{ userData.userInfo.username }}
+            </div>
+          </div>
           <br />
 
           <!-- Sungmin -->
@@ -66,12 +46,13 @@
                 Username:
               </div>
               <div class="col-12 col-sm-9">
-                <b-form-group invalid-feedback="Enter at least 6 letters">
+                <b-form-group invalid-feedback="Only alphabets and numbers">
                   <b-form-input
                     id="usernameInput"
                     v-model="userData.userInfo.username"
                     :state="usernameState"
                     placeholder="Enter Username"
+                    @keypress="usernameValidation"
                     class="m-0"
                   ></b-form-input>
                 </b-form-group>
@@ -144,17 +125,17 @@ export default {
     ...mapActions(['updateProfile']),
     handleSubmit() {
       this.profile.username = this.userData.userInfo.username;
-      // if (this.profile.username.length < 6) {
-      //   this.usernamestate = false;
-      //   return;
-      // }
+      if (!this.validateUsername()) {
+        this.usernameState = false;
+        return;
+      }
+      this.usernameState = null;
       this.updateProfile(this.profile);
 
-      // this.usernameState = null;
-      this.profile.avatar = null;
       this.showSuccess = true;
       setTimeout(() => {
         this.showSuccess = false;
+        this.profile.avatar = null;
       }, 2000);
     },
     previewAvatar: function(event) {
@@ -167,6 +148,26 @@ export default {
         };
         reader.readAsDataURL(input.files[0]);
       }
+    },
+    usernameValidation: function(event) {
+      const regex = new RegExp('^[a-zA-Z0-9]+$');
+      const input = String.fromCharCode(event.keyCode ? event.keyCode : event.which);
+      if (regex.test(input)) {
+        return true;
+      } else {
+        event.preventDefault();
+        this.usernameState = false;
+        setTimeout(() => {
+          this.usernameState = null;
+        }, 2000);
+        return false;
+      }
+    },
+    validateUsername: function() {
+      if (this.profile.username.length < 1) {
+        return false;
+      }
+      return true;
     },
   },
   mounted() {
