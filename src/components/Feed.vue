@@ -133,8 +133,8 @@
       </div>
       <!-- Footer -->
       <template v-slot:modal-footer="{ cancel }">
-        <b-button size="sm" variant="primary" @click="handleEditMyPost">Edit</b-button>
-        <b-button size="sm" variant="primary" @click="cancel()">Cancel</b-button>
+        <b-button size="sm" variant="dark" @click="cancel()">Cancel</b-button>
+        <b-button size="sm" variant="primary m-1" @click="handleEditMyPost">Edit</b-button>
       </template>
     </b-modal>
   </div>

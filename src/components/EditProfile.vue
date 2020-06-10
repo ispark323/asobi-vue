@@ -8,8 +8,7 @@
       <div class="card bg-light">
         <div class="card-body">
           <h3>Edit Profile</h3>
-          <br />
-          <table>
+          <table class="mt-3">
             <tr>
               <td>
                 <div v-if="profile.avatar">
@@ -33,86 +32,57 @@
                   <b-avatar src="user-placeholder.jpg" variant="light" size="3.5em"></b-avatar>
                 </div>
               </td>
-              <!-- <td>
-                <button class="btn primary m-4">
-                  Change profile photo
-                  <input
-                    id="uploadPhotoInput"
-                    type="file"
-                    accept="image/*"
-                    :multiple="false"
-                    class="form-control"
-                  />
-                </button>
-              </td> -->
             </tr>
           </table>
+          <div class="row mt-3">
+            <div class="col-sm-3">Change profile photo</div>
+            <div class="col-12 col-sm-9">
+              <b-form-file
+                id="avatarForm"
+                v-model="profile.avatar"
+                accept="image/*"
+                placeholder="Choose a file or drop it here..."
+                drop-placeholder="Drop file here..."
+                @change="previewAvatar"
+              >
+                <template slot="file-name" slot-scope="{ names }">
+                  <b-badge variant="primary">{{ names[0] }}</b-badge>
+                </template>
+              </b-form-file>
+            </div>
+          </div>
 
-          <br />
-
-          <!-- Sungmin -->
-          <!-- <br />Username
-          <br />
-          <input class="form-control" v-model="userData.userInfo.username" />
-          <br />Email
-          <br />
-          <input class="form-control" v-model="userData.userInfo.email" disabled />
-          <p style="font-size:13px;color:grey">(Email is ID and not editable.)</p>
-
-          <button @click="handleSubmit" class="btn btn-primary mt-4">Update Profile</button> -->
-          <div class="container">
-            <div class="row">
-              <div class="col-sm-3">
-                Username:
-              </div>
+          <div class="row m-0 mt-3">
+            Username
+            <input
+              class="form-control"
+              v-model="userData.userInfo.username"
+              :state="usernameState"
+            />
+          </div>
+          <!-- <div class="row">
+              <div class="col-sm-3">Username</div>
               <div class="col-12 col-sm-9">
-                <b-form-group invalid-feedback="Enter at least 6 letters">
+                <b-form-group>
+                  <b-form-group invalid-feedback="Enter at least 6 letters">
                   <b-form-input
                     id="usernameInput"
                     v-model="userData.userInfo.username"
                     :state="usernameState"
                     placeholder="Enter Username"
-                    class="m-0"
+                    class="m-2"
                   ></b-form-input>
                 </b-form-group>
-              </div>
-            </div>
-            <!-- <div class="row">
-              <div class="col-3">
-                Location:
-              </div>
-              <div class="col-9">
-                <b-form-group invalid-feedback="Enter at least 1 letters">
-                  <b-form-input
-                    id="locationInput"
-                    v-model="profile.location"
-                    :state="usernameState"
-                    placeholder="Earth"
-                  ></b-form-input>
-                </b-form-group>
-              </div>
-            </div> -->
-            <div class="row">
-              <div class="col-sm-3">
-                Avatar:
-              </div>
-              <div class="col-12 col-sm-9">
-                <b-form-file
-                  id="avatarForm"
-                  v-model="profile.avatar"
-                  accept="image/*"
-                  placeholder="Choose a file or drop it here..."
-                  drop-placeholder="Drop file here..."
-                  @change="previewAvatar"
-                >
-                  <template slot="file-name" slot-scope="{ names }">
-                    <b-badge variant="primary">{{ names[0] }}</b-badge>
-                  </template>
-                </b-form-file>
-              </div>
-            </div>
+          </div>-->
+          <div class="row m-0 mt-1">
+            Email
+            <input class="form-control" v-model="userData.userInfo.email" disabled />
           </div>
+
+          <p style="font-size:13px;color:grey">(Email is ID and not editable.)</p>
+
           <div class="text-right mt-4">
+            <b-button to="/profile" variant="dark m-1">Cancel</b-button>
             <button @click="handleSubmit" class="btn btn-primary">Update Profile</button>
           </div>
         </div>
