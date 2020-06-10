@@ -1,0 +1,152 @@
+.container {
+  max-width: 630px;
+}
+
+.modal-dialog {
+  max-width: 590px;
+}
+
+#login {
+  margin: 0 auto;
+  .title {
+    font-family: 'Montserrat';
+    font-weight: 900;
+    font-size: 2em;
+    line-height: 1.5;
+    color: #fff;
+  }
+  .nav-item {
+    padding: 0px 3px;
+  }
+}
+
+#signup {
+  margin: auto;
+  .title {
+    font-family: 'Montserrat';
+    font-weight: 900;
+    font-size: 2em;
+    line-height: 1.5;
+    color: #fff;
+  }
+}
+
+#navigation {
+  .navbar {
+    margin: auto;
+    max-width: 630px;
+  }
+
+  .horizontal {
+    display: flex;
+    flex-direction: row;
+
+    .nav-item {
+      padding: 0px 5px;
+    }
+
+    .nav-link {
+      cursor: pointer;
+    }
+
+    .btn {
+      border: 0;
+    }
+  }
+}
+
+#feed {
+  margin: auto;
+
+  .lazyimage {
+    min-height: 300px;
+  }
+
+  .minw-none {
+    min-width: 0 !important;
+  }
+
+  footer {
+    position: relative;
+    max-width: 600px;
+    height: 200px;
+
+    #scroll-trigger {
+      height: 100px;
+    }
+  }
+}
+
+#profile {
+  margin: auto;
+
+  .btn {
+    border: 0;
+    width: 200px;
+  }
+}
+
+#editprofile {
+  margin: auto;
+}
+
+#createpost {
+  margin: auto;
+
+  .modal-mask {
+    position: fixed;
+    z-index: 9998;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: table;
+    transition: opacity 0.3s ease;
+  }
+
+  .modal-wrapper {
+    display: table-cell;
+    vertical-align: middle;
+  }
+
+  .modal-container {
+    max-width: 500px;
+    margin: 0px auto;
+    padding: 20px 30px;
+    background-color: #fff;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33);
+    transition: all 0.3s ease;
+    font-family: Helvetica, Arial, sans-serif;
+  }
+
+  .modal-body {
+    margin: 20px 0;
+    max-height: 50vh;
+    overflow-y: auto;
+  }
+
+  /*
+ * The following styles are auto-applied to elements with
+ * transition="modal" when their visibility is toggled
+ * by Vue.js.
+ *
+ * You can easily play with the modal transition by editing
+ * these styles.
+ */
+
+  .modal-enter-active {
+    transition: all 0.3s ease;
+  }
+
+  .modal-leave-active {
+    transition: all 0.8s cubic-bezier(1, 0.5, 0.8, 1);
+  }
+
+  .modal-enter .modal-container,
+  .modal-leave-to .modal-container {
+    transform: translateY(10px);
+    opacity: 0;
+  }
+}
