@@ -317,6 +317,7 @@ const actions = {
       alert(error.message);
     }
   },
+  // updateAvatar: async (context, avatar) => {},
   uploadAvatar: async (context, avatar) => {
     try {
       let uploadTask = storage.ref('avatar/' + firebaseAuth.currentUser.uid).put(avatar);

@@ -7,49 +7,56 @@
     <form @submit.prevent>
       <div class="card bg-light">
         <div class="card-body">
-          <h3>Edit Profile</h3>
-          <table class="mt-3">
+          <p style="text-align: center; font-size:1.5em;">Edit Profile</p>
+          <table class="mt-3" align="center">
             <tr>
-              <td>
+              <td v-b-modal.changeAvatar>
                 <div v-if="profile.avatar">
                   <b-img
                     id="preview"
                     v-bind:src="previewUrl"
-                    width="70"
-                    height="70"
+                    width="80"
+                    height="80"
                     rounded="circle"
                   />
                 </div>
                 <div v-else-if="userData.userInfo.avatar">
                   <b-img
                     v-bind:src="userData.userInfo.avatar"
-                    width="70"
-                    height="70"
+                    width="80"
+                    height="80"
                     rounded="circle"
                   />
                 </div>
                 <div v-else>
-                  <b-avatar src="user-placeholder.jpg" variant="light" size="3.5em"></b-avatar>
+                  <b-avatar src="user-placeholder.jpg" variant="light" size="4em"></b-avatar>
                 </div>
               </td>
             </tr>
           </table>
-          <div class="row mt-3">
-            <div class="col-sm-3">Change profile photo</div>
-            <div class="col-12 col-sm-9">
-              <b-form-file
-                id="avatarForm"
-                v-model="profile.avatar"
-                accept="image/*"
-                placeholder="Choose a file or drop it here..."
-                drop-placeholder="Drop file here..."
-                @change="previewAvatar"
+
+          <!-- Change Profile Photo Modal -->
+          <div>
+            <b-modal id="changeAvatar" title="Change Profile Photo">
+              <div>
+                <b-form-file
+                  id="imageInput"
+                  style="display:none;"
+                  v-model="profile.avatar"
+                  accept="image/*"
+                  @change="previewAvatar"
+                ></b-form-file>
+                <b-button style="width: 200px;" variant="primary m-2" @click="editImage"
+                  >Select Photo</b-button
+                >
+              </div>
+              <b-button style="width: 200px;" variant="outline-primary m-2" @click="deleteAvatar"
+                >Remove Current Photo</b-button
               >
-                <template slot="file-name" slot-scope="{ names }">
-                  <b-badge variant="primary">{{ names[0] }}</b-badge>
-                </template>
-              </b-form-file>
-            </div>
+              <template v-slot:modal-footer="{ cancel }">
+                <b-button variant="dark" @click="cancel()">Cancel</b-button>
+              </template>
+            </b-modal>
           </div>
 
           <div class="row m-0 mt-3">
@@ -83,7 +90,7 @@
 
           <div class="text-right mt-4">
             <b-button to="/profile" variant="dark m-1">Cancel</b-button>
-            <button @click="handleSubmit" class="btn btn-primary">Update Profile</button>
+            <button @click="handleUpdateProfile" class="btn btn-primary">Update Profile</button>
           </div>
         </div>
       </div>
@@ -112,12 +119,8 @@ export default {
   },
   methods: {
     ...mapActions(['updateProfile']),
-    handleSubmit() {
+    handleUpdateProfile() {
       this.profile.username = this.userData.userInfo.username;
-      // if (this.profile.username.length < 6) {
-      //   this.usernamestate = false;
-      //   return;
-      // }
       this.updateProfile(this.profile);
 
       // this.usernameState = null;
@@ -137,6 +140,30 @@ export default {
         };
         reader.readAsDataURL(input.files[0]);
       }
+      this.$nextTick(() => {
+        this.$bvModal.hide('changeAvatar');
+      });
+    },
+    editImage() {
+      const imageInput = document.getElementById('imageInput');
+      imageInput.click();
+    },
+    handleImageChange: function(event) {
+      const input = event.target;
+      alert(input);
+      console.log(input);
+    },
+    deleteAvatar: function(event) {
+      const input = event.target;
+
+      console.log(input);
+      console.log(this.profile.avatar);
+
+      this.profile.avatar = null;
+      console.log(this.profile.avatar);
+      this.$nextTick(() => {
+        this.$bvModal.hide('changeAvatar');
+      });
     },
   },
   mounted() {

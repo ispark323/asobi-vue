@@ -89,8 +89,8 @@
       </div>
       <!-- Create Post Modal Footer -->
       <template v-slot:modal-footer="{ cancel }">
-        <b-button size="sm" variant="dark" @click="cancel()">Cancel</b-button>
-        <b-button size="sm" variant="primary m-1" @click="handleCreatePost">Post</b-button>
+        <b-button variant="dark" @click="cancel()">Cancel</b-button>
+        <b-button variant="primary m-1" @click="handleCreatePost">Post</b-button>
       </template>
     </b-modal>
   </div>

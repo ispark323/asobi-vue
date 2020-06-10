@@ -21,11 +21,13 @@
                   <b-dropdown-item
                     v-if="getPosts[index].ownerId == userData.userInfo.uid"
                     v-on:click="showEditMyPost(index)"
-                  >Edit</b-dropdown-item>
+                    >Edit</b-dropdown-item
+                  >
                   <b-dropdown-item
                     v-if="getPosts[index].ownerId == userData.userInfo.uid"
                     v-on:click="handleDelete(index)"
-                  >Delete</b-dropdown-item>
+                    >Delete</b-dropdown-item
+                  >
 
                   <b-dropdown-item v-else disabled>Edit</b-dropdown-item>
                 </b-nav-item-dropdown>
@@ -75,7 +77,12 @@
             <!-- if not yet, allowed like -->
             <div v-else>
               <div class="m-2">
-                <b-icon icon="heart" v-on:click="addLike(index)" variant="danger" font-scale="1.2"></b-icon>
+                <b-icon
+                  icon="heart"
+                  v-on:click="addLike(index)"
+                  variant="danger"
+                  font-scale="1.2"
+                ></b-icon>
                 <!-- {{ getPosts[index].likeCount }} Likes, {{ timeFromCreated(index) }} -->
               </div>
             </div>
@@ -133,8 +140,8 @@
       </div>
       <!-- Footer -->
       <template v-slot:modal-footer="{ cancel }">
-        <b-button size="sm" variant="dark" @click="cancel()">Cancel</b-button>
-        <b-button size="sm" variant="primary m-1" @click="handleEditMyPost">Edit</b-button>
+        <b-button variant="dark" @click="cancel()">Cancel</b-button>
+        <b-button variant="primary m-1" @click="handleEditMyPost">Edit</b-button>
       </template>
     </b-modal>
   </div>

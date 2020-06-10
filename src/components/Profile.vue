@@ -4,11 +4,11 @@
       <div>
         <br />
         <div v-if="userData.userInfo.avatar">
-          <b-avatar v-bind:src="userData.userInfo.avatar" variant="light" size="3.5em"></b-avatar>
+          <b-avatar v-bind:src="userData.userInfo.avatar" variant="light" size="4em"></b-avatar>
           @{{ userData.userInfo.username }}
         </div>
         <div v-else>
-          <b-avatar src="user-placeholder.jpg" variant="light" size="3.5em"></b-avatar>
+          <b-avatar src="user-placeholder.jpg" variant="light" size="4em"></b-avatar>
           @{{ userData.userInfo.username }}
         </div>
       </div>
@@ -16,21 +16,21 @@
       <div>
         <b-button to="/editprofile" variant="primary m-1">Edit Profile</b-button>
         <br />
-        <b-button v-b-modal.changeP variant="primary m-1">Change Password</b-button>
+        <b-button v-b-modal.changePwd variant="primary m-1">Change Password</b-button>
         <br />
         <button @click="handleLogout" class="btn btn-dark m-1">Logout</button>
       </div>
       <br />
     </div>
 
-    <!-- Change Password -->
+    <!-- Change Password Modal -->
     <div>
-      <b-modal id="changeP" title="Change Password">
+      <b-modal id="changePwd" title="Change Password">
         <p>We will send you an email to reset your password.</p>
         <input class="form-control" v-model="userData.userInfo.email" disabled />
         <template v-slot:modal-footer="{ cancel }">
-          <b-button size="sm" variant="dark" @click="cancel()">Cancel</b-button>
-          <b-button size="sm" variant="primary m-1" @click="handleResetPassword">Submit</b-button>
+          <b-button variant="dark" @click="cancel()">Cancel</b-button>
+          <b-button variant="primary m-1" @click="handleResetPassword">Submit</b-button>
         </template>
       </b-modal>
     </div>
@@ -108,8 +108,8 @@
       </div>
       <!-- Footer -->
       <template v-slot:modal-footer="{ cancel }">
-        <b-button size="sm" variant="primary" @click="handleEditMyPost">Edit</b-button>
-        <b-button size="sm" variant="primary" @click="cancel()">Cancel</b-button>
+        <b-button variant="primary" @click="handleEditMyPost">Edit</b-button>
+        <b-button variant="primary" @click="cancel()">Cancel</b-button>
       </template>
     </b-modal>
   </div>
@@ -156,7 +156,7 @@ export default {
       this.resetPassword(this.userData.userInfo.email);
       alert('Email sent. Please check your email.');
       this.$nextTick(() => {
-        this.$bvModal.hide('changeP');
+        this.$bvModal.hide('changePwd');
       });
     },
     timeFromCreated(index) {
