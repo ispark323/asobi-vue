@@ -197,6 +197,10 @@ const actions = {
             .delete();
         });
       });
+
+      // delete image from storage
+      var imageRef = storage.ref('posts/' + post.id);
+      imageRef.delete();
     } catch (error) {
       console.log(error);
       alert(error);
