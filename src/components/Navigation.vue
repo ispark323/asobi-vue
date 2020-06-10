@@ -6,7 +6,7 @@
       </router-link>
       <div class="navbar-nav ml-auto">
         <div v-if="isLoggedIn" class="horizontal">
-          <router-link to="/feed" class="nav-item nav-link m-auto">
+          <router-link to="/feed" class="nav-item nav-link mr-1">
             <b-icon id="feed" icon="house" style="width: 1.5em; height: 1.5em;"></b-icon>
             <!-- <b-tooltip target="feed" title="FEED" triggers="hover" placement="bottomleft" ></b-tooltip> -->
           </router-link>
@@ -22,7 +22,7 @@
           </div>
           <!-- <router-link to="/createpost" class="nav-item nav-link m-auto">
             <b-icon icon="plus-circle" style="width: 1.5em; height: 1.5em;"></b-icon>
-          </router-link> -->
+          </router-link>-->
           <router-link to="/profile" class="nav-item nav-link m-auto">
             <b-icon id="profile" icon="person" style="width: 1.5em; height: 1.5em;"></b-icon>
             <!-- <b-tooltip target="profile" title="PROFILE" triggers="hover" placement="bottomleft" ></b-tooltip> -->
@@ -45,8 +45,7 @@
         :state="postTypeState"
         name="posttype"
         invalid-feedback="Please select one"
-      >
-      </b-form-radio-group>
+      ></b-form-radio-group>
       <div v-if="postType != ''">
         <b-form-group label="Text:" label-for="text1" invalid-feedback="Text is required">
           <b-form-textarea
@@ -88,14 +87,10 @@
           </b-form-group>
         </div>
       </div>
-      <!-- Footer -->
+      <!-- Create Post Modal Footer -->
       <template v-slot:modal-footer="{ cancel }">
-        <b-button size="sm" variant="primary" @click="handleCreatePost">
-          Post
-        </b-button>
-        <b-button size="sm" variant="primary" @click="cancel()">
-          Cancel
-        </b-button>
+        <b-button variant="dark" @click="cancel()">Cancel</b-button>
+        <b-button variant="primary m-1" @click="handleCreatePost">Post</b-button>
       </template>
     </b-modal>
   </div>
