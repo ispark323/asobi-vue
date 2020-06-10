@@ -11,7 +11,7 @@
           <table class="mt-3" align="center">
             <tr>
               <td v-b-modal.changeAvatar>
-                <div v-if="profile.avatar">
+                <div v-if="previewUrl">
                   <b-img
                     id="preview"
                     v-bind:src="previewUrl"
@@ -20,16 +20,25 @@
                     rounded="circle"
                   />
                 </div>
-                <div v-else-if="userData.userInfo.avatar">
+                <div v-else-if="profile.avatar">
+                  <b-img
+                    id="preview"
+                    v-bind:src="profile.avatar"
+                    width="80"
+                    height="80"
+                    rounded="circle"
+                  />
+                </div>
+                <!-- <div v-else-if="userData.userInfo.avatar">
                   <b-img
                     v-bind:src="userData.userInfo.avatar"
                     width="80"
                     height="80"
                     rounded="circle"
                   />
-                </div>
+                </div> -->
                 <div v-else>
-                  <b-avatar src="user-placeholder.jpg" variant="light" size="4em"></b-avatar>
+                  <b-avatar src="user-placeholder.jpg" variant="light" size="5em"></b-avatar>
                 </div>
               </td>
             </tr>
@@ -61,11 +70,7 @@
 
           <div class="row m-0 mt-3">
             Username
-            <input
-              class="form-control"
-              v-model="userData.userInfo.username"
-              :state="usernameState"
-            />
+            <input class="form-control" v-model="profile.username" :state="usernameState" />
           </div>
           <!-- <div class="row">
               <div class="col-sm-3">Username</div>
@@ -108,7 +113,7 @@ export default {
       showSuccess: false,
       profile: {
         username: '',
-        avatar: null,
+        avatar: '',
       },
       usernameState: null,
       previewUrl: '',
@@ -120,11 +125,9 @@ export default {
   methods: {
     ...mapActions(['updateProfile']),
     handleUpdateProfile() {
-      this.profile.username = this.userData.userInfo.username;
       this.updateProfile(this.profile);
 
       // this.usernameState = null;
-      this.profile.avatar = null;
       this.showSuccess = true;
       setTimeout(() => {
         this.showSuccess = false;
@@ -148,19 +151,9 @@ export default {
       const imageInput = document.getElementById('imageInput');
       imageInput.click();
     },
-    handleImageChange: function(event) {
-      const input = event.target;
-      alert(input);
-      console.log(input);
-    },
-    deleteAvatar: function(event) {
-      const input = event.target;
-
-      console.log(input);
-      console.log(this.profile.avatar);
-
+    deleteAvatar() {
       this.profile.avatar = null;
-      console.log(this.profile.avatar);
+
       this.$nextTick(() => {
         this.$bvModal.hide('changeAvatar');
       });
@@ -168,6 +161,7 @@ export default {
   },
   mounted() {
     this.profile.username = this.userData.userInfo.username;
+    this.profile.avatar = this.userData.userInfo.avatar;
   },
 };
 </script>

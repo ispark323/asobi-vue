@@ -142,12 +142,35 @@ const actions = {
     try {
       const newUserInfo = state.userData.userInfo;
 
-      // if username is changed
-      if (profile.username) {
-        newUserInfo.username = profile.username;
-      }
-      // if avatar is changed
-      if (profile.avatar) {
+      console.log('Type of profile.avatar: ', typeof profile.avatar);
+      console.log('profile.avatar: ', profile.avatar);
+
+      newUserInfo.username = profile.username;
+
+      // when the user removed the avatar
+      if (profile.avatar == null) {
+        console.log('user removed avatar and profile.avatar is null');
+        console.log(state.userData.userInfo.uid);
+
+        // remove avatar link from userCollection
+        const avatarLinkRef = usersCollection.doc(state.userData.userInfo.uid);
+        await avatarLinkRef.update({
+          avatar: '',
+        });
+
+        // remove avatar from FB Storage
+        const avatarRef = storage.ref('avatar/' + state.userData.userInfo.uid);
+        if (avatarRef) {
+          await avatarRef.delete();
+        }
+
+        state.userData.userInfo.avatar = '';
+      } else if (profile.avatar != state.userData.userInfo.avatar) {
+        // if avatar is changed
+        console.log('=== avatar is changed ===');
+
+        console.log('Type of userData.userInfo.avatar): ', typeof state.userData.userInfo.avatar);
+        console.log('userData.userInfo.avatar: ', state.userData.userInfo.avatar);
         let uploadTask = storage.ref('avatar/' + firebaseAuth.currentUser.uid).put(profile.avatar);
 
         // Listen for state changes, errors, and completion of the upload.
@@ -249,6 +272,7 @@ const actions = {
         );
       } else {
         // Change username in firebaseAuth (displayName)
+        console.log('=== avatar not changed ===');
         await firebaseAuth.currentUser.updateProfile({
           displayName: newUserInfo.username,
         });
@@ -310,8 +334,6 @@ const actions = {
         });
         dispatch('fetchUserProfile');
       }
-
-      // dispatch('fetchUserProfile');
     } catch (error) {
       console.log(error);
       alert(error.message);

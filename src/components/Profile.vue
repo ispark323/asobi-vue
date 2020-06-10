@@ -4,11 +4,11 @@
       <div>
         <br />
         <div v-if="userData.userInfo.avatar">
-          <b-avatar v-bind:src="userData.userInfo.avatar" variant="light" size="4em"></b-avatar>
+          <b-avatar v-bind:src="userData.userInfo.avatar" variant="light" size="5em"></b-avatar>
           @{{ userData.userInfo.username }}
         </div>
         <div v-else>
-          <b-avatar src="user-placeholder.jpg" variant="light" size="4em"></b-avatar>
+          <b-avatar src="user-placeholder.jpg" variant="light" size="5em"></b-avatar>
           @{{ userData.userInfo.username }}
         </div>
       </div>

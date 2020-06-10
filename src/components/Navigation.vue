@@ -6,7 +6,7 @@
       </router-link>
       <div class="navbar-nav ml-auto">
         <div v-if="isLoggedIn" class="horizontal">
-          <router-link to="/feed" class="nav-item nav-link m-auto">
+          <router-link to="/feed" class="nav-item nav-link mr-1">
             <b-icon id="feed" icon="house" style="width: 1.5em; height: 1.5em;"></b-icon>
             <!-- <b-tooltip target="feed" title="FEED" triggers="hover" placement="bottomleft" ></b-tooltip> -->
           </router-link>
