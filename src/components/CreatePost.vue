@@ -7,7 +7,9 @@
         <br />
         <button class="btn btn-primary m-1" @click="showPhotoPost = true">Photo Link</button>
         <br />
-        <button class="btn btn-primary m-1" @click="showUploadPhotoPost = true">Upload Photo</button>
+        <button class="btn btn-primary m-1" @click="showUploadPhotoPost = true">
+          Upload Photo
+        </button>
       </div>
     </div>
 
@@ -134,7 +136,7 @@
                   </div>
                 </div>-->
                 <div v-if="uploadEnd" class="text-right">
-                  <button class="btn btn-primary btn-sm m-1" @click="deleteImage()">Delete</button>
+                  <button class="btn btn-primary m-1" @click="deleteImage()">Delete</button>
                 </div>
               </div>
               <div class="modal-footer">
