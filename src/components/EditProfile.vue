@@ -7,94 +7,92 @@
     <form @submit.prevent>
       <div class="card bg-light">
         <div class="card-body">
-          <div class="text-center">
-            <h3>Edit Profile</h3>
-            <br />
-            <div v-if="profile.avatar">
-              <b-img id="preview" v-bind:src="previewUrl" width="70" height="70" rounded="circle" />
-              @{{ userData.userInfo.username }}
-            </div>
-            <div v-else-if="userData.userInfo.avatar">
-              <b-img
-                v-bind:src="userData.userInfo.avatar"
-                width="70"
-                height="70"
-                rounded="circle"
-              />
-              @{{ userData.userInfo.username }}
-            </div>
-            <div v-else>
-              <b-avatar src="user-placeholder.jpg" variant="light" size="3.5em"></b-avatar>
-              @{{ userData.userInfo.username }}
-            </div>
-          </div>
-          <br />
+          <p style="text-align: center; font-size:1.5em;">Edit Profile</p>
+          <table class="mt-3" align="center">
+            <tr>
+              <td v-b-modal.changeAvatar>
+                <div v-if="previewUrl">
+                  <b-img
+                    id="preview"
+                    v-bind:src="previewUrl"
+                    width="80"
+                    height="80"
+                    rounded="circle"
+                  />
+                </div>
+                <div v-else-if="profile.avatar">
+                  <b-img
+                    id="preview"
+                    v-bind:src="profile.avatar"
+                    width="80"
+                    height="80"
+                    rounded="circle"
+                  />
+                </div>
+                <!-- <div v-else-if="userData.userInfo.avatar">
+                  <b-img
+                    v-bind:src="userData.userInfo.avatar"
+                    width="80"
+                    height="80"
+                    rounded="circle"
+                  />
+                </div> -->
+                <div v-else>
+                  <b-avatar src="user-placeholder.jpg" variant="light" size="5em"></b-avatar>
+                </div>
+              </td>
+            </tr>
+          </table>
 
-          <!-- Sungmin -->
-          <!-- <br />Username
-          <br />
-          <input class="form-control" v-model="userData.userInfo.username" />
-          <br />Email
-          <br />
-          <input class="form-control" v-model="userData.userInfo.email" disabled />
-          <p style="font-size:13px;color:grey">(Email is ID and not editable.)</p>
-
-          <button @click="handleSubmit" class="btn btn-primary mt-4">Update Profile</button> -->
-          <div class="container">
-            <div class="row">
-              <div class="col-sm-3">
-                Username:
-              </div>
-              <div class="col-12 col-sm-9">
-                <b-form-group invalid-feedback="Only alphabets and numbers">
-                  <b-form-input
-                    id="usernameInput"
-                    v-model="userData.userInfo.username"
-                    :state="usernameState"
-                    placeholder="Enter Username"
-                    @keypress="usernameValidation"
-                    class="m-0"
-                  ></b-form-input>
-                </b-form-group>
-              </div>
-            </div>
-            <!-- <div class="row">
-              <div class="col-3">
-                Location:
-              </div>
-              <div class="col-9">
-                <b-form-group invalid-feedback="Enter at least 1 letters">
-                  <b-form-input
-                    id="locationInput"
-                    v-model="profile.location"
-                    :state="usernameState"
-                    placeholder="Earth"
-                  ></b-form-input>
-                </b-form-group>
-              </div>
-            </div> -->
-            <div class="row">
-              <div class="col-sm-3">
-                Avatar:
-              </div>
-              <div class="col-12 col-sm-9">
+          <!-- Change Profile Photo Modal -->
+          <div>
+            <b-modal id="changeAvatar" title="Change Profile Photo">
+              <div>
                 <b-form-file
-                  id="avatarForm"
+                  id="imageInput"
+                  style="display:none;"
                   v-model="profile.avatar"
                   accept="image/*"
-                  placeholder="Choose a file or drop it here..."
-                  drop-placeholder="Drop file here..."
                   @change="previewAvatar"
+                ></b-form-file>
+                <b-button style="width: 200px;" variant="primary m-2" @click="editImage"
+                  >Select Photo</b-button
                 >
-                  <template slot="file-name" slot-scope="{ names }">
-                    <b-badge variant="primary">{{ names[0] }}</b-badge>
-                  </template>
-                </b-form-file>
               </div>
-            </div>
+              <b-button style="width: 200px;" variant="outline-primary m-2" @click="deleteAvatar"
+                >Remove Current Photo</b-button
+              >
+              <template v-slot:modal-footer="{ cancel }">
+                <b-button variant="dark" @click="cancel()">Cancel</b-button>
+              </template>
+            </b-modal>
           </div>
+
+          <div class="row m-0 mt-3">
+            Username
+            <!-- <input class="form-control" v-model="profile.username" :state="usernameState" />   -->
+          </div>
+          <b-form-group invalid-feedback="Only alphabets and numbers">
+            <b-form-input
+              id="usernameInput"
+              v-model="profile.username"
+              :state="usernameState"
+              placeholder="Enter Username"
+              @keypress="usernameValidation"
+              class="m-a"
+            ></b-form-input>
+          </b-form-group>
+
+          <div class="row m-0 mt-1">
+            Email
+            <input class="form-control" v-model="userData.userInfo.email" disabled />
+          </div>
+
+          <p style="font-size:13px;color:grey">(Email is ID and not editable.)</p>
+
           <div class="text-right mt-4">
-            <button @click="handleSubmit" class="btn btn-primary">Update Profile</button>
+            <b-button to="/profile" variant="dark m-1">Cancel</b-button>
+            <button @click="handleUpdateProfile" class="btn btn-primary">Update Profile</button>
           </div>
         </div>
       </div>
@@ -112,7 +110,7 @@ export default {
       showSuccess: false,
       profile: {
         username: '',
-        avatar: null,
+        avatar: '',
       },
       usernameState: null,
       previewUrl: '',
@@ -123,19 +121,18 @@ export default {
   },
   methods: {
     ...mapActions(['updateProfile']),
-    handleSubmit() {
-      this.profile.username = this.userData.userInfo.username;
+    handleUpdateProfile() {
       if (!this.validateUsername()) {
         this.usernameState = false;
         return;
       }
       this.usernameState = null;
+
       this.updateProfile(this.profile);
 
       this.showSuccess = true;
       setTimeout(() => {
         this.showSuccess = false;
-        this.profile.avatar = null;
       }, 2000);
     },
     previewAvatar: function(event) {
@@ -148,6 +145,20 @@ export default {
         };
         reader.readAsDataURL(input.files[0]);
       }
+      this.$nextTick(() => {
+        this.$bvModal.hide('changeAvatar');
+      });
+    },
+    editImage() {
+      const imageInput = document.getElementById('imageInput');
+      imageInput.click();
+    },
+    deleteAvatar() {
+      this.profile.avatar = null;
+
+      this.$nextTick(() => {
+        this.$bvModal.hide('changeAvatar');
+      });
     },
     usernameValidation: function(event) {
       const regex = new RegExp('^[a-zA-Z0-9]+$');
@@ -172,6 +183,7 @@ export default {
   },
   mounted() {
     this.profile.username = this.userData.userInfo.username;
+    this.profile.avatar = this.userData.userInfo.avatar;
   },
 };
 </script>
