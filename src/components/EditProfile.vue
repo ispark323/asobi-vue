@@ -70,22 +70,19 @@
 
           <div class="row m-0 mt-3">
             Username
-            <input class="form-control" v-model="profile.username" :state="usernameState" />
+            <!-- <input class="form-control" v-model="profile.username" :state="usernameState" />   -->
           </div>
-          <!-- <div class="row">
-              <div class="col-sm-3">Username</div>
-              <div class="col-12 col-sm-9">
-                <b-form-group>
-                  <b-form-group invalid-feedback="Enter at least 6 letters">
-                  <b-form-input
-                    id="usernameInput"
-                    v-model="userData.userInfo.username"
-                    :state="usernameState"
-                    placeholder="Enter Username"
-                    class="m-2"
-                  ></b-form-input>
-                </b-form-group>
-          </div>-->
+          <b-form-group invalid-feedback="Only alphabets and numbers">
+            <b-form-input
+              id="usernameInput"
+              v-model="profile.username"
+              :state="usernameState"
+              placeholder="Enter Username"
+              @keypress="usernameValidation"
+              class="m-a"
+            ></b-form-input>
+          </b-form-group>
+
           <div class="row m-0 mt-1">
             Email
             <input class="form-control" v-model="userData.userInfo.email" disabled />
@@ -125,9 +122,14 @@ export default {
   methods: {
     ...mapActions(['updateProfile']),
     handleUpdateProfile() {
+      if (!this.validateUsername()) {
+        this.usernameState = false;
+        return;
+      }
+      this.usernameState = null;
+
       this.updateProfile(this.profile);
 
-      // this.usernameState = null;
       this.showSuccess = true;
       setTimeout(() => {
         this.showSuccess = false;
@@ -157,6 +159,26 @@ export default {
       this.$nextTick(() => {
         this.$bvModal.hide('changeAvatar');
       });
+    },
+    usernameValidation: function(event) {
+      const regex = new RegExp('^[a-zA-Z0-9]+$');
+      const input = String.fromCharCode(event.keyCode ? event.keyCode : event.which);
+      if (regex.test(input)) {
+        return true;
+      } else {
+        event.preventDefault();
+        this.usernameState = false;
+        setTimeout(() => {
+          this.usernameState = null;
+        }, 2000);
+        return false;
+      }
+    },
+    validateUsername: function() {
+      if (this.profile.username.length < 1) {
+        return false;
+      }
+      return true;
     },
   },
   mounted() {
