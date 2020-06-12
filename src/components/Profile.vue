@@ -9,6 +9,9 @@
                 <template slot="button-content">
                   <b-icon icon="three-dots" font-scale="1.2" variant="dark"></b-icon>
                 </template>
+                <router-link class="nav-item nav-link" to="/about" style="font-size: 13px"
+                  >About Us</router-link
+                >
                 <router-link class="nav-item nav-link" to="/privacy" style="font-size: 13px"
                   >Privacy Policy</router-link
                 >
