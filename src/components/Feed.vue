@@ -114,7 +114,7 @@
         ></b-form-textarea>
       </b-form-group>
       <div v-if="postType == 'media'">
-        <b-form-group label="Link:" label-for="mediaUrl" invalid-feedback="URL is required">
+        <b-form-group label="Link:" label-for="mediaUrl" invalid-feedback="YouTube URL is required">
           <b-form-textarea
             id="mediaUrl"
             v-model="editedPost.mediaUrl"
@@ -275,6 +275,22 @@ export default {
       }
       this.$bvModal.show('editMyPost');
     },
+    validateMediaUrl() {
+      let url = this.editedPost.mediaUrl;
+      if (url.includes('https://youtu.be/')) {
+        url = url.replace('youtu.be', 'youtube.com/embed');
+        this.editedPost.mediaUrl = url;
+        return true;
+      } else if (url.includes('https://www.youtube.com/watch?v')) {
+        url = url.replace('watch?v=', 'embed/');
+        this.editedPost.mediaUrl = url;
+        return true;
+      } else if (url.includes('https://www.youtube.com/embed/')) {
+        return true;
+      }
+      console.log('??', url);
+      return false;
+    },
     handleEditMyPost(bvModalEvt) {
       // Prevent modal from closing
       bvModalEvt.preventDefault();
@@ -287,6 +303,11 @@ export default {
         return;
       } else if (this.postType == 'image' && this.editedPost.imageUrl.length < 1) {
         this.imageUrlState = false;
+        return;
+      }
+
+      if (this.postType == 'media' && !this.validateMediaUrl()) {
+        this.mediaUrlState = false;
         return;
       }
 

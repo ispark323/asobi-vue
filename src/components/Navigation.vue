@@ -59,7 +59,11 @@
           ></b-form-textarea>
         </b-form-group>
         <div v-if="postType == 'media'">
-          <b-form-group label="Link:" label-for="mediaUrl" invalid-feedback="URL is required">
+          <b-form-group
+            label="Link:"
+            label-for="mediaUrl"
+            invalid-feedback="YouTube URL is required"
+          >
             <b-form-textarea
               id="mediaUrl"
               v-model="post.mediaUrl"
@@ -164,10 +168,13 @@ export default {
       } else this.imageState = true;
 
       let url = this.post.mediaUrl;
-      if (url.match('youtu.be')) {
+      if (url.includes('https://youtu.be/')) {
         url = url.replace('youtu.be', 'youtube.com/embed');
-      } else if (url.match('watch')) {
+      } else if (url.includes('https://www.youtube.com/watch?v')) {
         url = url.replace('watch?v=', 'embed/');
+      } else if (!url.includes('https://www.youtube.com/embed/')) {
+        this.mediaUrlState = false;
+        return;
       }
       this.post.mediaUrl = url;
 
