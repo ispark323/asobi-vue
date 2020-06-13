@@ -405,6 +405,26 @@ const actions = {
       commit('FAIL', error.message);
     }
   },
+  isUnique: async (state, username) => {
+    try {
+      return new Promise((resolve, reject) => {
+        usersCollection
+          .where('username', '==', username)
+          .get()
+          .then(function(querySnapshot) {
+            if (querySnapshot.empty) {
+              resolve('true');
+            } else {
+              // console.log('exist!', querySnapshot);
+              reject('false');
+            }
+          });
+      });
+    } catch (error) {
+      console.log(error);
+      alert(error);
+    }
+  },
 };
 
 export default {
