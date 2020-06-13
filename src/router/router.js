@@ -6,6 +6,9 @@ import Feed from '@/components/Feed.vue';
 import CreatePost from '@/components/CreatePost.vue';
 import Profile from '@/components/Profile.vue';
 import EditProfile from '@/components/EditProfile';
+import About from '@/components/About';
+import Privacy from '@/components/Privacy';
+import Terms from '@/components/Terms';
 
 import firebase from 'firebase';
 
@@ -49,6 +52,21 @@ const routes = [
     name: 'EditProfile',
     component: EditProfile,
     meta: { requiresAuth: true },
+  },
+  {
+    path: '/about',
+    name: 'About',
+    component: About,
+  },
+  {
+    path: '/privacy',
+    name: 'Privacy',
+    component: Privacy,
+  },
+  {
+    path: '/terms',
+    name: 'Terms',
+    component: Terms,
   },
 ];
 

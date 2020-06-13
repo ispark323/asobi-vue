@@ -1,18 +1,41 @@
 <template>
   <div id="profile">
-    <div class="card bg-light text-center mt-4">
-      <div>
-        <br />
-        <div v-if="userData.userInfo.avatar">
-          <b-avatar v-bind:src="userData.userInfo.avatar" variant="light" size="5em"></b-avatar>
-          @{{ userData.userInfo.username }}
+    <div class="card bg-light text-center">
+      <div class="card-body">
+        <div>
+          <div class="privacy">
+            <b-nav>
+              <b-nav-item-dropdown right no-caret menu-class="minw-none">
+                <template slot="button-content">
+                  <b-icon icon="three-dots" font-scale="1.2" variant="dark"></b-icon>
+                </template>
+                <router-link class="nav-item nav-link" to="/about" style="font-size: 13px"
+                  >About Us</router-link
+                >
+                <router-link class="nav-item nav-link" to="/privacy" style="font-size: 13px"
+                  >Privacy Policy</router-link
+                >
+                <router-link class="nav-item nav-link" to="/terms" style="font-size: 13px"
+                  >Terms of Service</router-link
+                >
+              </b-nav-item-dropdown>
+            </b-nav>
+          </div>
+          <div style="text-align: center; font-size:1.5em;">Profile</div>
         </div>
-        <div v-else>
-          <b-avatar src="user-placeholder.jpg" variant="light" size="5em"></b-avatar>
-          @{{ userData.userInfo.username }}
+
+        <!-- Profile Photo -->
+        <div class="mt-3">
+          <div v-if="userData.userInfo.avatar">
+            <b-avatar v-bind:src="userData.userInfo.avatar" variant="light" size="5em"></b-avatar>
+            @{{ userData.userInfo.username }}
+          </div>
+          <div v-else>
+            <b-avatar src="user-placeholder.jpg" variant="light" size="5em"></b-avatar>
+            @{{ userData.userInfo.username }}
+          </div>
         </div>
       </div>
-      <p></p>
       <div>
         <b-button to="/editprofile" variant="primary m-1">Edit Profile</b-button>
         <br />
@@ -20,7 +43,7 @@
         <br />
         <button @click="handleLogout" class="btn btn-dark m-1">Logout</button>
       </div>
-      <br />
+      <div class="m-2"></div>
     </div>
 
     <!-- Change Password Modal -->
@@ -35,6 +58,7 @@
       </b-modal>
     </div>
 
+    <!-- My Posts -->
     <div class="card bg-light mt-4">
       <div class="card-body">
         <h2>My Posts</h2>
