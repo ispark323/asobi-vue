@@ -167,16 +167,18 @@ export default {
         return;
       } else this.imageState = true;
 
-      let url = this.post.mediaUrl;
-      if (url.includes('https://youtu.be/')) {
-        url = url.replace('youtu.be', 'youtube.com/embed');
-      } else if (url.includes('https://www.youtube.com/watch?v')) {
-        url = url.replace('watch?v=', 'embed/');
-      } else if (!url.includes('https://www.youtube.com/embed/')) {
-        this.mediaUrlState = false;
-        return;
+      if (this.postType == 'media') {
+        let url = this.post.mediaUrl;
+        if (url.includes('https://youtu.be/')) {
+          url = url.replace('youtu.be', 'youtube.com/embed');
+        } else if (url.includes('https://www.youtube.com/watch?v')) {
+          url = url.replace('watch?v=', 'embed/');
+        } else if (!url.includes('https://www.youtube.com/embed/')) {
+          this.mediaUrlState = false;
+          return;
+        }
+        this.post.mediaUrl = url;
       }
-      this.post.mediaUrl = url;
 
       this.post.ownerId = this.userData.userInfo.uid;
       this.post.username = this.userData.userInfo.username;
