@@ -112,48 +112,97 @@ const actions = {
       if (post.image != null) {
         // console.log('=== photo ===');
 
-        // Create a post in allPosts
-        var newPostRef = await allPostsCollection.doc();
-        newPost.postId = newPostRef.id;
-        var uploadTask = storage.ref('posts/' + newPost.postId).put(post.image);
+        const reader = new FileReader();
+        reader.readAsDataURL(post.image);
+        reader.onload = function(e) {
+          let image = new Image();
+          image.src = e.target.result;
+          image.onload = function() {
+            let width = this.width;
+            let height = this.height;
+            const max_width = 680;
+            // const max_height = 680;
 
-        // Listen for state changes, errors, and completion of the upload.
-        uploadTask.on(
-          'state_changed',
-          function(snapshot) {
-            switch (snapshot.state) {
-              case 'paused': //storage.TaskState.PAUSED: // or 'paused'
-                break;
-              case 'running': //storage.TaskState.RUNNING: // or 'running'
-                break;
-            }
-          },
-          function(error) {
-            switch (error.code) {
-              case 'storage/unauthorized':
-                break;
-              case 'storage/canceled':
-                break;
-              case 'storage/unknown':
-                break;
-            }
-          },
-          function() {
-            // Upload completed successfully, now we can get the download URL
-            uploadTask.snapshot.ref.getDownloadURL().then(function(downloadURL) {
-              // Set the post in allPost
-              newPost.imageUrl = downloadURL;
-              newPostRef.set(newPost);
+            // if image is bigger than width 680, resize the image
+            // if (width > max_width || height > max_height) {
 
-              // Create a post in myPosts
-              var newMyPostRef = myPostsCollection
-                .doc(firebaseAuth.currentUser.uid)
-                .collection('userPosts')
-                .doc(newPost.postId);
-              newMyPostRef.set(newPost);
-            });
-          }
-        );
+            // calculate the width and height, constraining the proportions
+            // if (width > height) {
+            if (width > max_width) {
+              height = Math.round((height *= max_width / width));
+              width = max_width;
+            }
+            // } else {
+            //   if (height > max_height) {
+            //     width = Math.round((width *= max_height / height));
+            //     height = max_height;
+            //   }
+            // }
+
+            let canvas = document.createElement('canvas');
+
+            // resize the canvas and draw the image data into it
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(image, 0, 0, width, height);
+
+            ctx.canvas.toBlob(
+              function(blob) {
+                const file = new File([blob], 'filenamewillbepostid', {
+                  type: 'image/jpeg',
+                  lastModified: Date.now(),
+                }); //output image as a file, No support on IE
+                //console.log('file ======', file);
+
+                // Create a post in allPosts
+                const newPostRef = allPostsCollection.doc();
+                newPost.postId = newPostRef.id;
+                const uploadTask = storage.ref('posts/' + newPost.postId).put(file);
+
+                // Listen for state changes, errors, and completion of the upload.
+                uploadTask.on(
+                  'state_changed',
+                  function(snapshot) {
+                    switch (snapshot.state) {
+                      case 'paused': //storage.TaskState.PAUSED: // or 'paused'
+                        break;
+                      case 'running': //storage.TaskState.RUNNING: // or 'running'
+                        break;
+                    }
+                  },
+                  function(error) {
+                    switch (error.code) {
+                      case 'storage/unauthorized':
+                        break;
+                      case 'storage/canceled':
+                        break;
+                      case 'storage/unknown':
+                        break;
+                    }
+                  },
+                  function() {
+                    // Upload completed successfully, now we can get the download URL
+                    uploadTask.snapshot.ref.getDownloadURL().then(function(downloadURL) {
+                      // Set the post in allPost
+                      newPost.imageUrl = downloadURL;
+                      newPostRef.set(newPost);
+
+                      // Create a post in myPosts
+                      var newMyPostRef = myPostsCollection
+                        .doc(firebaseAuth.currentUser.uid)
+                        .collection('userPosts')
+                        .doc(newPost.postId);
+                      newMyPostRef.set(newPost);
+                    });
+                  }
+                );
+              },
+              'image/jpeg',
+              0.9
+            );
+          };
+        };
       } else {
         // console.log('=== youtube ===');
         // Create a post in allPosts
