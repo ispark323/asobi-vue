@@ -9,15 +9,17 @@
                 <template slot="button-content">
                   <b-icon icon="three-dots" font-scale="1.2" variant="dark"></b-icon>
                 </template>
-                <router-link class="nav-item nav-link" to="/about" style="font-size: 13px"
-                  >About Us</router-link
-                >
-                <router-link class="nav-item nav-link" to="/privacy" style="font-size: 13px"
-                  >Privacy Policy</router-link
-                >
-                <router-link class="nav-item nav-link" to="/terms" style="font-size: 13px"
-                  >Terms of Service</router-link
-                >
+                <router-link class="nav-item nav-link" to="/about" style="font-size: 13px">About Us</router-link>
+                <router-link
+                  class="nav-item nav-link"
+                  to="/privacy"
+                  style="font-size: 13px"
+                >Privacy Policy</router-link>
+                <router-link
+                  class="nav-item nav-link"
+                  to="/terms"
+                  style="font-size: 13px"
+                >Terms of Service</router-link>
               </b-nav-item-dropdown>
             </b-nav>
           </div>
@@ -59,7 +61,130 @@
     </div>
 
     <!-- My Posts -->
-    <div class="card bg-light mt-4">
+    <div class="card mt-3">
+      <div class="card-body">
+        <div style="text-align: center; font-size:1.5em;">My Posts</div>
+        <div v-for="(n, index) in pageOffset" :key="index" class="mt-3">
+          <div v-if="getMyPosts[index] != null">
+            <div class="card border-0">
+              <!-- Header -->
+              <div class="m-1 d-flex justify-content-between">
+                <span v-if="getMyPosts[index].avatar">
+                  <b-avatar v-bind:src="getMyPosts[index].avatar" size="2.3em" variant="light"></b-avatar>
+                </span>
+                <span v-else>
+                  <b-avatar src="user-placeholder.jpg" size="2.3em" variant="light"></b-avatar>
+                </span>
+                <div class="m-1">{{ getMyPosts[index].username }}</div>
+                <div class="ml-auto">
+                  <b-nav>
+                    <b-nav-item-dropdown right no-caret menu-class="minw-none">
+                      <template slot="button-content">
+                        <b-icon icon="three-dots" font-scale="1.2" variant="dark"></b-icon>
+                      </template>
+                      <b-dropdown-item
+                        v-if="getMyPosts[index].ownerId == userData.userInfo.uid"
+                        v-on:click="showEditMyPost(index)"
+                      >Edit</b-dropdown-item>
+                      <b-dropdown-item
+                        v-if="getMyPosts[index].ownerId == userData.userInfo.uid"
+                        v-on:click="handleDelete(index)"
+                      >Delete</b-dropdown-item>
+
+                      <b-dropdown-item v-else disabled>Edit</b-dropdown-item>
+                    </b-nav-item-dropdown>
+                  </b-nav>
+                </div>
+              </div>
+              <!-- Post Text -->
+              <div class="ml-2">
+                <h5>{{ getMyPosts[index].text }}</h5>
+              </div>
+              <!-- Youtube Link Post -->
+              <div v-if="getMyPosts[index].mediaUrl != ''">
+                <div class="embed-responsive embed-responsive-16by9">
+                  <iframe
+                    id="ytplayer"
+                    class="embed-responsive-item rounded-lg"
+                    type="text/html"
+                    v-bind:src="getMyPosts[index].mediaUrl"
+                    frameborder="0"
+                    loading="lazy"
+                  ></iframe>
+                </div>
+              </div>
+              <!-- Photo Post -->
+              <div
+                v-else-if="getMyPosts[index].imageUrl != ''"
+                class="text-center border rounded-lg lazyimage"
+              >
+                <img v-bind:src="getMyPosts[index].imageUrl" class="img-fluid" loading="lazy" />
+              </div>
+            </div>
+          </div>
+        </div>
+        <footer>
+          <div ref="infiniteScrollTrigger" id="scroll-trigger"></div>
+          <div v-if="showloader != false" class="text-center">
+            <div class="spinner-border text-primary" role="status">
+              <span class="sr-only">Loading...</span>
+            </div>
+          </div>
+        </footer>
+
+        <!-- Edit my post -->
+        <b-modal id="editMyPost" title="Edit Post" @ok="handleEditMyPost">
+          <div v-if="postType == 'image'">
+            <b-form-group label="Text:" label-for="text1" invalid-feedback="Please enter text">
+              <b-form-textarea
+                id="text1"
+                v-model="editedPost.text"
+                :state="textState"
+                placeholder="Share your story"
+                rows="3"
+                max-rows="10"
+                required
+              ></b-form-textarea>
+            </b-form-group>
+            <b-form-file
+              v-model="editedPost.image"
+              accept="image/*"
+              placeholder="Choose photo or drop it here..."
+              drop-placeholder="Drop file here..."
+            >
+              <template slot="file-name" slot-scope="{ names }">
+                <b-badge variant="primary">{{ names[0] }}</b-badge>
+              </template>
+            </b-form-file>
+          </div>
+          <div v-else-if="postType == 'media'">
+            <b-form-group
+              label="Link:"
+              label-for="mediaUrl"
+              invalid-feedback="Please put YouTube link"
+            >
+              <b-form-textarea
+                id="mediaUrl"
+                v-model="editedPost.mediaUrl"
+                :state="mediaUrlState"
+                placeholder="https://"
+                rows="1"
+                max-rows="3"
+                required
+              ></b-form-textarea>
+            </b-form-group>
+          </div>
+
+          <!-- Footer -->
+          <template v-slot:modal-footer="{ cancel }">
+            <b-button variant="dark" @click="cancel()">Cancel</b-button>
+            <b-button variant="primary m-1" @click="handleEditMyPost">Edit</b-button>
+          </template>
+        </b-modal>
+      </div>
+    </div>
+
+    <!-- <div class="card bg-light mt-4">
       <div class="card-body">
         <h2>My Posts</h2>
         <div v-if="getMyPosts.length">
@@ -90,52 +215,9 @@
           <p class="no-results">There are currently no posts.</p>
         </div>
       </div>
-    </div>
+    </div>-->
 
-    <!-- Edit my post -->
-    <b-modal id="editMyPost" title="Edit" @ok="handleEditMyPost">
-      <b-form-group label="Text:" label-for="text1" invalid-feedback="Text is required">
-        <b-form-textarea
-          id="text1"
-          v-model="editedPost.text"
-          :state="textState"
-          placeholder="Enter at least 1 letters"
-          rows="3"
-          max-rows="10"
-          required
-        ></b-form-textarea>
-      </b-form-group>
-      <div v-if="postType == 'media'">
-        <b-form-group label="Link:" label-for="mediaUrl" invalid-feedback="URL is required">
-          <b-form-textarea
-            id="mediaUrl"
-            v-model="editedPost.mediaUrl"
-            :state="mediaUrlState"
-            placeholder="Enter at least 1 letters"
-            rows="2"
-            max-rows="3"
-            required
-          ></b-form-textarea>
-        </b-form-group>
-      </div>
-      <div v-else-if="postType == 'image'">
-        <b-form-file
-          v-model="editedPost.image"
-          accept="image/*"
-          placeholder="Choose a file or drop it here..."
-          drop-placeholder="Drop file here..."
-        >
-          <template slot="file-name" slot-scope="{ names }">
-            <b-badge variant="primary">{{ names[0] }}</b-badge>
-          </template>
-        </b-form-file>
-      </div>
-      <!-- Footer -->
-      <template v-slot:modal-footer="{ cancel }">
-        <b-button variant="primary" @click="handleEditMyPost">Edit</b-button>
-        <b-button variant="primary" @click="cancel()">Cancel</b-button>
-      </template>
-    </b-modal>
+    <!-- My Posts end -->
   </div>
 </template>
 
@@ -154,6 +236,9 @@ export default {
         imageUrl: '',
         image: null,
       },
+      currentPage: 1,
+      maxPerPage: 2,
+      showloader: true,
       textState: null,
       mediaUrlState: null,
       imageUrlState: null,
@@ -161,15 +246,34 @@ export default {
       postIndex: '',
     };
   },
-  computed: mapGetters(['userData', 'getMyPosts']),
+  computed: {
+    ...mapGetters(['userData', 'getMyPosts']),
+    pageOffset() {
+      return this.maxPerPage * this.currentPage;
+    },
+  },
   methods: {
     ...mapActions(['bindMyPostsRef', 'editPost', 'deletePost', 'logout', 'resetPassword']),
+    scrollTrigger() {
+      const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          if (entry.intersectionRatio > 0) {
+            this.showloader = true;
+            setTimeout(() => {
+              this.currentPage += 1;
+              this.showloader = false;
+            }, 2000);
+          }
+        });
+      });
+      observer.observe(this.$refs.infiniteScrollTrigger);
+    },
     handleDelete(index) {
       const post = {
         id: this.getMyPosts[index].id,
         text: this.getMyPosts[index].text,
       };
-      if (confirm('Delete your post?\n"' + post.text + '"')) {
+      if (confirm('Delete your post?')) {
         this.deletePost(post);
       }
     },
@@ -211,6 +315,22 @@ export default {
       }
       this.$bvModal.show('editMyPost');
     },
+    validateMediaUrl() {
+      let url = this.editedPost.mediaUrl;
+      if (url.includes('https://youtu.be/')) {
+        url = url.replace('youtu.be', 'youtube.com/embed');
+        this.editedPost.mediaUrl = url;
+        return true;
+      } else if (url.includes('https://www.youtube.com/watch?v')) {
+        url = url.replace('watch?v=', 'embed/');
+        this.editedPost.mediaUrl = url;
+        return true;
+      } else if (url.includes('https://www.youtube.com/embed/')) {
+        return true;
+      }
+      console.log('??', url);
+      return false;
+    },
     handleEditMyPost(bvModalEvt) {
       // Prevent modal from closing
       bvModalEvt.preventDefault();
@@ -233,6 +353,9 @@ export default {
         this.$bvModal.hide('editMyPost');
       });
     },
+  },
+  mounted() {
+    this.scrollTrigger();
   },
   created() {
     this.bindMyPostsRef();

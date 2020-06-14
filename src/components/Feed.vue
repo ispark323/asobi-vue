@@ -21,13 +21,11 @@
                   <b-dropdown-item
                     v-if="getPosts[index].ownerId == userData.userInfo.uid"
                     v-on:click="showEditMyPost(index)"
-                    >Edit</b-dropdown-item
-                  >
+                  >Edit</b-dropdown-item>
                   <b-dropdown-item
                     v-if="getPosts[index].ownerId == userData.userInfo.uid"
                     v-on:click="handleDelete(index)"
-                    >Delete</b-dropdown-item
-                  >
+                  >Delete</b-dropdown-item>
 
                   <b-dropdown-item v-else disabled>Edit</b-dropdown-item>
                 </b-nav-item-dropdown>
@@ -77,12 +75,7 @@
             <!-- if not yet, allowed like -->
             <div v-else>
               <div class="m-2">
-                <b-icon
-                  icon="heart"
-                  v-on:click="addLike(index)"
-                  variant="danger"
-                  font-scale="1.2"
-                ></b-icon>
+                <b-icon icon="heart" v-on:click="addLike(index)" variant="danger" font-scale="1.2"></b-icon>
                 <!-- {{ getPosts[index].likeCount }} Likes, {{ timeFromCreated(index) }} -->
               </div>
             </div>
@@ -101,36 +94,23 @@
     </footer>
 
     <!-- Edit my post -->
-    <b-modal id="editMyPost" title="Edit" @ok="handleEditMyPost">
-      <b-form-group label="Text:" label-for="text1" invalid-feedback="Text is required">
-        <b-form-textarea
-          id="text1"
-          v-model="editedPost.text"
-          :state="textState"
-          placeholder="Enter at least 1 letters"
-          rows="3"
-          max-rows="10"
-          required
-        ></b-form-textarea>
-      </b-form-group>
-      <div v-if="postType == 'media'">
-        <b-form-group label="Link:" label-for="mediaUrl" invalid-feedback="YouTube URL is required">
+    <b-modal id="editMyPost" title="Edit Post" @ok="handleEditMyPost">
+      <div v-if="postType == 'image'">
+        <b-form-group label="Text:" label-for="text1" invalid-feedback="Please enter text">
           <b-form-textarea
-            id="mediaUrl"
-            v-model="editedPost.mediaUrl"
-            :state="mediaUrlState"
-            placeholder="Enter at least 1 letters"
-            rows="2"
-            max-rows="3"
+            id="text1"
+            v-model="editedPost.text"
+            :state="textState"
+            placeholder="Share your story"
+            rows="3"
+            max-rows="10"
             required
           ></b-form-textarea>
         </b-form-group>
-      </div>
-      <div v-else-if="postType == 'image'">
         <b-form-file
           v-model="editedPost.image"
           accept="image/*"
-          placeholder="Choose a file or drop it here..."
+          placeholder="Choose photo or drop it here..."
           drop-placeholder="Drop file here..."
         >
           <template slot="file-name" slot-scope="{ names }">
@@ -138,6 +118,20 @@
           </template>
         </b-form-file>
       </div>
+      <div v-else-if="postType == 'media'">
+        <b-form-group label="Link:" label-for="mediaUrl" invalid-feedback="Please put YouTube link">
+          <b-form-textarea
+            id="mediaUrl"
+            v-model="editedPost.mediaUrl"
+            :state="mediaUrlState"
+            placeholder="https://"
+            rows="1"
+            max-rows="3"
+            required
+          ></b-form-textarea>
+        </b-form-group>
+      </div>
+
       <!-- Footer -->
       <template v-slot:modal-footer="{ cancel }">
         <b-button variant="dark" @click="cancel()">Cancel</b-button>
@@ -323,7 +317,7 @@ export default {
         id: this.getPosts[index].id,
         text: this.getPosts[index].text,
       };
-      if (confirm('Delete your post?\n"' + post.text + '"')) {
+      if (confirm('Delete your post?')) {
         this.deletePost(post);
       }
     },

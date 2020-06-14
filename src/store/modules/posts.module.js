@@ -110,7 +110,7 @@ const actions = {
 
       // in case of image upload
       if (post.image != null) {
-        // console.log('=== photo ===');
+        console.log('=== photo ===');
 
         const reader = new FileReader();
         reader.readAsDataURL(post.image);
@@ -204,7 +204,7 @@ const actions = {
           };
         };
       } else {
-        // console.log('=== youtube ===');
+        console.log('=== youtube ===');
         // Create a post in allPosts
         var newPostRef2 = await allPostsCollection.doc();
         newPost.postId = newPostRef2.id;
