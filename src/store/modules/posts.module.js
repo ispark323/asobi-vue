@@ -155,9 +155,6 @@ const actions = {
                 }); //output image as a file, No support on IE
                 //console.log('file ======', file);
 
-                // Create a post in allPosts
-                const newPostRef = allPostsCollection.doc();
-                newPost.postId = newPostRef.id;
                 const uploadTask = storage.ref('posts/' + newPost.postId).put(file);
 
                 // Listen for state changes, errors, and completion of the upload.
@@ -184,7 +181,9 @@ const actions = {
                   function() {
                     // Upload completed successfully, now we can get the download URL
                     uploadTask.snapshot.ref.getDownloadURL().then(function(downloadURL) {
-                      // Set the post in allPost
+                      // Create a post in allPosts
+                      const newPostRef = allPostsCollection.doc();
+                      newPost.postId = newPostRef.id;
                       newPost.imageUrl = downloadURL;
                       newPostRef.set(newPost);
 
