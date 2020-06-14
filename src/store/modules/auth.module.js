@@ -111,12 +111,16 @@ const actions = {
         uid: res.user.uid,
         username: signupData.username,
         email: signupData.email,
+        avatar: '',
+        createdAt: new Date(),
       });
 
       const userInfo = {
         username: res.user.displayName,
         email: res.user.email,
         emailVerified: res.user.emailVerified,
+        uid: res.user.uid,
+        avatar: '',
       };
 
       commit('setCurrentUser', userInfo);

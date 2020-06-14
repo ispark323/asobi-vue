@@ -155,6 +155,9 @@ const actions = {
                 }); //output image as a file, No support on IE
                 //console.log('file ======', file);
 
+                // Create a post in allPosts
+                const newPostRef = allPostsCollection.doc();
+                newPost.postId = newPostRef.id;
                 const uploadTask = storage.ref('posts/' + newPost.postId).put(file);
 
                 // Listen for state changes, errors, and completion of the upload.
@@ -181,9 +184,6 @@ const actions = {
                   function() {
                     // Upload completed successfully, now we can get the download URL
                     uploadTask.snapshot.ref.getDownloadURL().then(function(downloadURL) {
-                      // Create a post in allPosts
-                      const newPostRef = allPostsCollection.doc();
-                      newPost.postId = newPostRef.id;
                       newPost.imageUrl = downloadURL;
                       newPostRef.set(newPost);
 
@@ -247,8 +247,10 @@ const actions = {
       });
 
       // delete image from storage
-      var imageRef = storage.ref('posts/' + post.id);
-      imageRef.delete();
+      if (post.postType == 'image') {
+        var imageRef = storage.ref('posts/' + post.id);
+        imageRef.delete();
+      }
     } catch (error) {
       console.log(error);
       alert(error);
@@ -258,68 +260,117 @@ const actions = {
     try {
       // in case image is changed
       if (post.image != null) {
-        var uploadTask = storage.ref('posts/' + post.postId).put(post.image);
+        const reader = new FileReader();
+        reader.readAsDataURL(post.image);
+        reader.onload = function(e) {
+          let image = new Image();
+          image.src = e.target.result;
+          image.onload = function() {
+            let width = this.width;
+            let height = this.height;
+            const max_width = 680;
+            // const max_height = 680;
 
-        // Listen for state changes, errors, and completion of the upload.
-        uploadTask.on(
-          'state_changed',
-          function(snapshot) {
-            switch (snapshot.state) {
-              case 'paused': //storage.TaskState.PAUSED: // or 'paused'
-                break;
-              case 'running': //storage.TaskState.RUNNING: // or 'running'
-                break;
+            // if image is bigger than width 680, resize the image
+            // if (width > max_width || height > max_height) {
+
+            // calculate the width and height, constraining the proportions
+            // if (width > height) {
+            if (width > max_width) {
+              height = Math.round((height *= max_width / width));
+              width = max_width;
             }
-          },
-          function(error) {
-            switch (error.code) {
-              case 'storage/unauthorized':
-                break;
-              case 'storage/canceled':
-                break;
-              case 'storage/unknown':
-                break;
-            }
-          },
-          function() {
-            // Upload completed successfully, now we can get the download URL
-            uploadTask.snapshot.ref.getDownloadURL().then(function(downloadURL) {
-              // edit the post from allPosts
-              const postRef = allPostsCollection.doc(post.postId);
-              postRef.update({
-                text: post.text,
-                imageUrl: downloadURL,
-              });
+            // } else {
+            //   if (height > max_height) {
+            //     width = Math.round((width *= max_height / height));
+            //     height = max_height;
+            //   }
+            // }
 
-              // edit the post from myPosts
-              const myPostRef = myPostsCollection
-                .doc(post.ownerId)
-                .collection('userPosts')
-                .doc(post.postId);
-              myPostRef.update({
-                text: post.text,
-                imageUrl: downloadURL,
-              });
+            let canvas = document.createElement('canvas');
 
-              // edit all posts from likes
-              usersCollection.get().then(function(querySnapshot) {
-                querySnapshot.forEach(function(doc) {
-                  const likesRef = likesCollection
-                    .doc(doc.id)
-                    .collection('myLikes')
-                    .doc(post.postId);
-                  likesRef
-                    .update({
-                      text: post.text,
-                      imageUrl: downloadURL,
-                    })
-                    .then(function() {})
-                    .catch(function() {});
-                });
-              });
-            });
-          }
-        );
+            // resize the canvas and draw the image data into it
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(image, 0, 0, width, height);
+
+            ctx.canvas.toBlob(
+              function(blob) {
+                const file = new File([blob], 'filenamewillbepostid', {
+                  type: 'image/jpeg',
+                  lastModified: Date.now(),
+                }); //output image as a file, No support on IE
+                //console.log('file ======', file);
+
+                var uploadTask = storage.ref('posts/' + post.postId).put(file);
+
+                // Listen for state changes, errors, and completion of the upload.
+                uploadTask.on(
+                  'state_changed',
+                  function(snapshot) {
+                    switch (snapshot.state) {
+                      case 'paused': //storage.TaskState.PAUSED: // or 'paused'
+                        break;
+                      case 'running': //storage.TaskState.RUNNING: // or 'running'
+                        break;
+                    }
+                  },
+                  function(error) {
+                    switch (error.code) {
+                      case 'storage/unauthorized':
+                        break;
+                      case 'storage/canceled':
+                        break;
+                      case 'storage/unknown':
+                        break;
+                    }
+                  },
+                  function() {
+                    // Upload completed successfully, now we can get the download URL
+                    uploadTask.snapshot.ref.getDownloadURL().then(function(downloadURL) {
+                      // edit the post from allPosts
+                      const postRef = allPostsCollection.doc(post.postId);
+                      postRef.update({
+                        text: post.text,
+                        imageUrl: downloadURL,
+                      });
+
+                      // edit the post from myPosts
+                      const myPostRef = myPostsCollection
+                        .doc(post.ownerId)
+                        .collection('userPosts')
+                        .doc(post.postId);
+                      myPostRef.update({
+                        text: post.text,
+                        imageUrl: downloadURL,
+                      });
+
+                      // edit all posts from likes
+                      usersCollection.get().then(function(querySnapshot) {
+                        querySnapshot.forEach(function(doc) {
+                          const likesRef = likesCollection
+                            .doc(doc.id)
+                            .collection('myLikes')
+                            .doc(post.postId);
+                          likesRef
+                            .update({
+                              text: post.text,
+                              imageUrl: downloadURL,
+                            })
+                            .then(function() {})
+                            .catch(function() {});
+                        });
+                      });
+                    });
+                  }
+                );
+              },
+              'image/jpeg',
+              0.9
+            );
+          };
+        };
       } else {
         // in case image is not changed
         // edit the post from allPosts

@@ -112,7 +112,6 @@ export default {
         username: '',
         avatar: '', // avatar link
         image: null, // avatar file
-        // avatarDeleted: null,
       },
       usernameState: null,
       previewUrl: '',
@@ -198,7 +197,6 @@ export default {
   mounted() {
     this.profile.username = this.userData.userInfo.username;
     this.profile.avatar = this.userData.userInfo.avatar;
-    //this.previewUrl = this.userData.userInfo.avatar;
   },
 };
 </script>

@@ -21,11 +21,13 @@
                   <b-dropdown-item
                     v-if="getPosts[index].ownerId == userData.userInfo.uid"
                     v-on:click="showEditMyPost(index)"
-                  >Edit</b-dropdown-item>
+                    >Edit</b-dropdown-item
+                  >
                   <b-dropdown-item
                     v-if="getPosts[index].ownerId == userData.userInfo.uid"
                     v-on:click="handleDelete(index)"
-                  >Delete</b-dropdown-item>
+                    >Delete</b-dropdown-item
+                  >
 
                   <b-dropdown-item v-else disabled>Edit</b-dropdown-item>
                 </b-nav-item-dropdown>
@@ -75,7 +77,12 @@
             <!-- if not yet, allowed like -->
             <div v-else>
               <div class="m-2">
-                <b-icon icon="heart" v-on:click="addLike(index)" variant="danger" font-scale="1.2"></b-icon>
+                <b-icon
+                  icon="heart"
+                  v-on:click="addLike(index)"
+                  variant="danger"
+                  font-scale="1.2"
+                ></b-icon>
                 <!-- {{ getPosts[index].likeCount }} Likes, {{ timeFromCreated(index) }} -->
               </div>
             </div>
@@ -315,8 +322,13 @@ export default {
     handleDelete(index) {
       const post = {
         id: this.getPosts[index].id,
-        text: this.getPosts[index].text,
+        postType: '',
       };
+      if (this.getPosts[index].mediaUrl) {
+        post.postType = 'media';
+      } else if (this.getPosts[index].imageUrl) {
+        post.postType = 'image';
+      }
       if (confirm('Delete your post?')) {
         this.deletePost(post);
       }
