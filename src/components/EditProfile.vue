@@ -51,7 +51,7 @@
                 <b-form-file
                   id="imageInput"
                   style="display:none;"
-                  v-model="profile.avatar"
+                  v-model="profile.image"
                   accept="image/*"
                   @change="previewAvatar"
                 ></b-form-file>
@@ -110,7 +110,9 @@ export default {
       showSuccess: false,
       profile: {
         username: '',
-        avatar: '',
+        avatar: '', // avatar link
+        image: null, // avatar file
+        // avatarDeleted: null,
       },
       usernameState: null,
       previewUrl: '',
@@ -122,6 +124,16 @@ export default {
   methods: {
     ...mapActions(['updateProfile']),
     handleUpdateProfile() {
+      // if nothing is changed, return
+      if (
+        this.profile.username == this.userData.userInfo.username &&
+        this.profile.avatar == this.userData.userInfo.avatar &&
+        this.profile.image == null
+      ) {
+        console.log('Nothing changed');
+        return;
+      }
+
       if (!this.validateUsername()) {
         this.usernameState = false;
         return;
@@ -154,7 +166,9 @@ export default {
       imageInput.click();
     },
     deleteAvatar() {
-      this.profile.avatar = null;
+      this.profile.image = null;
+      this.profile.avatar = '';
+      this.previewUrl = '';
 
       this.$nextTick(() => {
         this.$bvModal.hide('changeAvatar');
@@ -184,6 +198,7 @@ export default {
   mounted() {
     this.profile.username = this.userData.userInfo.username;
     this.profile.avatar = this.userData.userInfo.avatar;
+    //this.previewUrl = this.userData.userInfo.avatar;
   },
 };
 </script>
