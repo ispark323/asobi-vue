@@ -9,13 +9,14 @@
       <br />
       <div class="title">Get started</div>
       <br />
-      <b-form-group :state="usernameState" invalid-feedback="Only alphabets and numbers">
+      <b-form-group :state="usernameState" :invalid-feedback="invalidFeedback">
         <b-form-input
           id="username"
           v-model="username"
           placeholder="Username"
           :state="usernameState"
           @keypress="usernameValidation"
+          @input="checkUsername"
           class="m-auto"
           style="max-width:200px"
         >
@@ -47,17 +48,6 @@
         >
         </b-form-input>
       </b-form-group>
-      <!-- <input v-model="username" type="text" placeholder="Username" id="username" />
-      <br />
-      <input v-model="email" type="text" placeholder="Email" id="email1" />
-      <br />
-      <input
-        v-model="password"
-        type="password"
-        placeholder="Password"
-        id="password1"
-        @keypress.enter="handleSignup"
-      /> -->
       <br />
       <button @click="handleSignup" class="btn btn-primary">Sign up</button>
 
@@ -82,10 +72,11 @@ export default {
       usernameState: null,
       emailState: null,
       passwordState: null,
+      invalidFeedback: '',
     };
   },
   methods: {
-    ...mapActions(['signup']),
+    ...mapActions(['signup', 'isUnique']),
     handleSignup() {
       const signupData = {
         username: this.username,
@@ -96,7 +87,7 @@ export default {
         this.usernameState = false;
         return;
       }
-      this.usernameState = null;
+      //this.usernameState = null;
       if (!this.validateEmail()) {
         this.emailState = false;
         return;
@@ -107,24 +98,29 @@ export default {
         return;
       }
       this.passwordState = null;
+
       this.signup(signupData);
     },
     usernameValidation: function(event) {
       const regex = new RegExp('^[a-zA-Z0-9]+$');
       const input = String.fromCharCode(event.keyCode ? event.keyCode : event.which);
       if (regex.test(input)) {
-        return true;
+        return;
       } else {
         event.preventDefault();
         this.usernameState = false;
         setTimeout(() => {
+          this.invalidFeedback = 'Only alphabets and numbers';
           this.usernameState = null;
         }, 2000);
-        return false;
+        return;
       }
     },
     validateUsername: function() {
       if (this.username.length < 1) {
+        this.invalidFeedback = 'Enter at least 1 letter';
+        return false;
+      } else if (this.usernameState != true) {
         return false;
       }
       return true;
@@ -138,6 +134,26 @@ export default {
         return false;
       }
       return true;
+    },
+    checkUsername: function() {
+      if (this.username.length < 1) {
+        this.invalidFeedback = 'Enter at least 1 letter';
+        this.usernameState = false;
+        return;
+      }
+      this.isUnique(this.username).then(
+        response => {
+          // console.log('isUnique?', response);
+          if (response == 'true') this.usernameState = true;
+          return;
+        },
+        reject => {
+          // console.log('isUnique?', reject);
+          this.invalidFeedback = 'Must be unique';
+          if (reject == 'false') this.usernameState = false;
+          return;
+        }
+      );
     },
   },
 };
