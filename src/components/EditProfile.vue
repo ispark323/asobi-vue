@@ -72,13 +72,14 @@
             Username
             <!-- <input class="form-control" v-model="profile.username" :state="usernameState" />   -->
           </div>
-          <b-form-group invalid-feedback="Only alphabets and numbers">
+          <b-form-group :invalid-feedback="invalidFeedback">
             <b-form-input
               id="usernameInput"
               v-model="profile.username"
               :state="usernameState"
               placeholder="Enter Username"
               @keypress="usernameValidation"
+              @input="checkUsername"
               class="m-a"
             ></b-form-input>
           </b-form-group>
@@ -114,13 +115,14 @@ export default {
       },
       usernameState: null,
       previewUrl: '',
+      invalidFeedback: '',
     };
   },
   computed: {
     ...mapGetters(['userData']),
   },
   methods: {
-    ...mapActions(['updateProfile']),
+    ...mapActions(['updateProfile', 'isUnique']),
     handleUpdateProfile() {
       if (!this.validateUsername()) {
         this.usernameState = false;
@@ -170,6 +172,7 @@ export default {
         this.usernameState = false;
         setTimeout(() => {
           this.usernameState = null;
+          this.invalidFeedback = 'Only alphabets and numbers';
         }, 2000);
         return false;
       }
@@ -179,6 +182,26 @@ export default {
         return false;
       }
       return true;
+    },
+    checkUsername: function() {
+      if (this.profile.username.length < 1) {
+        this.invalidFeedback = 'Enter at least 1 letter';
+        this.usernameState = false;
+        return;
+      }
+      this.isUnique(this.profile.username).then(
+        response => {
+          // console.log('isUnique?', response);
+          if (response == 'true') this.usernameState = true;
+          return;
+        },
+        reject => {
+          // console.log('isUnique?', reject);
+          this.invalidFeedback = 'Must be unique';
+          if (reject == 'false') this.usernameState = false;
+          return;
+        }
+      );
     },
   },
   mounted() {
