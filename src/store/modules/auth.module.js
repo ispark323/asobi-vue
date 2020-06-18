@@ -4,6 +4,7 @@ import {
   allPostsCollection,
   myPostsCollection,
   likesCollection,
+  timelineCollection,
   storage,
 } from '@/firebase';
 import router from '@/router/router';
@@ -266,6 +267,30 @@ const actions = {
                     });
                 });
               });
+
+              // Change username and avatar in timelineCollection
+              usersCollection.get().then(function(querySnapshot) {
+                querySnapshot.forEach(function(doc) {
+                  timelineCollection
+                    .doc(doc.id)
+                    .collection('timelinePosts')
+                    .where('ownerId', '==', newUserInfo.uid)
+                    .get()
+                    .then(function(querySnapshot2) {
+                      querySnapshot2.forEach(function(doc2) {
+                        timelineCollection
+                          .doc(doc.id)
+                          .collection('timelinePosts')
+                          .doc(doc2.id)
+                          .update({
+                            username: newUserInfo.username,
+                            avatar: newUserInfo.avatar,
+                          });
+                      });
+                    });
+                });
+              });
+
               dispatch('fetchUserProfile');
             });
           }
@@ -332,6 +357,29 @@ const actions = {
               });
           });
         });
+
+        // Change username and avatar in timelineCollection
+        await usersCollection.get().then(function(querySnapshot) {
+          querySnapshot.forEach(function(doc) {
+            timelineCollection
+              .doc(doc.id)
+              .collection('timelinePosts')
+              .where('ownerId', '==', newUserInfo.uid)
+              .get()
+              .then(function(querySnapshot2) {
+                querySnapshot2.forEach(function(doc2) {
+                  timelineCollection
+                    .doc(doc.id)
+                    .collection('timelinePosts')
+                    .doc(doc2.id)
+                    .update({
+                      username: newUserInfo.username,
+                    });
+                });
+              });
+          });
+        });
+
         dispatch('fetchUserProfile');
       }
     } catch (error) {

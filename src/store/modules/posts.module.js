@@ -6,6 +6,7 @@ import {
   allPostsCollection,
   myPostsCollection,
   likesCollection,
+  timelineCollection,
   storage,
 } from '@/firebase';
 import router from '@/router/router';
@@ -194,6 +195,13 @@ const actions = {
                         .collection('userPosts')
                         .doc(newPost.postId);
                       newMyPostRef.set(newPost);
+
+                      // Create a post in timeline
+                      var newTimelineRef = timelineCollection
+                        .doc(firebaseAuth.currentUser.uid)
+                        .collection('timelinePosts')
+                        .doc(newPost.postId);
+                      newTimelineRef.set(newPost);
                     });
                   }
                 );
@@ -216,6 +224,13 @@ const actions = {
           .collection('userPosts')
           .doc(newPost.postId);
         newMyPostRef.set(newPost);
+
+        // Create a post in timeline
+        var newTimelineRef = timelineCollection
+          .doc(firebaseAuth.currentUser.uid)
+          .collection('timelinePosts')
+          .doc(newPost.postId);
+        newTimelineRef.set(newPost);
       }
       // move the page top after posting
       scroll(0, 0);
@@ -242,6 +257,17 @@ const actions = {
           likesCollection
             .doc(doc.id)
             .collection('myLikes')
+            .doc(post.id)
+            .delete();
+        });
+      });
+
+      // delete all posts from timeline
+      usersCollection.get().then(function(querySnapshot) {
+        querySnapshot.forEach(function(doc) {
+          timelineCollection
+            .doc(doc.id)
+            .collection('timelinePosts')
             .doc(post.id)
             .delete();
         });
@@ -318,6 +344,23 @@ const actions = {
                     .catch(function() {});
                 });
               });
+
+              // edit all posts from timeline
+              usersCollection.get().then(function(querySnapshot) {
+                querySnapshot.forEach(function(doc) {
+                  const timelineRef = timelineCollection
+                    .doc(doc.id)
+                    .collection('timelinePosts')
+                    .doc(post.postId);
+                  timelineRef
+                    .update({
+                      text: post.text,
+                      imageUrl: downloadURL,
+                    })
+                    .then(function() {})
+                    .catch(function() {});
+                });
+              });
             });
           }
         );
@@ -353,6 +396,29 @@ const actions = {
                   likesCollection
                     .doc(doc.id)
                     .collection('myLikes')
+                    .doc(post.postId)
+                    .update({
+                      text: post.text,
+                      mediaUrl: post.mediaUrl,
+                    });
+                });
+              });
+          });
+        });
+
+        // edit all posts from timeline
+        usersCollection.get().then(function(querySnapshot) {
+          querySnapshot.forEach(function(doc) {
+            timelineCollection
+              .doc(doc.id)
+              .collection('timelinePosts')
+              .where('postId', '==', post.postId)
+              .get()
+              .then(function(querySnapshot2) {
+                querySnapshot2.forEach(function() {
+                  likesCollection
+                    .doc(doc.id)
+                    .collection('timelinePosts')
                     .doc(post.postId)
                     .update({
                       text: post.text,
@@ -401,6 +467,21 @@ const actions = {
           console.log('No such document!');
         }
       });
+
+      // add new post in likes
+      postRef.get().then(function(doc) {
+        if (doc.exists) {
+          var postData = doc.data();
+
+          var timelineRef = timelineCollection
+            .doc(firebaseAuth.currentUser.uid)
+            .collection('timelinePosts')
+            .doc(post.postId);
+          timelineRef.set(postData);
+        } else {
+          console.log('No such document!');
+        }
+      });
     } catch (error) {
       console.log(error);
       alert(error);
@@ -431,6 +512,13 @@ const actions = {
         .collection('myLikes')
         .doc(post.postId);
       likesRef.delete();
+
+      // delete the post in likes
+      var timelineRef = timelineCollection
+        .doc(firebaseAuth.currentUser.uid)
+        .collection('timelinePosts')
+        .doc(post.postId);
+      timelineRef.delete();
     } catch (error) {
       console.log(error);
       alert(error);
