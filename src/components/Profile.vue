@@ -9,17 +9,15 @@
                 <template slot="button-content">
                   <b-icon icon="three-dots" font-scale="1.2" variant="dark"></b-icon>
                 </template>
-                <router-link class="nav-item nav-link" to="/about" style="font-size: 13px">About Us</router-link>
-                <router-link
-                  class="nav-item nav-link"
-                  to="/privacy"
-                  style="font-size: 13px"
-                >Privacy Policy</router-link>
-                <router-link
-                  class="nav-item nav-link"
-                  to="/terms"
-                  style="font-size: 13px"
-                >Terms of Service</router-link>
+                <router-link class="nav-item nav-link" to="/about" style="font-size: 13px"
+                  >About Us</router-link
+                >
+                <router-link class="nav-item nav-link" to="/privacy" style="font-size: 13px"
+                  >Privacy Policy</router-link
+                >
+                <router-link class="nav-item nav-link" to="/terms" style="font-size: 13px"
+                  >Terms of Service</router-link
+                >
               </b-nav-item-dropdown>
             </b-nav>
           </div>
@@ -70,7 +68,11 @@
               <!-- Header -->
               <div class="m-1 d-flex justify-content-between">
                 <span v-if="getMyPosts[index].avatar">
-                  <b-avatar v-bind:src="getMyPosts[index].avatar" size="2.3em" variant="light"></b-avatar>
+                  <b-avatar
+                    v-bind:src="getMyPosts[index].avatar"
+                    size="2.3em"
+                    variant="light"
+                  ></b-avatar>
                 </span>
                 <span v-else>
                   <b-avatar src="user-placeholder.jpg" size="2.3em" variant="light"></b-avatar>
@@ -85,11 +87,13 @@
                       <b-dropdown-item
                         v-if="getMyPosts[index].ownerId == userData.userInfo.uid"
                         v-on:click="showEditMyPost(index)"
-                      >Edit</b-dropdown-item>
+                        >Edit</b-dropdown-item
+                      >
                       <b-dropdown-item
                         v-if="getMyPosts[index].ownerId == userData.userInfo.uid"
                         v-on:click="handleDelete(index)"
-                      >Delete</b-dropdown-item>
+                        >Delete</b-dropdown-item
+                      >
 
                       <b-dropdown-item v-else disabled>Edit</b-dropdown-item>
                     </b-nav-item-dropdown>
@@ -271,8 +275,13 @@ export default {
     handleDelete(index) {
       const post = {
         id: this.getMyPosts[index].id,
-        text: this.getMyPosts[index].text,
+        postType: '',
       };
+      if (this.getMyPosts[index].mediaUrl) {
+        post.postType = 'media';
+      } else if (this.getMyPosts[index].imageUrl) {
+        post.postType = 'image';
+      }
       if (confirm('Delete your post?')) {
         this.deletePost(post);
       }
