@@ -3,7 +3,7 @@ import {
   usersCollection,
   allPostsCollection,
   myPostsCollection,
-  likesCollection,
+  myLikesCollection,
   timelineCollection,
   storage,
 } from '@/firebase';
@@ -291,19 +291,19 @@ const actions = {
                           });
                         });
 
-                      // Change username and avatar in likesCollection
+                      // Change username and avatar in myLikesCollection
                       usersCollection.get().then(function(querySnapshot) {
                         querySnapshot.forEach(function(doc) {
-                          likesCollection
+                          myLikesCollection
                             .doc(doc.id)
-                            .collection('myLikes')
+                            .collection('userLikes')
                             .where('ownerId', '==', newUserInfo.uid)
                             .get()
                             .then(function(querySnapshot2) {
                               querySnapshot2.forEach(function(doc2) {
-                                likesCollection
+                                myLikesCollection
                                   .doc(doc.id)
-                                  .collection('myLikes')
+                                  .collection('userLikes')
                                   .doc(doc2.id)
                                   .update({
                                     username: newUserInfo.username,
@@ -389,19 +389,19 @@ const actions = {
             });
           });
 
-        // Change username and avatar in likesCollection
+        // Change username and avatar in myLikesCollection
         await usersCollection.get().then(function(querySnapshot) {
           querySnapshot.forEach(function(doc) {
-            likesCollection
+            myLikesCollection
               .doc(doc.id)
-              .collection('myLikes')
+              .collection('userLikes')
               .where('ownerId', '==', newUserInfo.uid)
               .get()
               .then(function(querySnapshot2) {
                 querySnapshot2.forEach(function(doc2) {
-                  likesCollection
+                  myLikesCollection
                     .doc(doc.id)
-                    .collection('myLikes')
+                    .collection('userLikes')
                     .doc(doc2.id)
                     .update({
                       username: newUserInfo.username,
