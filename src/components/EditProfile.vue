@@ -36,7 +36,7 @@
                     height="80"
                     rounded="circle"
                   />
-                </div> -->
+                </div>-->
                 <div v-else>
                   <b-avatar src="user-placeholder.jpg" variant="light" size="5em"></b-avatar>
                 </div>
@@ -55,13 +55,17 @@
                   accept="image/*"
                   @change="previewAvatar"
                 ></b-form-file>
-                <b-button style="width: 200px;" variant="primary m-2" @click="editImage"
-                  >Select Photo</b-button
-                >
+                <b-button
+                  style="width: 200px;"
+                  variant="primary m-2"
+                  @click="editImage"
+                >Select Photo</b-button>
               </div>
-              <b-button style="width: 200px;" variant="outline-primary m-2" @click="deleteAvatar"
-                >Remove Current Photo</b-button
-              >
+              <b-button
+                style="width: 200px;"
+                variant="outline-primary m-2"
+                @click="deleteAvatar"
+              >Remove Current Photo</b-button>
               <template v-slot:modal-footer="{ cancel }">
                 <b-button variant="dark" @click="cancel()">Cancel</b-button>
               </template>
@@ -197,7 +201,7 @@ export default {
         },
         reject => {
           // console.log('isUnique?', reject);
-          this.invalidFeedback = 'Must be unique';
+          this.invalidFeedback = 'This username is taken. Try another.';
           if (reject == 'false') this.usernameState = false;
           return;
         }

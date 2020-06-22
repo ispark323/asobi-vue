@@ -19,8 +19,7 @@
           @input="checkUsername"
           class="m-auto"
           style="max-width:200px"
-        >
-        </b-form-input>
+        ></b-form-input>
       </b-form-group>
       <br />
       <b-form-group :state="emailState" invalid-feedback="girl@asobi.com">
@@ -32,8 +31,7 @@
           :state="emailState"
           class="m-auto"
           style="max-width:200px"
-        >
-        </b-form-input>
+        ></b-form-input>
       </b-form-group>
       <br />
       <b-form-group :state="passwordState" invalid-feedback="At least 6 letters">
@@ -45,16 +43,13 @@
           :state="passwordState"
           class="m-auto"
           style="max-width:200px"
-        >
-        </b-form-input>
+        ></b-form-input>
       </b-form-group>
       <br />
       <button @click="handleSignup" class="btn btn-primary">Sign up</button>
 
       <div class="text-right m-2">
-        <router-link class="nav-item nav-link" to="/login" style="font-size: 13px"
-          >Back to Login</router-link
-        >
+        <router-link class="nav-item nav-link" to="/login" style="font-size: 13px">Back to Login</router-link>
       </div>
     </form>
     <div style="height: 250px;"></div>
@@ -149,7 +144,7 @@ export default {
         },
         reject => {
           // console.log('isUnique?', reject);
-          this.invalidFeedback = 'Must be unique';
+          this.invalidFeedback = 'This username is taken. Try another.';
           if (reject == 'false') this.usernameState = false;
           return;
         }
