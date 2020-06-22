@@ -5,7 +5,8 @@ import {
   usersCollection,
   allPostsCollection,
   myPostsCollection,
-  likesCollection,
+  myLikesCollection,
+  timelineCollection,
   storage,
 } from '@/firebase';
 import router from '@/router/router';
@@ -193,6 +194,13 @@ const actions = {
                         .collection('userPosts')
                         .doc(newPost.postId);
                       newMyPostRef.set(newPost);
+
+                      // Create a post in timeline
+                      var newTimelineRef = timelineCollection
+                        .doc(firebaseAuth.currentUser.uid)
+                        .collection('timelinePosts')
+                        .doc(newPost.postId);
+                      newTimelineRef.set(newPost);
                     });
                   }
                 );
@@ -215,6 +223,13 @@ const actions = {
           .collection('userPosts')
           .doc(newPost.postId);
         newMyPostRef.set(newPost);
+
+        // Create a post in timeline
+        var newTimelineRef = timelineCollection
+          .doc(firebaseAuth.currentUser.uid)
+          .collection('timelinePosts')
+          .doc(newPost.postId);
+        newTimelineRef.set(newPost);
       }
       // move the page top after posting
       scroll(0, 0);
@@ -235,12 +250,23 @@ const actions = {
         .doc(post.id)
         .delete();
 
-      // delete all posts from likes
+      // delete all posts from myLikes
       usersCollection.get().then(function(querySnapshot) {
         querySnapshot.forEach(function(doc) {
-          likesCollection
+          myLikesCollection
             .doc(doc.id)
-            .collection('myLikes')
+            .collection('userLikes')
+            .doc(post.id)
+            .delete();
+        });
+      });
+
+      // delete all posts from timeline
+      usersCollection.get().then(function(querySnapshot) {
+        querySnapshot.forEach(function(doc) {
+          timelineCollection
+            .doc(doc.id)
+            .collection('timelinePosts')
             .doc(post.id)
             .delete();
         });
@@ -346,14 +372,31 @@ const actions = {
                         imageUrl: downloadURL,
                       });
 
-                      // edit all posts from likes
+                      // edit all posts from myLikes
                       usersCollection.get().then(function(querySnapshot) {
                         querySnapshot.forEach(function(doc) {
-                          const likesRef = likesCollection
+                          const likesRef = myLikesCollection
                             .doc(doc.id)
-                            .collection('myLikes')
+                            .collection('userLikes')
                             .doc(post.postId);
                           likesRef
+                            .update({
+                              text: post.text,
+                              imageUrl: downloadURL,
+                            })
+                            .then(function() {})
+                            .catch(function() {});
+                        });
+                      });
+
+                      // edit all posts from timeline
+                      usersCollection.get().then(function(querySnapshot) {
+                        querySnapshot.forEach(function(doc) {
+                          const timelineRef = timelineCollection
+                            .doc(doc.id)
+                            .collection('timelinePosts')
+                            .doc(post.postId);
+                          timelineRef
                             .update({
                               text: post.text,
                               imageUrl: downloadURL,
@@ -390,19 +433,42 @@ const actions = {
           mediaUrl: post.mediaUrl,
         });
 
-        // edit all posts from likes
+        // edit all posts from myLikes
         usersCollection.get().then(function(querySnapshot) {
           querySnapshot.forEach(function(doc) {
-            likesCollection
+            myLikesCollection
               .doc(doc.id)
-              .collection('myLikes')
+              .collection('userLikes')
               .where('postId', '==', post.postId)
               .get()
               .then(function(querySnapshot2) {
                 querySnapshot2.forEach(function() {
-                  likesCollection
+                  myLikesCollection
                     .doc(doc.id)
-                    .collection('myLikes')
+                    .collection('userLikes')
+                    .doc(post.postId)
+                    .update({
+                      text: post.text,
+                      mediaUrl: post.mediaUrl,
+                    });
+                });
+              });
+          });
+        });
+
+        // edit all posts from timeline
+        usersCollection.get().then(function(querySnapshot) {
+          querySnapshot.forEach(function(doc) {
+            timelineCollection
+              .doc(doc.id)
+              .collection('timelinePosts')
+              .where('postId', '==', post.postId)
+              .get()
+              .then(function(querySnapshot2) {
+                querySnapshot2.forEach(function() {
+                  timelineCollection
+                    .doc(doc.id)
+                    .collection('timelinePosts')
                     .doc(post.postId)
                     .update({
                       text: post.text,
@@ -437,14 +503,24 @@ const actions = {
         likeCount: firebase.firestore.FieldValue.increment(1),
       });
 
-      // add new post in likes
+      // add uid to likes and plus likeCount in timeline
+      var timelineRef = timelineCollection
+        .doc(post.ownerId)
+        .collection('timelinePosts')
+        .doc(post.postId);
+      timelineRef.update({
+        likes: firebase.firestore.FieldValue.arrayUnion(firebaseAuth.currentUser.uid),
+        likeCount: firebase.firestore.FieldValue.increment(1),
+      });
+
+      // myLikes 안에 post 추가
       postRef.get().then(function(doc) {
         if (doc.exists) {
           var postData = doc.data();
 
-          var likesRef = likesCollection
+          var likesRef = myLikesCollection
             .doc(firebaseAuth.currentUser.uid)
-            .collection('myLikes')
+            .collection('userLikes')
             .doc(post.postId);
           likesRef.set(postData);
         } else {
@@ -475,10 +551,20 @@ const actions = {
         likeCount: firebase.firestore.FieldValue.increment(-1),
       });
 
-      // delete the post in likes
-      var likesRef = likesCollection
+      // delete uid to likes and minus likeCount in timeline
+      var timelineRef = timelineCollection
+        .doc(post.ownerId)
+        .collection('timelinePosts')
+        .doc(post.postId);
+      timelineRef.update({
+        likes: firebase.firestore.FieldValue.arrayRemove(firebaseAuth.currentUser.uid),
+        likeCount: firebase.firestore.FieldValue.increment(-1),
+      });
+
+      // myLikes 에서 post 지우기
+      var likesRef = myLikesCollection
         .doc(firebaseAuth.currentUser.uid)
-        .collection('myLikes')
+        .collection('userLikes')
         .doc(post.postId);
       likesRef.delete();
     } catch (error) {
