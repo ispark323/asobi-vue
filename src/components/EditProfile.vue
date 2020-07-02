@@ -36,7 +36,7 @@
                     height="80"
                     rounded="circle"
                   />
-                </div> -->
+                </div>-->
                 <div v-else>
                   <b-avatar src="user-placeholder.jpg" variant="light" size="5em"></b-avatar>
                 </div>
@@ -51,17 +51,21 @@
                 <b-form-file
                   id="imageInput"
                   style="display:none;"
-                  v-model="profile.avatar"
+                  v-model="profile.image"
                   accept="image/*"
                   @change="previewAvatar"
                 ></b-form-file>
-                <b-button style="width: 200px;" variant="primary m-2" @click="editImage"
-                  >Select Photo</b-button
-                >
+                <b-button
+                  style="width: 200px;"
+                  variant="primary m-2"
+                  @click="editImage"
+                >Select Photo</b-button>
               </div>
-              <b-button style="width: 200px;" variant="outline-primary m-2" @click="deleteAvatar"
-                >Remove Current Photo</b-button
-              >
+              <b-button
+                style="width: 200px;"
+                variant="outline-primary m-2"
+                @click="deleteAvatar"
+              >Remove Current Photo</b-button>
               <template v-slot:modal-footer="{ cancel }">
                 <b-button variant="dark" @click="cancel()">Cancel</b-button>
               </template>
@@ -70,22 +74,20 @@
 
           <div class="row m-0 mt-3">
             Username
-            <input class="form-control" v-model="profile.username" :state="usernameState" />
+            <!-- <input class="form-control" v-model="profile.username" :state="usernameState" />   -->
           </div>
-          <!-- <div class="row">
-              <div class="col-sm-3">Username</div>
-              <div class="col-12 col-sm-9">
-                <b-form-group>
-                  <b-form-group invalid-feedback="Enter at least 6 letters">
-                  <b-form-input
-                    id="usernameInput"
-                    v-model="userData.userInfo.username"
-                    :state="usernameState"
-                    placeholder="Enter Username"
-                    class="m-2"
-                  ></b-form-input>
-                </b-form-group>
-          </div>-->
+          <b-form-group :invalid-feedback="invalidFeedback">
+            <b-form-input
+              id="usernameInput"
+              v-model="profile.username"
+              :state="usernameState"
+              placeholder="Enter Username"
+              @keypress="usernameValidation"
+              @input="checkUsername"
+              class="m-a"
+            ></b-form-input>
+          </b-form-group>
+
           <div class="row m-0 mt-1">
             Email
             <input class="form-control" v-model="userData.userInfo.email" disabled />
@@ -113,21 +115,38 @@ export default {
       showSuccess: false,
       profile: {
         username: '',
-        avatar: '',
+        avatar: '', // avatar link
+        image: null, // avatar file
       },
       usernameState: null,
       previewUrl: '',
+      invalidFeedback: '',
     };
   },
   computed: {
     ...mapGetters(['userData']),
   },
   methods: {
-    ...mapActions(['updateProfile']),
+    ...mapActions(['updateProfile', 'isUnique']),
     handleUpdateProfile() {
+      // if nothing is changed, return
+      if (
+        this.profile.username == this.userData.userInfo.username &&
+        this.profile.avatar == this.userData.userInfo.avatar &&
+        this.profile.image == null
+      ) {
+        console.log('Nothing changed');
+        return;
+      }
+
+      if (!this.validateUsername()) {
+        this.usernameState = false;
+        return;
+      }
+      this.usernameState = null;
+
       this.updateProfile(this.profile);
 
-      // this.usernameState = null;
       this.showSuccess = true;
       setTimeout(() => {
         this.showSuccess = false;
@@ -152,11 +171,54 @@ export default {
       imageInput.click();
     },
     deleteAvatar() {
-      this.profile.avatar = null;
+      this.profile.image = null;
+      this.profile.avatar = '';
+      this.previewUrl = '';
 
       this.$nextTick(() => {
         this.$bvModal.hide('changeAvatar');
       });
+    },
+    usernameValidation: function(event) {
+      const regex = new RegExp('^[a-zA-Z0-9]+$');
+      const input = String.fromCharCode(event.keyCode ? event.keyCode : event.which);
+      if (regex.test(input)) {
+        return true;
+      } else {
+        event.preventDefault();
+        this.usernameState = false;
+        setTimeout(() => {
+          this.usernameState = null;
+          this.invalidFeedback = 'Only alphabets and numbers';
+        }, 2000);
+        return false;
+      }
+    },
+    validateUsername: function() {
+      if (this.profile.username.length < 1) {
+        return false;
+      }
+      return true;
+    },
+    checkUsername: function() {
+      if (this.profile.username.length < 1) {
+        this.invalidFeedback = 'Enter at least 1 letter';
+        this.usernameState = false;
+        return;
+      }
+      this.isUnique(this.profile.username).then(
+        response => {
+          // console.log('isUnique?', response);
+          if (response == 'true') this.usernameState = true;
+          return;
+        },
+        reject => {
+          // console.log('isUnique?', reject);
+          this.invalidFeedback = 'This username is taken. Try another.';
+          if (reject == 'false') this.usernameState = false;
+          return;
+        }
+      );
     },
   },
   mounted() {

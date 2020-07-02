@@ -31,12 +31,13 @@
         <router-link v-else class="nav-item nav-link" to="/login">Login/Signup</router-link>
       </div>
     </nav>
+
+    <!-- Create Post -->
     <b-modal
       id="createPost"
-      title="Share your story"
+      title="Create Post"
       @show="showCreatePost"
       @ok="handleCreatePost"
-      centered
       return-focus="null"
     >
       <b-form-radio-group
@@ -46,47 +47,46 @@
         name="posttype"
         invalid-feedback="Please select one"
       ></b-form-radio-group>
-      <div v-if="postType != ''">
-        <b-form-group label="Text:" label-for="text1" invalid-feedback="Text is required">
+      <div v-if="postType == 'image'">
+        <b-form-group label="Text:" label-for="text1" invalid-feedback="Please enter text">
           <b-form-textarea
             id="text1"
             v-model="post.text"
             :state="textState"
-            placeholder="Enter at least 1 letters"
-            rows="5"
+            placeholder="Share your story"
+            rows="3"
             max-rows="10"
             required
           ></b-form-textarea>
         </b-form-group>
-        <div v-if="postType == 'media'">
-          <b-form-group label="Link:" label-for="mediaUrl" invalid-feedback="URL is required">
-            <b-form-textarea
-              id="mediaUrl"
-              v-model="post.mediaUrl"
-              :state="mediaUrlState"
-              placeholder="Enter at least 1 letters"
-              rows="3"
-              max-rows="5"
-              required
-            ></b-form-textarea>
-          </b-form-group>
-        </div>
-        <div v-else-if="postType == 'image'">
-          <b-form-group invalid-feedback="File is required">
-            <b-form-file
-              v-model="post.image"
-              :state="imageState"
-              accept="image/*"
-              placeholder="Choose a file or drop it here..."
-              drop-placeholder="Drop file here..."
-            >
-              <template slot="file-name" slot-scope="{ names }">
-                <b-badge variant="primary">{{ names[0] }}</b-badge>
-              </template>
-            </b-form-file>
-          </b-form-group>
-        </div>
+        <b-form-group invalid-feedback="Image is required">
+          <b-form-file
+            v-model="post.image"
+            :state="imageState"
+            accept="image/*"
+            placeholder="Choose photo or drop it here..."
+            drop-placeholder="Drop file here..."
+          >
+            <template slot="file-name" slot-scope="{ names }">
+              <b-badge variant="primary">{{ names[0] }}</b-badge>
+            </template>
+          </b-form-file>
+        </b-form-group>
       </div>
+      <div v-else-if="postType == 'media'">
+        <b-form-group label="Link:" label-for="mediaUrl" invalid-feedback="Please put YouTube link">
+          <b-form-textarea
+            id="mediaUrl"
+            v-model="post.mediaUrl"
+            :state="mediaUrlState"
+            placeholder="https://"
+            rows="1"
+            max-rows="3"
+            required
+          ></b-form-textarea>
+        </b-form-group>
+      </div>
+
       <!-- Create Post Modal Footer -->
       <template v-slot:modal-footer="{ cancel }">
         <b-button variant="dark" @click="cancel()">Cancel</b-button>
@@ -135,6 +135,7 @@ export default {
     },
     showCreatePost() {
       this.post.text = '';
+      this.post.image = null;
       this.post.mediaUrl = '';
       this.textState = null;
       this.mediaUrlState = null;
@@ -150,26 +151,34 @@ export default {
         this.postTypeState = false;
         return;
       } else this.postTypeState = null;
-      if (this.post.text.length < 1) {
+
+      if (this.postType == 'image' && this.post.text.length < 1) {
         this.textState = false;
         return;
       } else this.textState = true;
-      if (this.postType == 'media' && this.post.mediaUrl.length < 1) {
-        this.mediaUrlState = false;
-        return;
-      } else this.mediaUrlState = true;
+
       if (this.postType == 'image' && this.post.image == null) {
         this.imageState = false;
         return;
       } else this.imageState = true;
 
-      let url = this.post.mediaUrl;
-      if (url.match('youtu.be')) {
-        url = url.replace('youtu.be', 'youtube.com/embed');
-      } else if (url.match('watch')) {
-        url = url.replace('watch?v=', 'embed/');
+      if (this.postType == 'media' && this.post.mediaUrl.length < 1) {
+        this.mediaUrlState = false;
+        return;
+      } else this.mediaUrlState = true;
+
+      if (this.postType == 'media') {
+        let url = this.post.mediaUrl;
+        if (url.includes('https://youtu.be/')) {
+          url = url.replace('youtu.be', 'youtube.com/embed');
+        } else if (url.includes('https://www.youtube.com/watch?v')) {
+          url = url.replace('watch?v=', 'embed/');
+        } else if (!url.includes('https://www.youtube.com/embed/')) {
+          this.mediaUrlState = false;
+          return;
+        }
+        this.post.mediaUrl = url;
       }
-      this.post.mediaUrl = url;
 
       this.post.ownerId = this.userData.userInfo.uid;
       this.post.username = this.userData.userInfo.username;

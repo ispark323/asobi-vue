@@ -24,7 +24,7 @@ const allPostsCollection = db.collection('allPosts');
 const myPostsCollection = db.collection('myPosts');
 const timelineCollection = db.collection('timeline');
 const commentsCollection = db.collection('comments');
-const likesCollection = db.collection('likes');
+const myLikesCollection = db.collection('myLikes');
 
 // firebase storage
 const storage = firebase.storage();
@@ -39,6 +39,6 @@ export {
   myPostsCollection,
   timelineCollection,
   commentsCollection,
-  likesCollection,
+  myLikesCollection,
   storage,
 };

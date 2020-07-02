@@ -84,6 +84,27 @@
     border: 0;
     width: 200px;
   }
+  .privacy {
+    right: 10px;
+    position: absolute;
+  }
+  .lazyimage {
+    min-height: 300px;
+  }
+
+  .minw-none {
+    min-width: 0 !important;
+  }
+
+  footer {
+    position: relative;
+    max-width: 600px;
+    height: 200px;
+
+    #scroll-trigger {
+      height: 100px;
+    }
+  }
 }
 
 #editprofile {

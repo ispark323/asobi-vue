@@ -5,7 +5,8 @@ import {
   usersCollection,
   allPostsCollection,
   myPostsCollection,
-  likesCollection,
+  myLikesCollection,
+  timelineCollection,
   storage,
 } from '@/firebase';
 import router from '@/router/router';
@@ -110,52 +111,107 @@ const actions = {
 
       // in case of image upload
       if (post.image != null) {
-        // console.log('=== photo ===');
+        console.log('=== photo ===');
 
-        // Create a post in allPosts
-        var newPostRef = await allPostsCollection.doc();
-        newPost.postId = newPostRef.id;
-        var uploadTask = storage.ref('posts/' + newPost.postId).put(post.image);
+        const reader = new FileReader();
+        reader.readAsDataURL(post.image);
+        reader.onload = function(e) {
+          let image = new Image();
+          image.src = e.target.result;
+          image.onload = function() {
+            let width = this.width;
+            let height = this.height;
+            const max_width = 680;
+            // const max_height = 680;
 
-        // Listen for state changes, errors, and completion of the upload.
-        uploadTask.on(
-          'state_changed',
-          function(snapshot) {
-            switch (snapshot.state) {
-              case 'paused': //storage.TaskState.PAUSED: // or 'paused'
-                break;
-              case 'running': //storage.TaskState.RUNNING: // or 'running'
-                break;
+            // if image is bigger than width 680, resize the image
+            // if (width > max_width || height > max_height) {
+
+            // calculate the width and height, constraining the proportions
+            // if (width > height) {
+            if (width > max_width) {
+              height = Math.round((height *= max_width / width));
+              width = max_width;
             }
-          },
-          function(error) {
-            switch (error.code) {
-              case 'storage/unauthorized':
-                break;
-              case 'storage/canceled':
-                break;
-              case 'storage/unknown':
-                break;
-            }
-          },
-          function() {
-            // Upload completed successfully, now we can get the download URL
-            uploadTask.snapshot.ref.getDownloadURL().then(function(downloadURL) {
-              // Set the post in allPost
-              newPost.imageUrl = downloadURL;
-              newPostRef.set(newPost);
+            // } else {
+            //   if (height > max_height) {
+            //     width = Math.round((width *= max_height / height));
+            //     height = max_height;
+            //   }
+            // }
 
-              // Create a post in myPosts
-              var newMyPostRef = myPostsCollection
-                .doc(firebaseAuth.currentUser.uid)
-                .collection('userPosts')
-                .doc(newPost.postId);
-              newMyPostRef.set(newPost);
-            });
-          }
-        );
+            let canvas = document.createElement('canvas');
+
+            // resize the canvas and draw the image data into it
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(image, 0, 0, width, height);
+
+            ctx.canvas.toBlob(
+              function(blob) {
+                const file = new File([blob], 'filenamewillbepostid', {
+                  type: 'image/jpeg',
+                  lastModified: Date.now(),
+                }); //output image as a file, No support on IE
+                //console.log('file ======', file);
+
+                // Create a post in allPosts
+                const newPostRef = allPostsCollection.doc();
+                newPost.postId = newPostRef.id;
+                const uploadTask = storage.ref('posts/' + newPost.postId).put(file);
+
+                // Listen for state changes, errors, and completion of the upload.
+                uploadTask.on(
+                  'state_changed',
+                  function(snapshot) {
+                    switch (snapshot.state) {
+                      case 'paused': //storage.TaskState.PAUSED: // or 'paused'
+                        break;
+                      case 'running': //storage.TaskState.RUNNING: // or 'running'
+                        break;
+                    }
+                  },
+                  function(error) {
+                    switch (error.code) {
+                      case 'storage/unauthorized':
+                        break;
+                      case 'storage/canceled':
+                        break;
+                      case 'storage/unknown':
+                        break;
+                    }
+                  },
+                  function() {
+                    // Upload completed successfully, now we can get the download URL
+                    uploadTask.snapshot.ref.getDownloadURL().then(function(downloadURL) {
+                      newPost.imageUrl = downloadURL;
+                      newPostRef.set(newPost);
+
+                      // Create a post in myPosts
+                      var newMyPostRef = myPostsCollection
+                        .doc(firebaseAuth.currentUser.uid)
+                        .collection('userPosts')
+                        .doc(newPost.postId);
+                      newMyPostRef.set(newPost);
+
+                      // Create a post in timeline
+                      var newTimelineRef = timelineCollection
+                        .doc(firebaseAuth.currentUser.uid)
+                        .collection('timelinePosts')
+                        .doc(newPost.postId);
+                      newTimelineRef.set(newPost);
+                    });
+                  }
+                );
+              },
+              'image/jpeg',
+              0.9
+            );
+          };
+        };
       } else {
-        // console.log('=== youtube ===');
+        console.log('=== youtube ===');
         // Create a post in allPosts
         var newPostRef2 = await allPostsCollection.doc();
         newPost.postId = newPostRef2.id;
@@ -167,6 +223,13 @@ const actions = {
           .collection('userPosts')
           .doc(newPost.postId);
         newMyPostRef.set(newPost);
+
+        // Create a post in timeline
+        var newTimelineRef = timelineCollection
+          .doc(firebaseAuth.currentUser.uid)
+          .collection('timelinePosts')
+          .doc(newPost.postId);
+        newTimelineRef.set(newPost);
       }
       // move the page top after posting
       scroll(0, 0);
@@ -187,20 +250,33 @@ const actions = {
         .doc(post.id)
         .delete();
 
-      // delete all posts from likes
+      // delete all posts from myLikes
       usersCollection.get().then(function(querySnapshot) {
         querySnapshot.forEach(function(doc) {
-          likesCollection
+          myLikesCollection
             .doc(doc.id)
-            .collection('myLikes')
+            .collection('userLikes')
+            .doc(post.id)
+            .delete();
+        });
+      });
+
+      // delete all posts from timeline
+      usersCollection.get().then(function(querySnapshot) {
+        querySnapshot.forEach(function(doc) {
+          timelineCollection
+            .doc(doc.id)
+            .collection('timelinePosts')
             .doc(post.id)
             .delete();
         });
       });
 
       // delete image from storage
-      var imageRef = storage.ref('posts/' + post.id);
-      imageRef.delete();
+      if (post.postType == 'image') {
+        var imageRef = storage.ref('posts/' + post.id);
+        imageRef.delete();
+      }
     } catch (error) {
       console.log(error);
       alert(error);
@@ -210,68 +286,134 @@ const actions = {
     try {
       // in case image is changed
       if (post.image != null) {
-        var uploadTask = storage.ref('posts/' + post.postId).put(post.image);
+        const reader = new FileReader();
+        reader.readAsDataURL(post.image);
+        reader.onload = function(e) {
+          let image = new Image();
+          image.src = e.target.result;
+          image.onload = function() {
+            let width = this.width;
+            let height = this.height;
+            const max_width = 680;
+            // const max_height = 680;
 
-        // Listen for state changes, errors, and completion of the upload.
-        uploadTask.on(
-          'state_changed',
-          function(snapshot) {
-            switch (snapshot.state) {
-              case 'paused': //storage.TaskState.PAUSED: // or 'paused'
-                break;
-              case 'running': //storage.TaskState.RUNNING: // or 'running'
-                break;
+            // if image is bigger than width 680, resize the image
+            // if (width > max_width || height > max_height) {
+
+            // calculate the width and height, constraining the proportions
+            // if (width > height) {
+            if (width > max_width) {
+              height = Math.round((height *= max_width / width));
+              width = max_width;
             }
-          },
-          function(error) {
-            switch (error.code) {
-              case 'storage/unauthorized':
-                break;
-              case 'storage/canceled':
-                break;
-              case 'storage/unknown':
-                break;
-            }
-          },
-          function() {
-            // Upload completed successfully, now we can get the download URL
-            uploadTask.snapshot.ref.getDownloadURL().then(function(downloadURL) {
-              // edit the post from allPosts
-              const postRef = allPostsCollection.doc(post.postId);
-              postRef.update({
-                text: post.text,
-                imageUrl: downloadURL,
-              });
+            // } else {
+            //   if (height > max_height) {
+            //     width = Math.round((width *= max_height / height));
+            //     height = max_height;
+            //   }
+            // }
 
-              // edit the post from myPosts
-              const myPostRef = myPostsCollection
-                .doc(post.ownerId)
-                .collection('userPosts')
-                .doc(post.postId);
-              myPostRef.update({
-                text: post.text,
-                imageUrl: downloadURL,
-              });
+            let canvas = document.createElement('canvas');
 
-              // edit all posts from likes
-              usersCollection.get().then(function(querySnapshot) {
-                querySnapshot.forEach(function(doc) {
-                  const likesRef = likesCollection
-                    .doc(doc.id)
-                    .collection('myLikes')
-                    .doc(post.postId);
-                  likesRef
-                    .update({
-                      text: post.text,
-                      imageUrl: downloadURL,
-                    })
-                    .then(function() {})
-                    .catch(function() {});
-                });
-              });
-            });
-          }
-        );
+            // resize the canvas and draw the image data into it
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(image, 0, 0, width, height);
+
+            ctx.canvas.toBlob(
+              function(blob) {
+                const file = new File([blob], 'filenamewillbepostid', {
+                  type: 'image/jpeg',
+                  lastModified: Date.now(),
+                }); //output image as a file, No support on IE
+                //console.log('file ======', file);
+
+                var uploadTask = storage.ref('posts/' + post.postId).put(file);
+
+                // Listen for state changes, errors, and completion of the upload.
+                uploadTask.on(
+                  'state_changed',
+                  function(snapshot) {
+                    switch (snapshot.state) {
+                      case 'paused': //storage.TaskState.PAUSED: // or 'paused'
+                        break;
+                      case 'running': //storage.TaskState.RUNNING: // or 'running'
+                        break;
+                    }
+                  },
+                  function(error) {
+                    switch (error.code) {
+                      case 'storage/unauthorized':
+                        break;
+                      case 'storage/canceled':
+                        break;
+                      case 'storage/unknown':
+                        break;
+                    }
+                  },
+                  function() {
+                    // Upload completed successfully, now we can get the download URL
+                    uploadTask.snapshot.ref.getDownloadURL().then(function(downloadURL) {
+                      // edit the post from allPosts
+                      const postRef = allPostsCollection.doc(post.postId);
+                      postRef.update({
+                        text: post.text,
+                        imageUrl: downloadURL,
+                      });
+
+                      // edit the post from myPosts
+                      const myPostRef = myPostsCollection
+                        .doc(post.ownerId)
+                        .collection('userPosts')
+                        .doc(post.postId);
+                      myPostRef.update({
+                        text: post.text,
+                        imageUrl: downloadURL,
+                      });
+
+                      // edit all posts from myLikes
+                      usersCollection.get().then(function(querySnapshot) {
+                        querySnapshot.forEach(function(doc) {
+                          const likesRef = myLikesCollection
+                            .doc(doc.id)
+                            .collection('userLikes')
+                            .doc(post.postId);
+                          likesRef
+                            .update({
+                              text: post.text,
+                              imageUrl: downloadURL,
+                            })
+                            .then(function() {})
+                            .catch(function() {});
+                        });
+                      });
+
+                      // edit all posts from timeline
+                      usersCollection.get().then(function(querySnapshot) {
+                        querySnapshot.forEach(function(doc) {
+                          const timelineRef = timelineCollection
+                            .doc(doc.id)
+                            .collection('timelinePosts')
+                            .doc(post.postId);
+                          timelineRef
+                            .update({
+                              text: post.text,
+                              imageUrl: downloadURL,
+                            })
+                            .then(function() {})
+                            .catch(function() {});
+                        });
+                      });
+                    });
+                  }
+                );
+              },
+              'image/jpeg',
+              0.9
+            );
+          };
+        };
       } else {
         // in case image is not changed
         // edit the post from allPosts
@@ -291,19 +433,42 @@ const actions = {
           mediaUrl: post.mediaUrl,
         });
 
-        // edit all posts from likes
+        // edit all posts from myLikes
         usersCollection.get().then(function(querySnapshot) {
           querySnapshot.forEach(function(doc) {
-            likesCollection
+            myLikesCollection
               .doc(doc.id)
-              .collection('myLikes')
+              .collection('userLikes')
               .where('postId', '==', post.postId)
               .get()
               .then(function(querySnapshot2) {
                 querySnapshot2.forEach(function() {
-                  likesCollection
+                  myLikesCollection
                     .doc(doc.id)
-                    .collection('myLikes')
+                    .collection('userLikes')
+                    .doc(post.postId)
+                    .update({
+                      text: post.text,
+                      mediaUrl: post.mediaUrl,
+                    });
+                });
+              });
+          });
+        });
+
+        // edit all posts from timeline
+        usersCollection.get().then(function(querySnapshot) {
+          querySnapshot.forEach(function(doc) {
+            timelineCollection
+              .doc(doc.id)
+              .collection('timelinePosts')
+              .where('postId', '==', post.postId)
+              .get()
+              .then(function(querySnapshot2) {
+                querySnapshot2.forEach(function() {
+                  timelineCollection
+                    .doc(doc.id)
+                    .collection('timelinePosts')
                     .doc(post.postId)
                     .update({
                       text: post.text,
@@ -338,14 +503,24 @@ const actions = {
         likeCount: firebase.firestore.FieldValue.increment(1),
       });
 
-      // add new post in likes
+      // add uid to likes and plus likeCount in timeline
+      var timelineRef = timelineCollection
+        .doc(post.ownerId)
+        .collection('timelinePosts')
+        .doc(post.postId);
+      timelineRef.update({
+        likes: firebase.firestore.FieldValue.arrayUnion(firebaseAuth.currentUser.uid),
+        likeCount: firebase.firestore.FieldValue.increment(1),
+      });
+
+      // myLikes 안에 post 추가
       postRef.get().then(function(doc) {
         if (doc.exists) {
           var postData = doc.data();
 
-          var likesRef = likesCollection
+          var likesRef = myLikesCollection
             .doc(firebaseAuth.currentUser.uid)
-            .collection('myLikes')
+            .collection('userLikes')
             .doc(post.postId);
           likesRef.set(postData);
         } else {
@@ -376,10 +551,20 @@ const actions = {
         likeCount: firebase.firestore.FieldValue.increment(-1),
       });
 
-      // delete the post in likes
-      var likesRef = likesCollection
+      // delete uid to likes and minus likeCount in timeline
+      var timelineRef = timelineCollection
+        .doc(post.ownerId)
+        .collection('timelinePosts')
+        .doc(post.postId);
+      timelineRef.update({
+        likes: firebase.firestore.FieldValue.arrayRemove(firebaseAuth.currentUser.uid),
+        likeCount: firebase.firestore.FieldValue.increment(-1),
+      });
+
+      // myLikes 에서 post 지우기
+      var likesRef = myLikesCollection
         .doc(firebaseAuth.currentUser.uid)
-        .collection('myLikes')
+        .collection('userLikes')
         .doc(post.postId);
       likesRef.delete();
     } catch (error) {
