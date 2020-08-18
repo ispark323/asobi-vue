@@ -1,9 +1,7 @@
 <template>
   <div id="navigation">
     <nav class="navbar navbar-expand fixed-top bg-white">
-      <router-link class="navbar-brand" to="/feed">
-        <img src="asobi-beta.png" width="83" height="28" alt />
-      </router-link>
+      <router-link class="navbar-brand" to="/feed">asobi</router-link>
       <div class="navbar-nav ml-auto">
         <div v-if="isLoggedIn" class="horizontal">
           <router-link to="/feed" class="nav-item nav-link mr-1">
