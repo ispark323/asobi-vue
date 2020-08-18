@@ -5,8 +5,8 @@
     class="text-center"
   >
     <br />
-    <div class="title m-1">Share your photos of</div>
-    <div class="title m-1">#MakeupAddiction</div>
+    <div class="title m-1">Share your photos and</div>
+    <div class="title m-1">YouTube videos you like</div>
     <!-- Login Form -->
     <form v-if="showLoginForm" @submit.prevent>
       <input v-model="email" type="text" placeholder="Email" id="email1" />
